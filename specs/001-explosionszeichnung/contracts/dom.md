@@ -1,0 +1,39 @@
+# Vertrag: DOM-Schnittstelle zwischen Markup, Choreografie, Szene und Tests
+
+Diese Hooks sind eine Schnittstelle. Umbenennen nur zusammen mit dem lesenden Code und den Tests.
+
+## Markup → Choreografie
+
+| Hook | Wo | Bedeutung |
+|---|---|---|
+| `<section id="…" data-part="P-0x">` | `src/sections/*.html` | Abschnitt, gehört zu Teil P-0x; `id` = Anker aus `parts.json` `section` |
+| `[data-step]` | in `#projekte` | ein Projekt-Schritt; Reihenfolge = Reihenfolge auf dem Display |
+| `#hero` | Hero | Pin-Bereich für Aufklappen + Explosion |
+| `#bom` | Stückliste | Tabelle, Zeilen `tr[data-part]` mit Link auf den Abschnitt |
+| `#outro` | Seitenende | Bereich, in dem sich der Laptop zusammensetzt |
+
+## Szene / Overlay
+
+| Hook | Bedeutung |
+|---|---|
+| `#scene` | Container des Canvas, `aria-hidden="true"`, `position: fixed` |
+| `#scene-fallback` | `<picture>` mit Standbild, sichtbar wenn `html.no-webgl` oder `html.reduced` |
+| `#labels` | Overlay, `aria-hidden="true"`; darin `.label[data-part]` (Text aus dem Markup geklont) und ein `<svg>` für die Linien |
+| `html.js` / `html.no-webgl` / `html.reduced` | Zustandsklassen, gesetzt vor dem ersten Paint durch ein Inline-Skript im `<head>` |
+
+## Seiten-Parameter (nur für Tests/Tools)
+
+| Parameter | Wirkung |
+|---|---|
+| `?still` | kein Lenis, keine Timeline; Szene fest auf `explode = 1`, alle Labels sichtbar, transparenter Hintergrund → Quelle für `public/img/explosion-still.webp` |
+| `?state=<json>` | setzt `sceneState` direkt (z. B. `{"explode":0.5}`), für Screenshots einzelner Zustände |
+
+## Test-Hook
+
+`window.__v2` (nur wenn `import.meta.env.DEV` oder `?still`/`?state` gesetzt):
+`{ ready: Promise<void>, state: SceneState, fps(): number }`. `tools/shot.mjs` wartet auf `ready`.
+
+## Sprachen
+
+`<html lang="de|en">`, `<link rel="alternate" hreflang>` auf beide Seiten. Der Sprachumschalter
+`a[data-lang-switch]` hängt beim Klick den aktuellen Abschnitts-Anker an (`#projekte` …).
