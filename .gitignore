@@ -4,3 +4,8 @@ dist/
 
 # ASUS-Produktfotos, nur lokale Modellier-Vorlage
 docs/referenz/
+
+# Generierte/lokale Build- und Testausgaben
+index.html
+en/
+test-results/

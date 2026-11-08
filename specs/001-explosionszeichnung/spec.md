@@ -55,7 +55,13 @@ ohne Anleitung, in unter 30 Sekunden ab Laden.
    Teilenummer und Beschriftungslinie, und eine Stückliste (Nr., Teil, Abschnitt) füllt sich.
 4. **Given** der Projekt-Abschnitt (P-01) ist erreicht, **When** weitergescrollt wird, **Then** wechselt
    pro Schritt ein Projekt. Screenshot auf dem Display, daneben ein Datenblatt mit Name, Stack, Beschreibung
-   und Link. Gezeigt werden 6 Projekte.
+   und Link. So werden die 6 Hauptprojekte gezeigt.
+6. **Given** die 6 Hauptprojekte sind durch, **When** weitergescrollt wird, **Then** folgt ein nicht
+   gepinntes, kompaktes Projektverzeichnis („Weitere Projekte“, im Stil einer Stückliste) mit den übrigen
+   7 Projekten aus v1: je eine Zeile mit Name, Stack, Kurzbeschreibung und Link. Fokus oder Hover auf einer
+   Zeile zeigt den Screenshot auf dem Display, ohne dass dafür gescrollt werden muss.
+7. **Given** der Projekt-Abschnitt beginnt, **Then** gibt es einen sichtbaren Link „Projekte überspringen“,
+   und jedes Hauptprojekt ist auch direkt aus dem Verzeichnis erreichbar.
 5. **Given** ein Projekt-Datenblatt ist sichtbar, **When** der Link aktiviert wird, **Then** öffnet sich
    das Repo bzw. die Live-Demo in einem neuen Tab.
 
@@ -154,8 +160,11 @@ bei 390 px Breite öffnen. Alle Inhalte sind lesbar und alle Links bedienbar.
   bekommen. Eine Stückliste MUSS alle Teile mit Abschnitt auflisten und zu den Abschnitten verlinken.
 - **FR-005**: Die Abschnitte MÜSSEN der Zuordnung in der Tabelle im Überblick folgen (P-01 Projekte,
   P-02 Skills, P-03 Über mich, P-04 Lebenslauf, P-05 Kontakt).
-- **FR-006**: Der Projekt-Abschnitt MUSS 6 Projekte zeigen: gen_Ut, fretlearn, Weitland, NSCS-Lernseite,
-  OnlineIDE, DrawingTool. Jedes hat Name, Stack, Beschreibung (de/en), Screenshot und Link.
+- **FR-006**: Der Projekt-Abschnitt MUSS **alle 13 Projekte aus v1** zeigen, ohne die Scroll-Strecke
+  aufzublähen: 6 Hauptprojekte als gepinnte Schritte (gen_Ut, fretlearn, Weitland, NSCS-Lernseite,
+  OnlineIDE, DrawingTool), die übrigen 7 (JDBC-TicketSystem, SpringWeatherWebsite, SwingShooter2D,
+  Arkanoid, Sudoku, Store, rest_api_project) als kompaktes, nicht gepinntes Verzeichnis darunter.
+  Ein Link „Projekte überspringen“ führt zu P-02. Jedes Projekt hat Name, Stack, Beschreibung (de/en), Screenshot und Link.
 - **FR-007**: Lebenslauf MUSS je Sprache als PDF ansehbar und herunterladbar sein.
 - **FR-008**: Alle Inhalte MÜSSEN als HTML im Dokument stehen und ohne WebGL/JavaScript lesbar sein.
   Die 3D-Szene ist für Screenreader ausgeblendet.
@@ -203,7 +212,10 @@ bei 390 px Breite öffnen. Alle Inhalte sind lesbar und alle Links bedienbar.
 
 - Inhalte (Texte, Projektbeschreibungen, Screenshots, Lebensläufe) werden aus v1 übernommen und nur
   gekürzt. Neue persönliche Angaben gibt es nur nach Rücksprache.
-- Weitland und NSCS-Lernseite haben in v1 Live-Demos. Ihr Link geht auf die Demo, bei den anderen aufs Repo.
+- Projekte mit Live-Demo in v1 (`demos.json`: fretlearn, Weitland, NSCS, OnlineIDE, DrawingTool, Arkanoid,
+  Sudoku) verlinken zuerst auf die Demo, das Repo steht als zweiter Link daneben, falls vorhanden.
+- v1 (`~/Projects/portfolio`) wird nur gelesen und nie verändert. Texte aus v1 dürfen für v2 gekürzt werden,
+  aber inhaltlich nichts Neues dazubekommen.
 - Das Innenleben (Mainboard-, Akku- und Lüfter-Lage) ist stilisiert nach dem typischen Aufbau dieser
   Geräteklasse, weil es keine Teardown-Fotos vom S5506MA gibt. Eigene Fotos von der Unterseite sind optional.
 - Gehäusefarbe: Rustams Gerät ist **Neutral Black**. Das Modell bekommt ein dunkles, mattes Anthrazit als Gehäuseton, das sich vom Papier abhebt.

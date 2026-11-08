@@ -7,7 +7,10 @@ Diese Hooks sind eine Schnittstelle. Umbenennen nur zusammen mit dem lesenden Co
 | Hook | Wo | Bedeutung |
 |---|---|---|
 | `<section id="…" data-part="P-0x">` | `src/sections/*.html` | Abschnitt, gehört zu Teil P-0x; `id` = Anker aus `parts.json` `section` |
-| `[data-step]` | in `#projekte` | ein Projekt-Schritt; Reihenfolge = Reihenfolge auf dem Display |
+| `[data-step]` | in `#projekte` | ein Hauptprojekt-Schritt (6); Reihenfolge = Reihenfolge auf dem Display |
+| `#projekte-alle` | in `#projekte` | nicht gepinntes Verzeichnis der übrigen Projekte, Zeilen `[data-project]` |
+| `[data-project]` | in `#projekte-alle` | Projektzeile; Fokus/Hover setzt `screen` auf dieses Projekt (nur mit 3D) |
+| `a[data-skip="projekte"]` | Anfang von `#projekte` | „Projekte überspringen“ → `#skills` |
 | `#hero` | Hero | Pin-Bereich für Aufklappen + Explosion |
 | `#bom` | Stückliste | Tabelle, Zeilen `tr[data-part]` mit Link auf den Abschnitt |
 | `#outro` | Seitenende | Bereich, in dem sich der Laptop zusammensetzt |

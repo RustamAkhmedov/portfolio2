@@ -1,0 +1,148 @@
+[
+  {
+    "name": "gen_Ut",
+    "stack": "Python · Claude · Gemini · Ollama",
+    "desc": {
+      "de": "Macht aus Fotos und Mitschriften interaktive Offline-Lernseiten. Rechnungen, SQL und Subnetze werden nachgeprüft, bevor sie auf der Seite landen.",
+      "en": "Turns photos of class notes into interactive offline study pages. Maths, SQL and subnetting results are checked before they reach the page."
+    },
+    "thumb": "img/projects/genut.webp",
+    "repo": "https://github.com/RustamAkhmedov/genut",
+    "featured": true
+  },
+  {
+    "name": "fretlearn",
+    "stack": "JavaScript · PWA · Web Audio",
+    "desc": {
+      "de": "Lern-App für die Töne auf dem Gitarren-Griffbrett, mit Lernpfad und Übungsmodi. Offline nutzbar, komplett mit KI gebaut.",
+      "en": "Learning app for the notes on a guitar fretboard, with a learning path and practice modes. Works offline, built entirely with AI."
+    },
+    "thumb": "img/projects/fretlearn.webp",
+    "repo": "https://github.com/RustamAkhmedov/fretlearn",
+    "demo": "https://rustamakhmedov.github.io/fretlearn/",
+    "featured": true
+  },
+  {
+    "name": "Weitland",
+    "stack": "JavaScript",
+    "desc": {
+      "de": "Browser-Spiel, direkt im Browser spielbar.",
+      "en": "Browser game, playable right in the browser."
+    },
+    "thumb": "img/projects/weitland.webp",
+    "demo": "https://rustamakhmedov.github.io/weitland/",
+    "featured": true
+  },
+  {
+    "name": "NSCS",
+    "stack": "JavaScript",
+    "desc": {
+      "de": "Lernseite, direkt im Browser nutzbar.",
+      "en": "Study page, usable right in the browser."
+    },
+    "thumb": "img/projects/nscs.webp",
+    "demo": "https://rustamakhmedov.github.io/nscs/",
+    "featured": true
+  },
+  {
+    "name": "OnlineIDE",
+    "stack": "JavaScript · Judge0 · json-server",
+    "desc": {
+      "de": "Browserbasierte IDE mit Code-Ausführung über die Judge0-API und json-server-Backend.",
+      "en": "Browser-based IDE with code execution via the Judge0 API and json-server backend."
+    },
+    "thumb": "img/projects/onlineide.webp",
+    "repo": "https://github.com/RustamAkhmedov/OnlineIDE",
+    "demo": "https://rustamakhmedov.github.io/OnlineIDE/",
+    "featured": true
+  },
+  {
+    "name": "DrawingTool",
+    "stack": "C++ · raylib",
+    "desc": {
+      "de": "Zeichen-Tool mit Raylib, geschrieben in C++.",
+      "en": "Drawing tool built with Raylib, written in C++."
+    },
+    "thumb": "img/projects/drawingtool.webp",
+    "repo": "https://github.com/RustamAkhmedov/DrawingTool",
+    "featured": true
+  },
+  {
+    "name": "JDBC-TicketSystem",
+    "stack": "Java · Spring · JDBC",
+    "desc": {
+      "de": "Ticket-WebApp mit Spring und JDBC.",
+      "en": "Ticket WebApp built with Spring and JDBC."
+    },
+    "thumb": "img/projects/jdbc-ticketsystem.webp",
+    "repo": "https://github.com/RustamAkhmedov/JDBC-TicketSystem",
+    "featured": false
+  },
+  {
+    "name": "SpringWeatherWebsite",
+    "stack": "Java · Spring · OpenWeatherAPI",
+    "desc": {
+      "de": "Wetter-Website mit Spring und der OpenWeatherAPI.",
+      "en": "Weather website built with Spring and the OpenWeather API."
+    },
+    "thumb": "img/projects/weatherapp.webp",
+    "repo": "https://github.com/RustamAkhmedov/SpringWeatherWebsite",
+    "featured": false
+  },
+  {
+    "name": "SwingShooter2D",
+    "stack": "Java · Swing",
+    "desc": {
+      "de": "2D-Shooter-Spiel mit Java Swing.",
+      "en": "2D shooter game built with Java Swing."
+    },
+    "thumb": "img/projects/swing-shootergame.webp",
+    "repo": "https://github.com/RustamAkhmedov/SwingShooter2D",
+    "featured": false
+  },
+  {
+    "name": "Arkanoid",
+    "stack": "Python · Pygame",
+    "desc": {
+      "de": "Klassisches Arkanoid-Spiel mit Pygame.",
+      "en": "Classic Arkanoid game built with Pygame."
+    },
+    "thumb": "img/projects/arkanoid.webp",
+    "repo": "https://github.com/RustamAkhmedov/Arkanoid",
+    "featured": false
+  },
+  {
+    "name": "Sudoku",
+    "stack": "JavaScript · React",
+    "desc": {
+      "de": "Sudoku-Spiel im Browser, gebaut mit React.",
+      "en": "Sudoku game for the browser, built with React."
+    },
+    "thumb": "img/projects/sudoku.webp",
+    "repo": "https://github.com/RustamAkhmedov/Sudoku",
+    "demo": "https://rustamakhmedov.github.io/Sudoku/",
+    "featured": false
+  },
+  {
+    "name": "Store",
+    "stack": "Python · Django",
+    "desc": {
+      "de": "Online-Shop als Web-App mit Django.",
+      "en": "Store web app built with Django."
+    },
+    "thumb": "img/projects/store.webp",
+    "repo": "https://github.com/RustamAkhmedov/Store",
+    "featured": false
+  },
+  {
+    "name": "rest_api_project",
+    "stack": "Python · Django REST Framework",
+    "desc": {
+      "de": "REST-API für Beiträge und Kategorien mit Django REST Framework, Token-Login (Djoser), Filtern und Seitenaufteilung.",
+      "en": "REST API for posts and categories with Django REST Framework, token login (Djoser), filtering and pagination."
+    },
+    "thumb": "img/projects/rest-api.webp",
+    "repo": "https://github.com/RustamAkhmedov/rest_api_project",
+    "featured": false
+  }
+]

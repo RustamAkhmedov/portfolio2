@@ -1,0 +1,94 @@
+{
+  "title": {
+    "de": "Rustam Akhmedov – Portfolio",
+    "en": "Rustam Akhmedov – Portfolio"
+  },
+  "heroTitle": {
+    "de": "Platzhalter",
+    "en": "Placeholder"
+  },
+  "meta.title": {
+    "de": "Rustam — Portfolio",
+    "en": "Rustam — Portfolio"
+  },
+  "meta.description": {
+    "de": "Ich baue Dinge, die von dem Terminal bis zum Browser-Tab reichen — von Pythonscripts zur Automatisierung bis zu Webapps mit eigener Backend-Logik.",
+    "en": "I build things that range from the terminal to the browser tab — from Python scripts for automation to web apps with custom backend logic."
+  },
+  "meta.ogImageAlt": {
+    "de": "rustam.os — Portfolio von Rustam Akhmedov",
+    "en": "rustam.os — portfolio of Rustam Akhmedov"
+  },
+  "cv.file": {
+    "de": "cv/lebenslauf.pdf",
+    "en": "cv/resume.pdf"
+  },
+  "cv.downloadName": {
+    "de": "Rustam_Lebenslauf.pdf",
+    "en": "Rustam_Resume.pdf"
+  },
+  "about.photoAlt": {
+    "de": "Porträtfoto von Rustam Akhmedov",
+    "en": "Portrait photo of Rustam Akhmedov"
+  },
+  "about.title": {
+    "de": "Hi, ich bin Rustam.",
+    "en": "Hi, I'm Rustam."
+  },
+  "about.text1": {
+    "de": "Ich baue Dinge, die von dem <span class=\"hl\">Terminal bis zum Browser-Tab</span> reichen — von Pythonscripts zur Automatisierung bis zu Webapps mit eigener Backend-Logik.",
+    "en": "I build things that range from the <span class=\"hl\">terminal to the browser tab</span> — from Python scripts for automation to web apps with custom backend logic."
+  },
+  "about.text2": {
+    "de": "Nebenbei würde ich gerne praktische Erfahrungen in Sommerpraktiken sammeln und ziele langfristig auf eine Laufbahn im <span class=\"hl\">Software-Engineering-, DevOps-, IT-Security- oder KI-Bereich.</span>",
+    "en": "Additionally, I am looking to gain practical experience through summer internships and aim for a long-term career in the <span class=\"hl\">Software Engineering, DevOps, IT Security, or AI fields.</span>"
+  },
+  "skills": [
+    "C++",
+    "Python",
+    "JavaScript",
+    "SQL",
+    "Java",
+    "IT-Security"
+  ],
+  "contact.title": {
+    "de": "Lass uns reden.",
+    "en": "Let's talk."
+  },
+  "contact.text": {
+    "de": "Offen für Praktika, Projekte und alles rund um IT-Security & Development.",
+    "en": "Open for internships, projects, and everything related to IT security & development."
+  },
+  "contact.email": {
+    "de": "E-Mail",
+    "en": "Email"
+  },
+  "contact.cv": {
+    "de": "Lebenslauf",
+    "en": "Resume"
+  },
+  "info.location.k": {
+    "de": "STANDORT",
+    "en": "LOCATION"
+  },
+  "info.location.v": {
+    "de": "Steiermark, AT",
+    "en": "Styria, AT"
+  },
+  "info.status.v": {
+    "de": "verfügbar für Praktika",
+    "en": "available for internships"
+  },
+  "info.focus.k": {
+    "de": "FOKUS",
+    "en": "FOCUS"
+  },
+  "info.school.k": {
+    "de": "SCHULE",
+    "en": "SCHOOL"
+  },
+  "info.languages.k": {
+    "de": "SPRACHEN",
+    "en": "LANGUAGES"
+  }
+}

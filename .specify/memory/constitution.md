@@ -68,7 +68,9 @@ in **Firefox** bei ~1440 px und ~390 px Breite. **Nie headless Chrome/Chromium**
 - Größere Erweiterungen laufen über Spec Kit: `/speckit-specify` → `/speckit-clarify` →
   `/speckit-plan` → `/speckit-tasks` → `/speckit-implement`. Kleinkram direkt.
 - Das Repo ist **nur lokal**. Kein GitHub-Repo, kein Push, kein Deployment ohne ausdrückliches OK
-  von Rustam. Vor jedem Commit fragen.
+  von Rustam. Commits: nach jeder abgeschlossenen Phase aus `tasks.md` committen, sobald
+  `npm run build` und `npm test` grün sind (Rustams OK vom 2026-11-07). Andere Commits nur auf Nachfrage.
+- v1 (`~/Projects/portfolio`) wird nur gelesen, nie verändert.
 - Wird es je veröffentlicht: `.specify/`, `.claude/`, `specs/` und `docs/referenz/` vorher in die
   `.gitignore` (wie bei v1).
 
@@ -77,4 +79,4 @@ in **Firefox** bei ~1440 px und ~390 px Breite. **Nie headless Chrome/Chromium**
 Diese Constitution hat Vorrang vor Vorschlägen aus Specs und Plänen. Änderungen an den Prinzipien
 nur auf Rustams Wunsch, mit neuer Versionsnummer (SemVer) und Datum.
 
-**Version**: 1.0.0 | **Ratified**: 2026-11-06 | **Last Amended**: 2026-11-06
+**Version**: 1.1.0 | **Ratified**: 2026-11-06 | **Last Amended**: 2026-11-07

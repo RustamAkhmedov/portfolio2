@@ -12,10 +12,13 @@ beim Scrollen, und jedes Teil führt zu einem Abschnitt. Look „Papier-Datenbla
 2. Kurz drüberlesen: `specs/001-explosionszeichnung/spec.md` (was) und `tasks.md` (Schritte).
 3. `/speckit-analyze` (optional), um Spec, Plan und Tasks gegeneinander zu prüfen.
 4. `/speckit-implement`. Claude arbeitet `tasks.md` Phase für Phase ab.
+   - Vorher `/model sonnet`: Die Haupt-Session koordiniert nur und gibt `[H]`/`[S]`/`[O]`-Aufgaben an die
+     Agents `umsetzer-haiku` / `umsetzer-sonnet` / `spezialist-opus` (Regeln in `CLAUDE.md`).
    - **Phase 1** (Setup) läuft ohne Rückfragen.
-   - **T010 Designplan**: Hier fragt Claude dich (Schriften, Look; Gehäusefarbe steht fest: schwarz). Erst danach wird gestylt.
+   - **Phase 2, T010 Designplan**: Hier fragt Claude dich (Schriften, Look; Gehäusefarbe steht fest: schwarz). Erst danach wird gestylt.
    - Nach jeder Phase: Screenshots in `test-results/shots/` anschauen und Feedback geben.
-5. Alternativ kleinschrittig: „Mach Phase 1 aus tasks.md“, dann „Mach Phase 2“, …
+5. Empfohlen: **„implement phase 1“**, dann „implement phase 2“, … bis 11. Jede Phase ist eine Session,
+   danach stoppt Claude und wartet auf dein OK.
 
 ## Wo steht was?
 
@@ -28,7 +31,7 @@ beim Scrollen, und jedes Teil führt zu einem Abschnitt. Look „Papier-Datenbla
 | `specs/001-explosionszeichnung/data-model.md` | Teile, Projekte, Texte, Szenenzustand |
 | `specs/001-explosionszeichnung/contracts/` | DOM-Hooks und Inhaltsregeln |
 | `specs/001-explosionszeichnung/quickstart.md` | Befehle + Abnahme-Szenarien |
-| `specs/001-explosionszeichnung/tasks.md` | 49 Aufgaben in 7 Phasen |
+| `specs/001-explosionszeichnung/tasks.md` | 50 Aufgaben in 11 Phasen (eine pro Session) |
 | `docs/referenz/laptop/` | ASUS-Fotos + Maße + deine echten Hardwaredaten (© ASUS, gitignored) |
 | `docs/ideen.md` | die 4 ursprünglichen Richtungen + Entscheidungen |
 

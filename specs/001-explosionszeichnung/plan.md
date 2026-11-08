@@ -36,7 +36,7 @@ Kein UI-Framework, kein React Bits, Remotion erst in Feature 002.
 **Constraints**: JS ≤ 350 KB gzip; Pixelratio ≤ 1,5 (Handy 2); Render on demand; keine Fremd-CDNs;
 relative Pfade (GitHub-Pages-Unterpfad); ASUS-Fotos nie im Build
 
-**Scale/Scope**: 2 Seiten, 7 Abschnitte (Hero, Stückliste, 5 Teil-Abschnitte + Outro), 8 Teile, 6 Projekte
+**Scale/Scope**: 2 Seiten, 7 Abschnitte (Hero, Stückliste, 5 Teil-Abschnitte + Outro), 8 Teile, 13 Projekte (6 gepinnt, 7 im Verzeichnis)
 
 ## Constitution Check
 
@@ -49,7 +49,7 @@ relative Pfade (GitHub-Pages-Unterpfad); ASUS-Fotos nie im Build
 | III. Leicht für die iGPU | prozedural (R1), matte Materialien ohne Echtzeitschatten (R2), render on demand + DPR-Deckel (R9), Budget im Test | ✅ |
 | IV. Eigene Gestaltung | Designplan mit `frontend-design` als eigene Task vor dem Styling (T010), Tokens, kein ASUS-Branding | ✅ |
 | V. Prüfbar, nur Firefox | Vitest + `tools/shot.mjs` über System-Firefox (R8) | ✅ |
-| Arbeitsablauf | nur lokal, kein Push/Deploy; Commits nur nach Rustams OK | ✅ |
+| Arbeitsablauf | nur lokal, kein Push/Deploy; Commit nach jeder abgeschlossenen Phase (Rustams OK vom 2026-11-07) | ✅ |
 
 Re-Check nach Phase 1: keine Verstöße, Complexity Tracking leer.
 
@@ -117,6 +117,7 @@ tests/
 
 ## Ablauf in Phasen (Details in tasks.md)
 
+0. Nach jeder Phase: Build + Tests grün → Commit (Rustams OK).
 1. **Setup**: Vite/TS-Gerüst, Abhängigkeiten, Render-Pipeline aus v1, Inhalte importieren, Tests laufen.
 2. **Fundament**: Designplan mit `frontend-design` → Tokens; statische Seite ohne 3D (ist zugleich der Fallback).
 3. **US1 (P1)**: Laptop-Modell, Explosion, Labels, Hero-Choreografie, Projekte auf dem Display.

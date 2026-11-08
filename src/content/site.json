@@ -1,0 +1,7 @@
+{
+  "base": "https://example.invalid/",
+  "languages": {
+    "de": { "file": "index.html", "root": "", "ogLocale": "de_AT" },
+    "en": { "file": "en/index.html", "root": "../", "ogLocale": "en_US" }
+  }
+}

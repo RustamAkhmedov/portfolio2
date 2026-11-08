@@ -39,6 +39,6 @@ bricht `npm test` ab, und eine fehlende Übersetzung bricht schon `npm run build
 2. Jeder Schlüssel aus `strings.json` wird in einem Template benutzt (keine Leichen).
 3. `parts.json`: IDs eindeutig und lückenlos P-01…P-08; jede `section` existiert als `<section id>`;
    `dir` ist nicht der Nullvektor; `dist > 0`.
-4. `projects.json`: genau 6 Einträge; `thumb` existiert unter `public/`; `repo` oder `demo` vorhanden, nur https.
+4. `projects.json`: genau 13 Einträge, davon genau 6 mit `featured: true`; Namen eindeutig; `thumb` existiert unter `public/`; `repo` oder `demo` vorhanden, nur https.
 5. `contact.json`: `href` ist `mailto:`, https oder eine existierende Datei; `port` aus der erlaubten Liste.
 6. Lebenslauf-PDFs je Sprache existieren.

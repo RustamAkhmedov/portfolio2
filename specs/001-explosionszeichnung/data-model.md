@@ -47,8 +47,11 @@ Nur die Choreografie schreibt, nur Szene und Overlay lesen.
 | `thumb` | string | Pfad unter `public/`, Datei MUSS existieren (16:9 oder wird eingepasst) |
 | `repo` | string? | https-URL |
 | `demo` | string? | https-URL, mindestens eins von `repo`/`demo` |
+| `featured` | boolean | `true` = Hauptprojekt (gepinnter Schritt aufs Display), genau 6; sonst Verzeichnis |
 
-Startbestand (aus v1): gen_Ut, fretlearn, Weitland, NSCS, OnlineIDE, DrawingTool.
+Bestand: alle 13 Projekte aus v1. Hauptprojekte (`featured`, in dieser Reihenfolge): gen_Ut, fretlearn,
+Weitland, NSCS, OnlineIDE, DrawingTool. Verzeichnis: JDBC-TicketSystem, SpringWeatherWebsite,
+SwingShooter2D, Arkanoid, Sudoku, Store, rest_api_project.
 
 ## Strings – `src/content/strings.json`
 
