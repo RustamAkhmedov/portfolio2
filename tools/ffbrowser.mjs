@@ -1,5 +1,6 @@
-// Firefox headless über WebDriver BiDi (System-Firefox, reines Node, keine Abhängigkeiten).
+// Firefox über WebDriver BiDi (System-Firefox, reines Node, keine Abhängigkeiten), standardmäßig headless.
 // Nur Firefox verwenden, nie Chrome/Chromium (siehe CLAUDE.md).
+// Mit {headless: false} oder FF_HEADED=1 öffnet sich ein normales Fenster (braucht DISPLAY/WAYLAND_DISPLAY).
 //
 // import {launch} from './ffbrowser.mjs';
 // const browser = await launch({width: 1440, height: 900});
@@ -7,6 +8,8 @@
 // await page.goto('http://localhost:5173/');
 // await page.setViewport(390, 844, 2);
 // await page.screenshot({path: 'test-results/shots/x.png'});
+// await page.addPreloadScript('() => { window.__x = 1; }');  // läuft vor den Seiten-Skripten
+// await page.bidi('input.performActions', {...});            // beliebiger BiDi-Befehl
 // await browser.close();
 import {spawn} from 'node:child_process';
 import fs from 'node:fs';
@@ -18,10 +21,24 @@ const wrap = (fn, arg) =>
   `(async () => { try { const r = await (${fn})(${arg === undefined ? '' : JSON.stringify(arg)});` +
   ` return r === undefined ? '__undef' : JSON.stringify(r); } catch (e) { return '__err' + String(e && e.stack || e); } })()`;
 
-export async function launch({width = 1440, height = 900, deviceScaleFactor = 1, firefox = process.env.FIREFOX || 'firefox', extraArgs = []} = {}) {
+export async function launch({width = 1440, height = 900, deviceScaleFactor = 1, firefox = process.env.FIREFOX || 'firefox',
+  extraArgs = [], headless = !process.env.FF_HEADED, prefs = {}} = {}) {
   const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'portfolio-ff-'));
-  const ff = spawn(firefox, ['--headless', '--no-remote', '--remote-debugging-port=0', '--profile', profile,
-    `--width=${width}`, `--height=${height}`, ...extraArgs], {stdio: ['ignore', 'ignore', 'pipe']});
+  // Leere Startseite: die Distribution (Garuda) setzt sonst start.garudalinux.org als Startseite, deren
+  // Schriften (rsms.me/Inter, openng-icons) ohne Netz als „downloadable font: download failed“-Fehler im Log landen.
+  fs.writeFileSync(path.join(profile, 'user.js'), [
+    'user_pref("browser.startup.homepage", "about:blank");',
+    'user_pref("browser.startup.page", 0);',
+    'user_pref("browser.newtabpage.enabled", false);',
+    'user_pref("browser.aboutwelcome.enabled", false);',
+    'user_pref("datareporting.policy.dataSubmissionEnabled", false);',
+    'user_pref("browser.shell.checkDefaultBrowser", false);',
+    ...Object.entries(prefs).map(([k, v]) => `user_pref(${JSON.stringify(k)}, ${JSON.stringify(v)});`),
+  ].join('\n') + '\n');
+  const env = {...process.env};
+  if (headless) env.MOZ_HEADLESS = '1'; else delete env.MOZ_HEADLESS;
+  const ff = spawn(firefox, [...(headless ? ['--headless'] : []), '--no-remote', '--remote-debugging-port=0', '--profile', profile,
+    `--width=${width}`, `--height=${height}`, ...extraArgs, 'about:blank'], {stdio: ['ignore', 'ignore', 'pipe'], env});
   let exited = false;
   ff.on('exit', () => { exited = true; });
   ff.on('error', () => { exited = true; });
@@ -104,6 +121,8 @@ export async function launch({width = 1440, height = 900, deviceScaleFactor = 1,
 
   const page = {
     messages, errors,
+    bidi: send,
+    addPreloadScript: (fnSource) => send('script.addPreloadScript', {functionDeclaration: String(fnSource)}),
     on: (ev, f) => { listeners[ev]?.push(f); },
     clearLogs: () => { messages.length = 0; errors.length = 0; },
     goto: (url, {wait = 'complete'} = {}) => send('browsingContext.navigate', {context: ctx, url, wait}),
@@ -129,7 +148,9 @@ export async function launch({width = 1440, height = 900, deviceScaleFactor = 1,
     },
   };
 
-  await page.setViewport(width, height, deviceScaleFactor).catch(() => {});
+  // Im Fenster-Modus antwortet setViewport unter KWin/Wayland nicht (wartet auf ein Resize, das nie kommt):
+  // dort bestimmen --width/--height die Größe und der Bildschirm die DPR.
+  if (headless) await page.setViewport(width, height, deviceScaleFactor).catch(() => {});
 
   return {
     newPage: async () => page,

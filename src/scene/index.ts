@@ -9,10 +9,12 @@ import { buildLaptop } from './laptop';
 import { createMaterials } from './materials';
 import { createRenderer, type SceneRig } from './renderer';
 import { createLabels, type Labels } from './labels';
-import { onChange, state } from './state';
+import { createScreen } from './screen';
+import { onChange, requestRender, state } from './state';
 
 export { setState, state } from './state';
 export type { Labels } from './labels';
+export { SCREEN_COUNT, screenIndexOf } from './screen';
 
 export interface SceneHandle {
   rig: SceneRig;
@@ -26,8 +28,10 @@ export function startScene(container: HTMLElement): SceneHandle {
   const laptop = buildLaptop(parts, createMaterials());
   rig.scene.add(laptop.root);
 
+  const screen = createScreen(rig.renderer, laptop, requestRender);
   const sync = (): void => {
     applyState(laptop, parts, state);
+    screen.update(state);
     rig.applyCamera(cameraAt(state.cam));
   };
   sync();

@@ -32,7 +32,7 @@ export interface SceneRig {
   start(): void;
   stop(): void;
   dispose(): void;
-  /** Gleitender Mittelwert der tatsächlich gezeichneten Frames; 0, wenn zuletzt nichts gezeichnet wurde. */
+  /** Gleitender Mittelwert der tatsächlich gezeichneten Frames (ohne Ruhepausen, siehe drawnFps); 0, wenn zuletzt nichts gezeichnet wurde. */
   fps(): number;
   /** Wird nach jedem gezeichneten Frame aufgerufen (z. B. für das Label-Overlay). */
   onFrame(fn: () => void): () => void;
@@ -57,6 +57,29 @@ export const HERO_POSE: CameraPose = { position: [0, 2.2, 7.5], target: [0, 0.2,
 
 const FPS_WINDOW = 30;
 const FPS_STALE_MS = 500;
+/** Abstand zweier gezeichneter Frames, ab dem die Szene als ruhend gilt (Pause zählt nicht als langsamer Frame). */
+const FPS_PAUSE_MS = 100;
+
+/**
+ * Bildrate aus den Zeitpunkten der zuletzt gezeichneten Frames (T034). Gerendert wird nur bei Änderung,
+ * beim Durchscrollen ruht die Szene also streckenweise (z. B. zwischen zwei Projekten). Solche Pausen
+ * (> FPS_PAUSE_MS) gehören nicht zur Bildrate: gemittelt werden nur die Abstände innerhalb der Bewegung.
+ * 0, wenn zu wenige Frames da sind oder der letzte länger als FPS_STALE_MS zurückliegt.
+ */
+export function drawnFps(times: readonly number[], now: number): number {
+  const n = times.length;
+  if (n < 2 || now - times[n - 1]! > FPS_STALE_MS) return 0;
+  let sum = 0;
+  let count = 0;
+  for (let i = 1; i < n; i++) {
+    const gap = times[i]! - times[i - 1]!;
+    if (gap > 0 && gap <= FPS_PAUSE_MS) {
+      sum += gap;
+      count++;
+    }
+  }
+  return sum > 0 ? (count * 1000) / sum : 0;
+}
 
 function isMobile(): boolean {
   return (
@@ -205,12 +228,7 @@ export function createRenderer(container: HTMLElement): SceneRig {
   };
   document.addEventListener('visibilitychange', onVisibility);
 
-  function fps(): number {
-    if (times.length < 2) return 0;
-    if (performance.now() - times[times.length - 1]! > FPS_STALE_MS) return 0;
-    const span = times[times.length - 1]! - times[0]!;
-    return span > 0 ? ((times.length - 1) * 1000) / span : 0;
-  }
+  const fps = (): number => drawnFps(times, performance.now());
 
   const params = new URLSearchParams(location.search);
   if (import.meta.env.DEV || params.has('still') || params.has('state')) {

@@ -128,7 +128,8 @@ export function buildScore(input: ScoreInput): Score {
   const L = input.lengths ?? DESKTOP;
   const b = new Builder();
 
-  for (const k of ['lid', 'explode', 'cam', 'focusMix', 'screen']) b.init(k, 0);
+  for (const k of ['lid', 'explode', 'cam', 'focusMix']) b.init(k, 0);
+  b.init('screen', -1); // -1 = kein Projekt auf dem Display
   b.init('focus', -1);
   for (const k of partKeys) b.init(inKey(k), 0);
   for (let i = 0; i < rows; i++) b.init(rowKey(i), 0);
@@ -162,6 +163,7 @@ export function buildScore(input: ScoreInput): Score {
   b.to('cam', 2, m.projStart, m.projEnd);
   b.to('focus', lidIdx, m.projStart, m.projStart + MIN);
   b.to('focusMix', 1, m.projStart, m.projEnd);
+  b.to('screen', 0, m.projStart, m.projEnd); // neutrale Fläche blendet zum ersten Projekt
   const half = m.projStart + 0.5 * (m.projEnd - m.projStart);
   for (const k of partKeys) if (k !== 'lid') b.to(inKey(k), 0, m.projStart, half);
 

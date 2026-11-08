@@ -30,6 +30,7 @@
 {{#projects}}
 {{^featured}}
         <tr data-project="{{name}}">
+          <td class="shot"><img src="{{@root}}{{thumb}}" alt="" width="800" height="450" loading="lazy" decoding="async"></td>
           <th scope="row">{{name}}</th>
           <td class="stack">{{stack}}</td>
           <td>{{desc}}</td>

@@ -13,7 +13,9 @@ describe('SceneState', () => {
     expect(state.explode).toBe(0);
     expect(state.focusMix).toBe(1);
     expect(state.cam).toBe(0);
-    expect(state.screen).toBe(0);
+    expect(state.screen).toBe(-1);
+    setState({ screen: -5 });
+    expect(state.screen).toBe(-1);
     setState({ cam: 2.4 });
     expect(state.cam).toBe(2.4);
   });

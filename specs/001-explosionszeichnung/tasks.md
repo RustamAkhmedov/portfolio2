@@ -110,9 +110,9 @@ v1-Quelle: `~/Projects/portfolio/` (nur lesen, nichts dort ändern).
 **Ziel**: Projekte laufen über das Display, Verzeichnis der übrigen Projekte, 60 fps.
 **Unabhängiger Test**: quickstart.md Szenarien 1–3 und 10.
 
-- [ ] T031 [S] [US1] `src/scene/screen.ts`: Projekt-Screenshots als Texturen laden (lazy, erst ab Explosion), Überblendung über `screen`, neutrale Fläche + Name, falls Bild fehlt
-- [ ] T035 [S] [US1] Projektverzeichnis `#projekte-alle` (in `src/sections/projekte.html` + `sections.css`): kompakte Tabelle/Liste der 7 übrigen Projekte (Name, Stack, eine Zeile, Demo/Repo-Links), Fokus/Hover auf `[data-project]` zeigt den Screenshot auf dem Display (Laptop bleibt sichtbar, keine eigene Scroll-Strecke); auf dem Handy und ohne 3D kleines Vorschaubild in der Zeile; Link „Projekte überspringen“ am Anfang von `#projekte`
-- [ ] T034 [O] [US1] Performance-Check auf dem Laptop in normalem Firefox: `window.__v2.fps()` beim Durchscrollen ≥ 55; sonst Kantenlinien zusammenführen, DPR senken, Geometrie vereinfachen
+- [X] T031 [S] [US1] `src/scene/screen.ts`: Projekt-Screenshots als Texturen laden (lazy, erst ab Explosion), Überblendung über `screen`, neutrale Fläche + Name, falls Bild fehlt
+- [X] T035 [S] [US1] Projektverzeichnis `#projekte-alle` (in `src/sections/projekte.html` + `sections.css`): kompakte Tabelle/Liste der 7 übrigen Projekte (Name, Stack, eine Zeile, Demo/Repo-Links), Fokus/Hover auf `[data-project]` zeigt den Screenshot auf dem Display (Laptop bleibt sichtbar, keine eigene Scroll-Strecke); auf dem Handy und ohne 3D kleines Vorschaubild in der Zeile; Link „Projekte überspringen“ am Anfang von `#projekte`
+- [X] T034 [O] [US1] Performance-Check auf dem Laptop in normalem Firefox: `window.__v2.fps()` beim Durchscrollen ≥ 55; sonst Kantenlinien zusammenführen, DPR senken, Geometrie vereinfachen
 
 **Checkpoint**: MVP – Hero, Explosion, Stückliste, Projekte funktionieren auf Desktop. Danach committen und auf Rustams OK warten.
 

@@ -52,7 +52,10 @@ async function initScene(): Promise<void> {
     if (showLabels) scene.labels?.show('all');
     void scene.rig.ready.then(() => requestAnimationFrame(() => root.classList.add('scene-ready')));
 
-    if (choreo) await initChoreo(choreo, scene.labels);
+    if (choreo) {
+      await initChoreo(choreo, scene.labels);
+      void initDirectory();
+    }
   } catch (err) {
     console.warn('Szene nicht verfügbar:', err);
     root.classList.remove('scene-on');
@@ -86,6 +89,26 @@ async function initChoreo(
   } catch (err) {
     console.warn('Scroll-Choreografie nicht verfügbar:', err);
     root.classList.remove('choreo', 'intro');
+  }
+}
+
+/** Hover/Fokus im Projektverzeichnis zeigt den Screenshot auf dem Display (T035; T040 hängt es in matchMedia). */
+async function initDirectory(): Promise<void> {
+  try {
+    const [{ createDirectory }, { screenIndexOf }, st] = await Promise.all([
+      import('./choreo/directory'),
+      import('./scene/screen'),
+      import('./scene/state'),
+    ]);
+    createDirectory({
+      indexOf: screenIndexOf,
+      setState: st.setState,
+      state: st.state,
+      onChange: st.onChange,
+      isActive: () => root.classList.contains('scene-on') && st.state.cam >= 1.9,
+    });
+  } catch (err) {
+    console.warn('Projektverzeichnis-Hover nicht verfügbar:', err);
   }
 }
 

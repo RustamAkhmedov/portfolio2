@@ -12,7 +12,7 @@ export interface SceneState {
   focusMix: number;
   /** stetiger Index in die Kamera-Keyframes (>= 0) */
   cam: number;
-  /** stetiger Index des Projekts auf dem Display (>= 0) */
+  /** stetiger Index des Projekts auf dem Display; -1 = kein Projekt (neutrale Fläche), Werte dazwischen blenden */
   screen: number;
 }
 
@@ -22,7 +22,7 @@ const mutable: SceneState = {
   focus: null,
   focusMix: 0,
   cam: 0,
-  screen: 0,
+  screen: -1,
 };
 
 /** Nur lesen. Die Objektidentität bleibt stabil. */
@@ -33,7 +33,7 @@ const RANGES: Record<'lid' | 'explode' | 'focusMix' | 'cam' | 'screen', [number,
   explode: [0, 1],
   focusMix: [0, 1],
   cam: [0, Infinity],
-  screen: [0, Infinity],
+  screen: [-1, Infinity],
 };
 
 let needsRender = true;

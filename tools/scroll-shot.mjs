@@ -96,6 +96,26 @@ try {
     report.stations.push({name, y, ...info, file: path.relative(root, file)});
   }
 
+  // Verzeichnis-Hover (T035): synthetisches pointerover auf die 3. Zeile, screen muss Index 8 sein
+  {
+    const y = list.find(([n]) => n === 'verzeichnis')[1];
+    await page.evaluate((top) => window.scrollTo({top, behavior: 'instant'}), y);
+    await page.sleep(settle);
+    const hov = await page.evaluate(() => {
+      const row = document.querySelectorAll('#projekte-alle [data-project]')[2];
+      if (!row) return null;
+      const before = window.__v2.state.screen;
+      row.dispatchEvent(new Event('pointerover', {bubbles: true}));
+      return {name: row.dataset.project, before, after: window.__v2.state.screen};
+    });
+    await page.sleep(settle);
+    const file = path.join(outDir, `${String(list.length).padStart(2, '0')}-verzeichnis-hover@${size[0]}.png`);
+    await page.screenshot({path: file});
+    console.log('Verzeichnis-Hover:', JSON.stringify(hov));
+    report.hover = hov;
+    await page.evaluate(() => document.querySelectorAll('#projekte-alle [data-project]')[2]?.dispatchEvent(new Event('pointerout', {bubbles: true})));
+  }
+
   // Rückwärts-Sprung (Pos1): Zustand muss sofort wieder Hero sein
   await page.evaluate(() => window.scrollTo({top: 0, behavior: 'instant'}));
   await page.sleep(300);

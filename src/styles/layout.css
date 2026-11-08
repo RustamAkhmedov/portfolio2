@@ -110,6 +110,8 @@ main section > h2,
   html.scene-on #projekte-alle :is(th, td) { padding: 0; border: 0; }
   html.scene-on #projekte-alle td.links { margin-top: var(--s-1); white-space: normal; }
   html.scene-on #projekte-alle tbody tr:last-child { border-bottom-color: var(--ink); }
+  /* mit 3D zeigt das Display den Screenshot, kein Vorschaubild */
+  html.scene-on #projekte-alle td.shot { display: none; }
 }
 
 /* Scroll-Choreografie aktiv (choreo/timeline.ts setzt html.choreo) */
