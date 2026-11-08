@@ -26,7 +26,7 @@ export const KEYFRAMES: CamKey[] = [
   { name: 'total', position: [3.0, 6.2, 8.2], target: [-0.3, 1.3, -0.8], fov: 46, shift: [-0.17, 0.02], compact: { fov: 44 } },
   // Display/Deckel (explodiert: Mitte ~ (0, 2.75, -3.5), Normale 20° nach oben): fast frontal und so hoch,
   // dass die angehobene Tastatur die Unterkante des Displays nicht verdeckt
-  { name: 'projekte', position: [2.68, 7.97, 7.2], target: [0, 2.6, -3.9], fov: 40, shift: [0.05, -0.02], compact: { fov: 50, shift: [0, -0.11] } },
+  { name: 'projekte', position: [1.0, 5.8, 2.4], target: [0.1, 2.6, -3.5], fov: 44, shift: [0.06, 0.0], compact: { position: [0, 4.6, 1.6], target: [0, 2.75, -3.5], fov: 40, shift: [0, 0] } },
   // Mainboard: hinten mittig, steiler Blick von vorne rechts oben, damit die Chips frei liegen; Platz für die Label-Spalte rechts
   { name: 'skills', position: [3.0, 9.66, 8.04], target: [0, 0.9, -0.6], fov: 40, shift: [0, 0.0], compact: { fov: 44, shift: [0, 0] } },
   // Akku: vorne, etwas höher gehoben

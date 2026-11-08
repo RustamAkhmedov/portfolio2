@@ -28,6 +28,7 @@ Einmalig `npm install` (Abhängigkeiten nur im Projekt).
 | `npm run still` | Standbild `public/img/explosion-still.webp` neu erzeugen |
 | `npm run scroll-shots` | Screenshots der Scroll-Stationen plus Bildrate (nur Richtwert) |
 | `npm run perf` | Szene-Messung in Firefox (fps, Draw-Calls, Dreiecke, JS-Zeit), Ergebnisse in `docs/messungen.md` |
+| `npm run brand` | Favicon-PNGs und Link-Vorschau `public/img/og-card.png` (1200×630) mit Firefox neu erzeugen (Quelle: `public/favicon.svg` und die Szene) |
 | `npm run bundle` | JS-Budget prüfen: Startseite ≤ 350 KB gzip (nach `npm run build`, Exit 1 bei Überschreitung) |
 
 ## Ordnerstruktur

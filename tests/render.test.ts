@@ -234,6 +234,35 @@ describe('render: Sprachbeziehung', () => {
       );
     });
 
+    it(`${lang}: og:image/twitter:image zeigen auf img/og-card.png, Icons lösen relativ korrekt auf`, () => {
+      const d = docs[lang];
+      const card = site.base + 'img/og-card.png';
+      expect(d.querySelector('meta[property="og:image"]')!.getAttribute('content')).toBe(card);
+      expect(d.querySelector('meta[name="twitter:image"]')!.getAttribute('content')).toBe(card);
+      expect(d.querySelector('meta[name="twitter:card"]')!.getAttribute('content')).toBe('summary_large_image');
+      expect(d.querySelector('meta[property="og:image:type"]')!.getAttribute('content')).toBe('image/png');
+      expect(d.querySelector('meta[property="og:image:width"]')!.getAttribute('content')).toBe('1200');
+      expect(d.querySelector('meta[property="og:image:height"]')!.getAttribute('content')).toBe('630');
+      expect(d.querySelector('meta[property="og:image:alt"]')!.getAttribute('content')).toBeTruthy();
+      expect(d.querySelector('meta[name="theme-color"]')!.getAttribute('content')).toBe('#E7E3D8');
+      const prefix = lang === 'en' ? '../' : '';
+      const icons = Object.fromEntries(
+        [...d.querySelectorAll('link[rel="icon"], link[rel="apple-touch-icon"]')].map((l) => [
+          l.getAttribute('href'),
+          l.getAttribute('rel'),
+        ]),
+      );
+      expect(icons).toEqual({
+        [prefix + 'favicon.svg']: 'icon',
+        [prefix + 'favicon-32.png']: 'icon',
+        [prefix + 'apple-touch-icon.png']: 'apple-touch-icon',
+      });
+      for (const href of Object.keys(icons)) {
+        const file = posix.normalize(posix.join(posix.dirname(FILES[lang]), href));
+        expect(existsSync(join(root, 'public', file)), file).toBe(true);
+      }
+    });
+
     it(`${lang}: a[data-lang-switch] zeigt auf die ${other}-Seite`, () => {
       const href = lang === 'de' ? 'en/index.html' : '../index.html';
       const pageDir = posix.dirname(FILES[lang]);
@@ -299,4 +328,16 @@ describe('render: Hero ohne Sprung (html.s3d)', () => {
     const reduced = readFileSync(join(root, 'src/styles/reduced.css'), 'utf8');
     expect(reduced).toMatch(/html\.reduced #scene-fallback[^{]*\{\s*display: block;\s*position: static;/);
   });
+});
+
+describe('Markenbilder', () => {
+  const png = (f: string) => {
+    const b = readFileSync(join(root, 'public', f));
+    expect(b.subarray(1, 4).toString()).toBe('PNG');
+    return [b.readUInt32BE(16), b.readUInt32BE(20)];
+  };
+  it('og-card.png ist 1200×630', () => expect(png('img/og-card.png')).toEqual([1200, 630]));
+  it('apple-touch-icon.png ist 180×180', () => expect(png('apple-touch-icon.png')).toEqual([180, 180]));
+  it('favicon-32.png ist 32×32', () => expect(png('favicon-32.png')).toEqual([32, 32]));
+  it('favicon.svg existiert', () => expect(existsSync(join(root, 'public/favicon.svg'))).toBe(true));
 });
