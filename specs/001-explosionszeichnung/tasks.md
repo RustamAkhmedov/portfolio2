@@ -97,9 +97,9 @@ v1-Quelle: `~/Projects/portfolio/` (nur lesen, nichts dort ändern).
 
 **Ziel**: Beim Scrollen klappt der Laptop auf, zerlegt sich, Labels + Stückliste erscheinen.
 
-- [ ] T028 [S] [US1] `src/scene/labels.ts` + `src/styles/labels.css`: Anker projizieren, `.label[data-part]` positionieren, SVG-Linien, Labels außerhalb des Bildes ausblenden, nur `transform`/`opacity` animieren
-- [ ] T029 [S] [US1] `src/choreo/smooth.ts`: Lenis ↔ ScrollTrigger (`lenis.on('scroll', ScrollTrigger.update)`, `gsap.ticker`-Kopplung, `lagSmoothing(0)`)
-- [ ] T030 [O] [US1] `src/choreo/timeline.ts`: Master-Timeline mit Scrub; Hero pinnen → `lid` 0→1 → `explode` 0→1 → Stückliste blendet ein → `#projekte` gepinnt, je `[data-step]` (nur die 6 Hauptprojekte, kurze Strecke je Schritt) ein Label, `screen` zählt hoch; danach endet der Pin, `#projekte-alle` scrollt normal; Name/Zeile im Hero mit SplitText einblenden
+- [X] T028 [S] [US1] `src/scene/labels.ts` + `src/styles/labels.css`: Anker projizieren, `.label[data-part]` positionieren, SVG-Linien, Labels außerhalb des Bildes ausblenden, nur `transform`/`opacity` animieren
+- [X] T029 [S] [US1] `src/choreo/smooth.ts`: Lenis ↔ ScrollTrigger (`lenis.on('scroll', ScrollTrigger.update)`, `gsap.ticker`-Kopplung, `lagSmoothing(0)`)
+- [X] T030 [O] [US1] `src/choreo/timeline.ts`: Master-Timeline mit Scrub; Hero pinnen → `lid` 0→1 → `explode` 0→1 → Stückliste blendet ein → `#projekte` gepinnt, je `[data-step]` (nur die 6 Hauptprojekte, kurze Strecke je Schritt) ein Label, `screen` zählt hoch; danach endet der Pin, `#projekte-alle` scrollt normal; Name/Zeile im Hero mit SplitText einblenden
 
 **Checkpoint**: Hero → Aufklappen → Explosion → Stückliste läuft flüssig per Scroll (quickstart.md Szenarien 1–2). Danach committen und auf Rustams OK warten.
 

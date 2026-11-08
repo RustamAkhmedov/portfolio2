@@ -13,13 +13,15 @@ html.scene-on #scene {
   display: block;
   position: fixed;
   inset: 0;
+  left: var(--scene-left, 0);
   z-index: -1;
   pointer-events: none;
   opacity: 0;
   transition: opacity 400ms ease;
 }
 html.scene-on.scene-ready #scene { opacity: 1; }
-html.scene-on #scene-fallback { display: none; }
+html.scene-on #scene-fallback,
+html.scene-on #scene-note { display: none; }
 html.scene-on body { background: transparent; }
 /* ?still: transparenter Hintergrund, nur der Laptop */
 html.still,
@@ -75,20 +77,47 @@ main {
   display: block;
 }
 
-main > section {
+main section {
   padding: var(--s-8) var(--gutter);
   border-top: var(--line) solid var(--ink);
 }
-main > section:first-child { border-top: 0; }
+main section:first-child { border-top: 0; }
 
-main > section > * { max-width: var(--measure); }
-main > section > :is(table, .links-wide, #projekte-alle, .step, .skill-list, .info, .ports) { max-width: var(--wide); }
+main section > * { max-width: var(--measure); }
+main section > :is(table, .links-wide, #projekte-alle, .proj-pin, .step, .skill-list, .info, .ports) { max-width: var(--wide); }
 
-main > section > h2 { margin-bottom: var(--s-6); }
+main section > h2,
+.proj-pin > h2 { margin-bottom: var(--s-6); }
 
 .skip-projects { display: inline-block; margin-bottom: var(--s-5); font-size: var(--t-small); }
 
 @media (min-width: 900px) {
-  main > section { padding-block: var(--s-9); }
+  main section { padding-block: var(--s-9); }
   #scene-fallback { aspect-ratio: 21 / 9; }
 }
+
+/*
+ * Mit 3D-Szene (Desktop): Textspalte links, Szene und Labels rechts daneben (#scene/#labels beginnen bei
+ * --scene-left). Abschnitte außer dem Hero bleiben in der Spalte, damit Linien und Text nie über dem
+ * Laptop liegen. Handy (< 900 px) folgt mit T041.
+ */
+@media (min-width: 900px) {
+  html.scene-on { --scene-left: clamp(24rem, 36vw, 36rem); }
+  html.scene-on main section:not(#hero) { width: var(--scene-left); }
+  /* Verzeichnis in der schmalen Spalte: Zeilen untereinander wie auf dem Handy (Feinschliff T035) */
+  html.scene-on #projekte-alle :is(table, tbody, tr, th, td) { display: block; width: auto; }
+  html.scene-on #projekte-alle tr { padding: var(--s-3) 0; border-bottom: var(--line) solid var(--grid); }
+  html.scene-on #projekte-alle :is(th, td) { padding: 0; border: 0; }
+  html.scene-on #projekte-alle td.links { margin-top: var(--s-1); white-space: normal; }
+  html.scene-on #projekte-alle tbody tr:last-child { border-bottom-color: var(--ink); }
+}
+
+/* Scroll-Choreografie aktiv (choreo/timeline.ts setzt html.choreo) */
+html.choreo #hero { min-height: 100svh; align-content: start; }
+html.choreo #projekte { padding-top: 0; }
+html.choreo .proj-pin { padding-top: var(--s-8); }
+/* Datenblätter liegen übereinander, die Timeline blendet je Schritt eines ein */
+html.choreo .proj-steps { display: grid; }
+html.choreo .proj-steps > .step { grid-area: 1 / 1; grid-template-columns: minmax(0, 1fr); }
+/* Der Screenshot läuft über das Display (T031) */
+html.choreo .proj-steps .step img { display: none; }

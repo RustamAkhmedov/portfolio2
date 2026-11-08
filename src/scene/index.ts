@@ -8,12 +8,16 @@ import { cameraAt } from './camera-path';
 import { buildLaptop } from './laptop';
 import { createMaterials } from './materials';
 import { createRenderer, type SceneRig } from './renderer';
+import { createLabels, type Labels } from './labels';
 import { onChange, state } from './state';
 
 export { setState, state } from './state';
+export type { Labels } from './labels';
 
 export interface SceneHandle {
   rig: SceneRig;
+  /** null, wenn #labels fehlt */
+  labels: Labels | null;
 }
 
 export function startScene(container: HTMLElement): SceneHandle {
@@ -28,6 +32,12 @@ export function startScene(container: HTMLElement): SceneHandle {
   };
   sync();
   onChange(sync);
+  // Labels ziehen nach jedem gezeichneten Frame nach (jede State-Änderung fordert einen Frame an).
+  const overlay = document.getElementById('labels');
+  const labels = overlay
+    ? createLabels(overlay, { camera: rig.camera, laptop, parts: parts as unknown as { id: string; key: string }[] })
+    : null;
+  if (labels) rig.onFrame(() => labels.update());
   rig.start();
-  return { rig };
+  return { rig, labels };
 }

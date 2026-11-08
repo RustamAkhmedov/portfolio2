@@ -29,6 +29,11 @@
         var gl = cv.getContext('webgl2') || cv.getContext('webgl');
         if (!gl) c.add('no-webgl');
       } catch (e) { c.add('no-webgl'); }
+      // Hero-Intro (choreo/intro.ts) hält Name und Zeile bis zum Start verdeckt, höchstens 2,5 s
+      if (!c.contains('reduced') && !c.contains('no-webgl') && !/[?&](still|state)\b/.test(location.search)) {
+        c.add('intro');
+        setTimeout(function () { c.remove('intro'); }, 2500);
+      }
     })();
   </script>
   <script type="module" src="{{@root}}src/main.ts"></script>

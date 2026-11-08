@@ -2,6 +2,9 @@
 
 /* Hero */
 #hero { padding-top: var(--s-8); }
+/* Hero-Intro (choreo/intro.ts): bis zum Start verdeckt; die Klasse setzt nur JS */
+html.intro #hero-title,
+html.intro .hero__lead { opacity: 0; }
 #hero h1 {
   font-size: var(--t-hero);
   line-height: var(--t-hero-lh);

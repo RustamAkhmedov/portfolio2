@@ -1,0 +1,91 @@
+/* Beschriftungs-Overlay (Teilenummern, Linien). Werte aus tokens.css, siehe docs/design.md. */
+
+html.scene-on #labels {
+  display: block;
+  position: fixed;
+  inset: 0;
+  left: var(--scene-left, 0); /* gleiche Fläche wie #scene, sonst stimmt die Projektion nicht */
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+/* ?still blendet sonst alles außer der Szene aus */
+html.still body > #labels { visibility: visible; }
+
+#labels svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.label-line {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: var(--line);
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  vector-effect: non-scaling-stroke;
+}
+.label-line.is-active { stroke-width: var(--line-bold); stroke: var(--orange-ink); }
+.label-dot { fill: var(--ink); }
+.label-dot.is-active { fill: var(--orange-ink); }
+
+/* Ursprung des Labels = Mitte des Kreises; die Position kommt per transform aus labels.ts */
+.label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 28px;
+  height: 28px;
+  margin: -14px 0 0 -14px;
+  opacity: 0;
+  will-change: transform, opacity;
+  color: var(--ink);
+}
+.label__no {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  border: var(--line) solid var(--ink);
+  border-radius: 50%;
+  background: var(--paper);
+  font-family: var(--font-mono);
+  font-size: var(--t-data);
+  line-height: 1;
+}
+.label.is-active .label__no { background: var(--orange); color: var(--ink); }
+
+.label__text {
+  position: absolute;
+  top: 0;
+  width: 190px;
+  display: block;
+}
+.label--right .label__text { left: 36px; text-align: left; }
+.label--left .label__text { right: 36px; text-align: right; }
+.label__name {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: var(--t-small);
+  line-height: 1.2;
+  font-weight: 700;
+}
+.label__spec {
+  display: block;
+  margin-top: var(--s-1);
+  font-family: var(--font-mono);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+}
+@media (max-width: 767px) {
+  .label__text { display: none; }
+}
+
+/* Neben der Textspalte (Desktop) stehen alle Labels rechts vom Laptop (labels.ts liest --labels-side) */
+@media (min-width: 900px) {
+  html.scene-on #labels { --labels-side: 1; }
+}

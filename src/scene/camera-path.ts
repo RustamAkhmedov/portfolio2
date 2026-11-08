@@ -3,18 +3,22 @@
 // Erste Schätzung ohne Modell – Feinabstimmung in T033 per Screenshots.
 
 export type Vec3 = [number, number, number];
-export type CamKey = { name: string; position: Vec3; target: Vec3; fov: number };
-export type CamPose = { position: Vec3; target: Vec3; fov: number };
+/** shift: Bildverschiebung als Anteil von Breite/Höhe (+x rechts, +y unten), Standard [0, 0] */
+export type CamKey = { name: string; position: Vec3; target: Vec3; fov: number; shift?: [number, number] };
+export type CamPose = { position: Vec3; target: Vec3; fov: number; shift: [number, number] };
 
 /** Hero: 3/4 von vorne rechts, leicht von oben (entspricht grob HERO_POSE im Renderer, seitlich gedreht). */
-const HERO: CamKey = { name: 'outro', position: [4.6, 2.8, 6.6], target: [0, 0.6, 0], fov: 32 };
+// Mit 3D-Szene steht #scene rechts neben der Textspalte (layout.css, --scene-left); fov/shift sind darauf abgestimmt.
+const HERO: CamKey = { name: 'outro', position: [4.6, 2.8, 6.6], target: [0, 0.6, 0], fov: 37, shift: [0, 0.075] };
 
 export const KEYFRAMES: CamKey[] = [
   { ...HERO, name: 'hero' },
   // Totale: alle Teile der vollen Explosion im Bild (y ~ -1 bis 2,5+, x ~ -3,5 bis 2, Deckel hinten bei z ~ -2)
-  { name: 'total', position: [3.0, 3.0, 9.0], target: [-0.3, 1.1, -0.6], fov: 40 },
-  // Display/Deckel: hinten oben, Blick von vorne auf die Bildfläche
-  { name: 'projekte', position: [1.6, 3.6, 5.4], target: [0, 1.6, -2.0], fov: 30 },
+  // shift nach links: rechts daneben steht die Label-Spalte
+  { name: 'total', position: [3.0, 6.2, 8.2], target: [-0.3, 1.3, -0.8], fov: 46, shift: [-0.17, 0.02] },
+  // Display/Deckel (explodiert: Mitte ~ (0, 2.75, -3.5), Normale 20° nach oben): fast frontal und so hoch,
+  // dass die angehobene Tastatur die Unterkante des Displays nicht verdeckt
+  { name: 'projekte', position: [2.68, 7.97, 7.2], target: [0, 2.6, -3.9], fov: 40, shift: [0.05, -0.02] },
   // Mainboard: hinten mittig, von schräg oben
   { name: 'skills', position: [1.8, 3.8, 4.4], target: [0, 0.9, -0.6], fov: 28 },
   // Akku: vorne, etwas höher gehoben
@@ -40,5 +44,6 @@ export function cameraAt(index: number): CamPose {
     position: [mix(a.position[0], b.position[0]), mix(a.position[1], b.position[1]), mix(a.position[2], b.position[2])],
     target: [mix(a.target[0], b.target[0]), mix(a.target[1], b.target[1]), mix(a.target[2], b.target[2])],
     fov: mix(a.fov, b.fov),
+    shift: [mix(a.shift?.[0] ?? 0, b.shift?.[0] ?? 0), mix(a.shift?.[1] ?? 0, b.shift?.[1] ?? 0)],
   };
 }

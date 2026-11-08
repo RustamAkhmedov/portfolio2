@@ -18,6 +18,8 @@ export interface CameraPose {
   target: readonly [number, number, number];
   /** vertikaler Blickwinkel in Grad */
   fov?: number;
+  /** Bildverschiebung als Anteil von Breite/Höhe (+x = nach rechts, +y = nach unten), per setViewOffset */
+  shift?: readonly [number, number];
 }
 
 export interface SceneRig {
@@ -34,11 +36,19 @@ export interface SceneRig {
   fps(): number;
   /** Wird nach jedem gezeichneten Frame aufgerufen (z. B. für das Label-Overlay). */
   onFrame(fn: () => void): () => void;
+  /** Erfüllt, sobald das erste Bild gezeichnet ist (auch im Produktions-Build). */
+  ready: Promise<void>;
 }
 
 declare global {
   interface Window {
-    __v2?: { ready: Promise<void>; state: Readonly<SceneState>; fps(): number };
+    __v2?: {
+      ready: Promise<void>;
+      state: Readonly<SceneState>;
+      fps(): number;
+      /** Scroll-Marken der Choreografie in px (nur Dev/Test, gesetzt von main.ts) */
+      marks?: () => Record<string, number> | null;
+    };
   }
 }
 
@@ -94,13 +104,30 @@ export function createRenderer(container: HTMLElement): SceneRig {
   scene.add(hemi, sun);
 
   const lookTarget = new Vector3();
+  let size = { w: 0, h: 0 };
+  let shift: readonly [number, number] = [0, 0];
+  /** Verschiebt den Bildausschnitt (Rahmung), ohne die Perspektive zu ändern. */
+  function applyShift(): void {
+    const { w, h } = size;
+    if (!w || !h) return;
+    if (shift[0] === 0 && shift[1] === 0) camera.clearViewOffset();
+    else camera.setViewOffset(w, h, -shift[0] * w, -shift[1] * h, w, h);
+  }
   function applyCamera(pose: CameraPose): void {
     camera.position.set(...pose.position);
     lookTarget.set(...pose.target);
+    let projection = false;
     if (pose.fov !== undefined && pose.fov !== camera.fov) {
       camera.fov = pose.fov;
-      camera.updateProjectionMatrix();
+      projection = true;
     }
+    const s = pose.shift ?? [0, 0];
+    if (s[0] !== shift[0] || s[1] !== shift[1]) {
+      shift = [s[0], s[1]];
+      applyShift();
+      projection = true;
+    }
+    if (projection) camera.updateProjectionMatrix();
     camera.lookAt(lookTarget);
     requestRender();
   }
@@ -110,9 +137,11 @@ export function createRenderer(container: HTMLElement): SceneRig {
     const w = container.clientWidth;
     const h = container.clientHeight;
     if (w === 0 || h === 0) return;
+    size = { w, h };
     renderer.setPixelRatio(pixelRatio());
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
+    applyShift();
     camera.updateProjectionMatrix();
     requestRender();
   }
@@ -202,6 +231,7 @@ export function createRenderer(container: HTMLElement): SceneRig {
       sync();
     },
     fps,
+    ready,
     onFrame(fn) {
       frameListeners.add(fn);
       return () => frameListeners.delete(fn);

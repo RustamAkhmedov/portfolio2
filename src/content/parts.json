@@ -5,7 +5,7 @@
     "name": { "de": "Display", "en": "Display" },
     "spec": { "de": "15,6″ OLED · 2880 × 1620", "en": "15.6″ OLED · 2880 × 1620" },
     "section": "projekte",
-    "explode": { "dir": [0, 0.8, -1], "dist": 2.4, "order": 0 }
+    "explode": { "dir": [0, 0.6, -1], "dist": 3.0, "order": 0 }
   },
   {
     "id": "P-02",

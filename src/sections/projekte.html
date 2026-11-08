@@ -1,6 +1,8 @@
 <section id="projekte" data-part="P-01" aria-labelledby="projekte-title">
+  <div class="proj-pin">
   <a class="skip-projects" data-skip="projekte" href="#skills">{{proj.skip}}</a>
   <h2 id="projekte-title">{{sections.projekte}}</h2>
+  <div class="proj-steps">
 {{#projects}}
 {{#featured}}
   <article class="step" data-step="{{name}}">
@@ -19,6 +21,8 @@
   </article>
 {{/featured}}
 {{/projects}}
+  </div>
+  </div>
   <div id="projekte-alle">
     <h3>{{proj.all}}</h3>
     <table>

@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "shots": "node tools/shot.mjs",
-    "still": "node tools/shot.mjs --still"
+    "still": "node tools/shot.mjs --still",
+    "scroll-shots": "node tools/scroll-shot.mjs"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",
