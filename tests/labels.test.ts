@@ -32,6 +32,48 @@ describe('Label-Projektion und Platzierung', () => {
     expect(out).toEqual([380, 430, 480]);
   });
 
+  it('spreadY: Abstand je Wert (Blockhöhe) und Schrumpfen statt Stapeln, wenn die Höhe nicht reicht', () => {
+    const out = spreadY([100, 110, 120], [90, 40, 0], 20, 480);
+    expect(out[1]! - out[0]!).toBeGreaterThanOrEqual(90 - 1e-9);
+    expect(out[2]! - out[1]!).toBeGreaterThanOrEqual(40 - 1e-9);
+    // 5 Werte × 78 passen nicht in 200 px: Abstände schrumpfen gleichmäßig, nichts liegt aufeinander
+    const tight = spreadY([30, 30, 30, 30, 30], 78, 20, 220);
+    for (let i = 1; i < tight.length; i++) expect(tight[i]! - tight[i - 1]!).toBeCloseTo(50, 5);
+    expect(tight[0]).toBe(20);
+    expect(tight[4]).toBe(220);
+  });
+
+  it('placeLabels: mit Blockhöhen stehen die Textblöcke mindestens blockGap auseinander und im Bild (1280×720 … 1920×1080)', () => {
+    // acht Teile wie in der Explosion: fünf Anker oben dicht beieinander, drei weiter unten
+    const ys = [0.15, 0.17, 0.19, 0.21, 0.23, 0.5, 0.68, 0.9];
+    const heights = [55, 55, 38, 38, 55, 71, 55, 38]; // Name + 1–3 Zeilen Spec
+    for (const [w, h] of [[807, 720], [910, 900], [1332, 1080]] as const) {
+      const anchors = ys.map((y, i) => ({ x: 300 + i * 20, y: y * h }));
+      const p = placeLabels(anchors, w, h, { ...LAYOUT, side: 1, heights, even: 0.6 });
+      const order = p.map((_, i) => i).sort((a, b) => p[a]!.y - p[b]!.y);
+      for (let k = 1; k < order.length; k++) {
+        const up = order[k - 1]!;
+        const top = p[order[k]!]!.y - LAYOUT.radius;
+        const bottom = p[up]!.y - LAYOUT.radius + Math.max(2 * LAYOUT.radius, heights[up]!);
+        expect(top - bottom).toBeGreaterThanOrEqual(LAYOUT.blockGap! - 1e-6);
+      }
+      const last = order[order.length - 1]!;
+      expect(p[last]!.y - LAYOUT.radius + heights[last]!).toBeLessThanOrEqual(h - LAYOUT.pad + 1e-6);
+      expect(Math.min(...p.map((l) => l.y))).toBeGreaterThanOrEqual(LAYOUT.pad + LAYOUT.radius - 1e-6);
+      // Reihenfolge der Anker bleibt
+      expect(order).toEqual([0, 1, 2, 3, 4, 5, 6, 7]);
+    }
+  });
+
+  it('placeLabels: even verteilt über die ganze Höhe, even 0 bleibt nah an den Ankern', () => {
+    const anchors = [{ x: 100, y: 100 }, { x: 100, y: 110 }, { x: 100, y: 120 }];
+    const heights = [40, 40, 40];
+    const near = placeLabels(anchors, 600, 900, { ...LAYOUT, side: 1, heights, even: 0 });
+    const spread = placeLabels(anchors, 600, 900, { ...LAYOUT, side: 1, heights, even: 1 });
+    expect(spread[2]!.y).toBeGreaterThan(near[2]!.y + 300);
+    expect(spread[0]!.y).toBeCloseTo(LAYOUT.pad + LAYOUT.radius, 5);
+  });
+
   it('placeLabels: Seite nach Bildschirmhälfte, Spalte außen, entzerrt, im Bild', () => {
     const w = 1440;
     const h = 900;

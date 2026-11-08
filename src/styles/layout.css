@@ -1,7 +1,8 @@
 /* Seitengerüst: Zeichnungskopf, Abschnitte, Szene-Platzhalter, Schriftfeld. */
 
 :root {
-  --measure: 62ch;
+  /* 62ch in Archivo (Ziffer „0“ = 0,573 em). In em statt ch, damit die Zeilenlänge nicht vom Schriftwechsel abhängt (die Ersatzschrift hat eine andere „0“) */
+  --measure: 35.53em;
   --wide: 72rem;
 }
 
@@ -21,6 +22,12 @@ html.scene-on #scene {
 }
 html.scene-on.scene-ready #scene { opacity: 1; }
 html.scene-on #scene-fallback { display: none; }
+/*
+ * 3D erwartet (html.s3d, setzt das Inline-Skript im <head>): Das Standbild liegt schon vor dem Szenenstart nicht
+ * mehr im Fluss. Hero-Text und Seitenkopf stehen so von Anfang an dort, wo sie mit Szene stehen (kein Sprung, T071
+ * Problem 1). Ohne JS, bei reduzierter Bewegung oder ohne WebGL fehlt die Klasse bzw. gilt :not(): Standbild im Fluss.
+ */
+html.s3d:not(.reduced):not(.no-webgl) #scene-fallback { display: none; }
 html.scene-on body { background: transparent; }
 /* ?still: transparenter Hintergrund, nur der Laptop */
 html.still,
@@ -137,6 +144,18 @@ html.choreo #outro {
  * (timeline.ts, stageTop). Gilt nicht für ?still (volle Fläche).
  */
 @media (max-width: 899px) {
+  /* Vor dem Szenenstart (html.s3d) dieselbe Bühnenhöhe und derselbe Hero wie danach: der Text rückt nicht mehr */
+  html.s3d:not(.reduced):not(.no-webgl) { --stage-h: clamp(240px, 46svh, 560px); }
+  html.s3d:not(.reduced):not(.no-webgl) body { padding-top: var(--stage-h); }
+  html.s3d:not(.reduced):not(.no-webgl) #hero {
+    min-height: calc(100svh - var(--stage-h));
+    padding-top: var(--s-5);
+    padding-bottom: var(--s-4);
+  }
+  html.s3d:not(.reduced):not(.no-webgl) #hero h1 { font-size: clamp(2.75rem, 12vw, 3.5rem); }
+  html.s3d:not(.reduced):not(.no-webgl) .hero__lead { margin-top: var(--s-4); font-size: var(--t-body); line-height: var(--t-body-lh); }
+  html.s3d:not(.reduced):not(.no-webgl) .hero__scroll { margin-top: var(--s-4); }
+
   html.scene-on:not(.still) { --stage-h: clamp(240px, 46svh, 560px); }
   html.scene-on:not(.still) :is(#scene, #labels) {
     left: 0;

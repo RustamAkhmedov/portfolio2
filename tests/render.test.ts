@@ -282,3 +282,21 @@ describe('render: Sprachbeziehung', () => {
     expect(en.filter((e, i) => (e.value === '') !== (de[i].value === ''))).toEqual([]); // leer <-> leer
   });
 });
+
+describe('render: Hero ohne Sprung (html.s3d)', () => {
+  const layoutCss = readFileSync(join(root, 'src/styles/layout.css'), 'utf8');
+  for (const lang of langs) {
+    it(`${lang}: Inline-Skript setzt s3d nur im 3D-Pfad (nicht bei reduced/no-webgl)`, () => {
+      const script = [...docs[lang].head.querySelectorAll('script:not([src])')].map((s) => s.textContent ?? '').find((t) => t.includes("'intro'")) ?? '';
+      const block = script.slice(script.indexOf("if (!c.contains('reduced')"));
+      expect(block).toContain("c.add('s3d')");
+      expect(block).toContain("!c.contains('no-webgl')");
+    });
+  }
+
+  it('CSS: Standbild liegt mit s3d nicht im Fluss; reduced/no-webgl/no-js behalten es', () => {
+    expect(layoutCss).toMatch(/html\.s3d:not\(\.reduced\):not\(\.no-webgl\) #scene-fallback \{ display: none; \}/);
+    const reduced = readFileSync(join(root, 'src/styles/reduced.css'), 'utf8');
+    expect(reduced).toMatch(/html\.reduced #scene-fallback[^{]*\{\s*display: block;\s*position: static;/);
+  });
+});

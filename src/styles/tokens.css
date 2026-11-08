@@ -8,6 +8,59 @@
 /* Martian Mono: nur Daten (Nummern, Maße, Specs) */
 @import "@fontsource-variable/martian-mono/standard.css";
 
+/*
+ * Ersatzschriften mit den Maßen der Webfonts (size-adjust, ascent-/descent-/line-gap-override), damit der
+ * Schriftwechsel (font-display: swap) nichts verschiebt. Werte gemessen (Nachbesserung nach Phase 11, docs/messungen.md):
+ *  - Breite: Textbreite der echten Seitentexte in Archivo / Martian Mono geteilt durch die in Arial- bzw.
+ *    Courier-New-breiten Schriften (Liberation Sans / Mono, gleiche Laufweiten): Archivo 400 = 0,99, 700 = 1,007,
+ *    800 = 1,052; Martian Mono 400 = 1,166.
+ *  - Höhe: hhea/OS-2 der WOFF2-Dateien (Archivo 878/210, Martian Mono 1000/200 von 1000 UPM), geteilt durch size-adjust.
+ * unicode-range: nur Zeichen, die auch die Webfonts im Latin-Schnitt haben (Basis-Latein, Latin-1, Satzzeichen). Alles andere (z. B. ″)
+ * fällt wie bisher auf system-ui bzw. ui-monospace, damit die Ersatzfaces keine anderen Glyphen einschleusen.
+ * Die local()-Namen decken Windows/macOS (Arial, Courier New) und Linux (Liberation, Arimo, Cousine) ab; fehlt
+ * keiner, greift system-ui.
+ */
+@font-face {
+  font-family: "Archivo Fallback";
+  src: local("Arial"), local("Liberation Sans"), local("Arimo");
+  font-weight: 100 599;
+  size-adjust: 99%;
+  ascent-override: 88.7%;
+  descent-override: 21.2%;
+  line-gap-override: 0%;
+  unicode-range: U+0020-007E, U+00A0-00FF, U+2013-2014, U+2018-201E, U+2022, U+2026, U+20AC;
+}
+@font-face {
+  font-family: "Archivo Fallback";
+  src: local("Arial Bold"), local("Liberation Sans Bold"), local("Arimo Bold");
+  font-weight: 600 799;
+  size-adjust: 100.7%;
+  ascent-override: 87.2%;
+  descent-override: 20.9%;
+  line-gap-override: 0%;
+  unicode-range: U+0020-007E, U+00A0-00FF, U+2013-2014, U+2018-201E, U+2022, U+2026, U+20AC;
+}
+@font-face {
+  font-family: "Archivo Fallback";
+  src: local("Arial Bold"), local("Liberation Sans Bold"), local("Arimo Bold");
+  font-weight: 800 900;
+  size-adjust: 105.2%;
+  ascent-override: 83.5%;
+  descent-override: 20%;
+  line-gap-override: 0%;
+  unicode-range: U+0020-007E, U+00A0-00FF, U+2013-2014, U+2018-201E, U+2022, U+2026, U+20AC;
+}
+@font-face {
+  font-family: "Martian Mono Fallback";
+  src: local("Courier New"), local("Liberation Mono"), local("Cousine");
+  font-weight: 100 900;
+  size-adjust: 116.6%;
+  ascent-override: 85.8%;
+  descent-override: 17.2%;
+  line-gap-override: 0%;
+  unicode-range: U+0020-007E, U+00A0-00FF, U+2013-2014, U+2018-201E, U+2022, U+2026, U+20AC;
+}
+
 :root {
   color-scheme: light;
 
@@ -22,8 +75,8 @@
   --case-edge: #CFC9BA;  /* Kantenlinien auf dem Gehäuse (Deckkraft ~0,6 bei Verwendung) */
 
   /* Schrift */
-  --font-sans: "Archivo Variable", system-ui, sans-serif;
-  --font-mono: "Martian Mono Variable", ui-monospace, monospace;
+  --font-sans: "Archivo Variable", "Archivo Fallback", system-ui, sans-serif;
+  --font-mono: "Martian Mono Variable", "Martian Mono Fallback", ui-monospace, monospace;
   --wdth-title: 75%;     /* Titel: schmal */
   --wdth-text: 100%;     /* Text: normale Breite */
   --wght-title: 800;     /* Hero-Titel */

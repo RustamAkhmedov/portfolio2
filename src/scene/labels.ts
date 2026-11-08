@@ -42,11 +42,21 @@ export interface LayoutOptions {
   edge?: boolean;
   /** Ohne `side`: Seite nach Median der Anker-x (je Hälfte eine Spalte) statt nach Bildschirmhälfte */
   split?: boolean;
+  /** Höhe des Textblocks je Anker in Pixeln (gleiche Reihenfolge wie die Anker); fehlt sie, zählt nur `gap` */
+  heights?: readonly number[];
+  /** Freier Raum zwischen zwei Textblöcken in derselben Spalte (nur mit `heights`) */
+  blockGap?: number;
+  /**
+   * 0…1, nur mit `heights`: Anteil, zu dem die Spalte gleichmäßig über die ganze Höhe verteilt wird (1 = gleiche Abstände
+   * von oben bis unten, 0 = nur so weit auseinander wie nötig, nahe an den Ankern). Beide Anordnungen halten die
+   * Mindestabstände ein, die Mischung also auch.
+   */
+  even?: number;
 }
 
 /** Abstand der Spalten von den Gruppen bei getrennten Anker-Gruppen (Anschlüsse links/rechts) */
 const CLUSTER_OFFSET = 70;
-export const LAYOUT: LayoutOptions = { offset: 200, gap: 78, pad: 20, textWidth: 190, radius: 14 };
+export const LAYOUT: LayoutOptions = { offset: 200, gap: 78, pad: 20, textWidth: 190, radius: 14, blockGap: 24 };
 /** Schmale Bühne (Overlay < COMPACT_WIDTH px breit, Handy): nur Nummernkreise, enger gestaffelt, näher am Bauteil */
 export const COMPACT_WIDTH = 768;
 export const LAYOUT_COMPACT: LayoutOptions = { ...LAYOUT, offset: 70, gap: 40, pad: 14, textWidth: 0 };
@@ -75,15 +85,22 @@ export function edgeFactor(p: Pt, ndcZ: number, w: number, h: number, fade = 32)
   return Math.min(1, Math.max(0, d / fade));
 }
 
-/** Verteilt Werte (Mitten) so, dass Nachbarn ≥ gap auseinander liegen, innerhalb [min, max]; Reihenfolge bleibt. */
-export function spreadY(ys: readonly number[], gap: number, min: number, max: number): number[] {
+/**
+ * Verteilt Werte (Mitten) so, dass Nachbarn ≥ gap auseinander liegen, innerhalb [min, max]; Reihenfolge bleibt.
+ * `gap` ist eine Zahl oder je Eingabewert der Abstand zum nächsten Wert darunter (Höhe des Blocks + Luft).
+ * Reicht die Höhe nicht für alle Abstände, schrumpfen sie gleichmäßig (statt dass sich Labels am Rand stapeln).
+ */
+export function spreadY(ys: readonly number[], gap: number | readonly number[], min: number, max: number): number[] {
   const order = ys.map((_, i) => i).sort((a, b) => ys[a]! - ys[b]!);
+  const need = order.slice(0, -1).map((i) => (typeof gap === 'number' ? gap : gap[i]!));
+  const total = need.reduce((a, b) => a + b, 0);
+  const k = total > max - min && total > 0 ? Math.max(0, max - min) / total : 1;
   const out = order.map((i) => Math.min(max, Math.max(min, ys[i]!)));
-  for (let i = 1; i < out.length; i++) out[i] = Math.max(out[i]!, out[i - 1]! + gap);
+  for (let i = 1; i < out.length; i++) out[i] = Math.max(out[i]!, out[i - 1]! + need[i - 1]! * k);
   const over = (out[out.length - 1] ?? 0) - max;
   if (over > 0) {
     out[out.length - 1] = max;
-    for (let i = out.length - 2; i >= 0; i--) out[i] = Math.min(out[i]!, out[i + 1]! - gap);
+    for (let i = out.length - 2; i >= 0; i--) out[i] = Math.min(out[i]!, out[i + 1]! - need[i]! * k);
   }
   const result = new Array<number>(ys.length);
   order.forEach((idx, i) => (result[idx] = Math.max(min, out[i]!)));
@@ -127,7 +144,33 @@ export function placeLabels(
     const hi = side === -1 ? w - pad - radius : w - pad - radius - text;
     const want = opts.edge && !clustered ? (side === -1 ? lo : hi) : extreme + side * (clustered ? CLUSTER_OFFSET : offset);
     const col = Math.min(Math.max(want, lo), Math.max(lo, hi));
-    const ys = spreadY(idx.map((i) => anchors[i]!.y), gap, pad + radius, h - pad - radius);
+    // Mit Blockhöhen: Abstand nach unten = Höhe des Textblocks (mindestens Kreisdurchmesser) + blockGap, nie unter `gap`
+    const hs = opts.heights;
+    const ext = (i: number): number => Math.max(2 * radius, hs?.[i] ?? 0);
+    const gaps = idx.map((i) => (hs ? Math.max(gap, ext(i) + (opts.blockGap ?? 0)) : gap));
+    const ay = idx.map((i) => anchors[i]!.y);
+    // der unterste Textblock endet noch im Bild: sein Kreis steht um (Blockhöhe − Kreisdurchmesser) höher
+    let lowest = 0;
+    ay.forEach((y, k) => (y >= ay[lowest]! ? (lowest = k) : 0));
+    const tail = hs ? ext(idx[lowest]!) - 2 * radius : 0;
+    const lo2 = pad + radius;
+    const hi2 = h - pad - radius - tail;
+    let ys = spreadY(ay, gaps, lo2, hi2);
+    if (hs && opts.even) {
+      const ord = ay.map((_, k) => k).sort((a, b) => ay[a]! - ay[b]!);
+      const need = ord.slice(0, -1).map((k) => gaps[k]!);
+      const room = hi2 - lo2 - need.reduce((a, b) => a + b, 0);
+      if (room > 0 && ord.length > 1) {
+        const extra = room / (ord.length - 1);
+        let y = lo2;
+        const even = new Array<number>(ay.length);
+        ord.forEach((k, n) => {
+          even[k] = y;
+          y += (need[n] ?? 0) + extra;
+        });
+        ys = ys.map((v, k) => v + (even[k]! - v) * Math.min(1, opts.even!));
+      }
+    }
     idx.forEach((i, k) => {
       result[i] = { x: col, y: ys[k]!, side };
     });
@@ -174,6 +217,11 @@ interface Item {
   in: number;
   edge: number;
   side: -1 | 1 | 0;
+  /** Zusatz-Label (Skill-Chip, Kontaktkanal) */
+  extra: boolean;
+  /** Textblock (.label__text) und seine zuletzt gemessene Höhe in px */
+  text: HTMLElement | null;
+  textH: number;
   lastD: string;
   lastT: string;
 }
@@ -253,7 +301,7 @@ export function createLabels(overlay: HTMLElement, rig: LabelRig): Labels {
     dot.setAttribute('class', 'label-dot');
     dot.setAttribute('r', '1.5');
     svg.append(path, dot);
-    items.push({ key, anchor, el, path, dot, in: 0, edge: 1, side: 0, lastD: '', lastT: '' });
+    items.push({ key, anchor, el, path, dot, in: 0, edge: 1, side: 0, extra: el.classList.contains('label--extra'), text, textH: 0, lastD: '', lastT: '' });
   });
 
   function applyIn(it: Item): void {
@@ -276,6 +324,9 @@ export function createLabels(overlay: HTMLElement, rig: LabelRig): Labels {
   let lastH = 0;
   let forcedSide: -1 | 1 | undefined;
   let lastNarrow: boolean | undefined;
+  // Höhen der Textblöcke neu messen: nach Größenänderung und wenn die Schriften da sind (Zeilenumbrüche ändern sich)
+  let textDirty = true;
+  void document.fonts?.ready.then(() => (textDirty = true));
   function update(): void {
     const w = overlay.clientWidth;
     const h = overlay.clientHeight;
@@ -283,6 +334,7 @@ export function createLabels(overlay: HTMLElement, rig: LabelRig): Labels {
     if (w !== lastW || h !== lastH) {
       lastW = w;
       lastH = h;
+      textDirty = true;
       const raw = Number.parseInt(getComputedStyle(overlay).getPropertyValue('--labels-side'), 10);
       forcedSide = raw === -1 || raw === 1 ? raw : undefined;
     }
@@ -299,10 +351,19 @@ export function createLabels(overlay: HTMLElement, rig: LabelRig): Labels {
       side: multi ? undefined : forcedSide,
       split: multi,
       edge: !!layout,
+      // Übersicht (alle Teil-Labels, Desktop): Spalte über die ganze Höhe verteilen, nicht an den Ankern zusammenschieben
+      even: layout ? 0 : 0.6,
     };
     svg!.setAttribute('viewBox', `0 0 ${w} ${h}`);
 
-    const list = layout ? items.filter((it) => layout!.has(it.key)) : items;
+    // Ohne Layout teilen sich nur die Teil-Labels die Spalte; die Zusatz-Labels (Chips, Kanäle) sind unsichtbar und
+    // würden sonst Platz belegen, bis sich alle am oberen Rand stapeln
+    const list = layout ? items.filter((it) => layout!.has(it.key)) : items.filter((it) => !it.extra);
+    if (textDirty) {
+      textDirty = false;
+      for (const it of items) it.textH = it.text?.offsetHeight ?? 0;
+    }
+    if (!narrow) opts.heights = list.map((it) => it.textH);
     const px: Pt[] = [];
     const z: number[] = [];
     for (const it of list) {

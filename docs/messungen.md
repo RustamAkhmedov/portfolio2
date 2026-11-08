@@ -414,3 +414,129 @@ Headless-Darstellung getrieben.
 `node tools/loadtime.mjs --runs 5 --json test-results/perf/load-fast4g.json` (alle Szenarien, ~6 min) oder
 `--scenario desktop --runs 3 --headed` für das normale Fenster. `--no-throttle` zeigt die Werte ohne Drosselung,
 `--no-build` überspringt `npm run build`.
+
+## Nachbesserung nach Phase 11 (2026-11-08)
+
+Vier Eingriffe nach der Abnahme von Phase 11: (A) Hero-Textsprung, (B) `modulepreload`, (C) Ersatzschriften mit `size-adjust`,
+(D) Stückliste-Labels bei der Explosion. Messung wie oben (`node tools/loadtime.mjs`, Fast-4G im Server, Firefox, kalter Cache),
+hier 3 Läufe je Szenario, Median. Rohdaten: `test-results/perf/load-nachbesserung-before.json|.log` (Stand Phase 11) und
+`load-nachbesserung-after.json|.log`.
+
+### Ergebnis kurz
+
+- **A: Hero springt nicht mehr.** Verschiebung (größter Sprung von Hero-Name/-Zeile/Sprachumschalter, Firefox-Proxy für CLS):
+  Desktop 1440×900 **853 px → 0**, en **853 px → 0**, Handy 390×844 **388 px → 0** (vorher 7 Sprünge: Name 399 → 539 → 491,
+  Sprachumschalter 45 → 161). Ziel ≤ 2 px erreicht (gemessen 0, Schwelle der Messung 1 px).
+- **B: Szene bereit** Desktop **1429 → 1229 ms**, Handy 1409 → 1205, en 1416 → 1220; **bedienbar** Desktop **1595 → 1381 ms**,
+  Handy 1570 → 1368, en 1573 → 1373 (nicht schlechter, 0,2 s besser). Das Ziel „Richtung 1,0 s“ ist nicht erreicht, siehe unten.
+- **C: Schriftwechsel verschiebt nichts mehr.** Handy: Sprachumschalter 45 → 161 px **→ 0**, reduziert: Hero-Zeile 29 px **→ 0**
+  (Loadtime-Log: 0 Verschiebungen in allen 15 Läufen mit JS).
+- **D:** Alle acht Beschriftungen stehen mit ≥ 24 px Abstand zwischen den Textblöcken (1280×720, 1440×900, 1920×1080), nichts
+  überlappt oder ist abgeschnitten. Ursache war ein Fehler, kein Abstandswert (siehe D).
+- **Nebenwirkung:** Der LCP im 3D-Pfad ist jetzt der Hero-Name (Text) statt des Standbilds: **0,97 s → 2,1–2,2 s** (Desktop/Handy).
+  Das ist kein langsameres Laden, sondern die Folge von A: der Name ist ab 0,77 s im Layout, aber das Hero-Intro hält ihn bis zum
+  Szenenstart auf Deckkraft 0 und blendet ihn dann in 900 ms ein. „Hero-Name lesbar“ (Intro vorbei) liegt bei **1,17 s** statt
+  1,38 s (Desktop), Handy 1,15 s (vorher 1,18 s). Soll aus SC-003 (< 1,5 s) bleibt erfüllt, Chrome/Lighthouse würden den LCP
+  aber mit ~2,1 s (unter 2,5 s) werten. Wer das drücken will, startet das Intro früher (nicht Teil dieser Nachbesserung).
+
+### A. Hero-Textsprung
+
+Ursache wie beschrieben: Standbild im Fluss bis `scene-on`. Lösung (nur im 3D-Pfad):
+
+- Das Inline-Skript im `<head>` setzt neben `intro` die Klasse `s3d` (JS, keine reduzierte Bewegung, WebGL da, kein `?still`/`?state`).
+- `layout.css`: `html.s3d:not(.reduced):not(.no-webgl) #scene-fallback { display: none }`. Das Standbild ist hier nur ein
+  Platzhalter für den Fehlerfall; ein sichtbares Standbild bis zur Szene würde beim Wechsel zum geschlossenen Laptop flackern
+  (Standbild zeigt die Explosion). Variante „ausgeblendet“ gewählt: kein Sprung, kein Flackern, die Szene blendet über die
+  vorhandene 400-ms-Opacity-Transition ein. Scheitert die Szene später (`no-webgl` kommt dazu), kommt das Standbild wie bisher
+  in den Fluss. Ohne JS, mit reduzierter Bewegung und ohne WebGL ändert sich nichts (`reduced.css`, `html:not(.js)`).
+- Handy (< 900 px): Bühnenhöhe (`--stage-h`), `body`-Abstand und die Hero-Maße (Padding, Namensgröße, Zeile, Link) gelten schon
+  mit `s3d`, nicht erst mit `scene-on`/`choreo`. Das war der zweite Teil des Handysprungs (399 → 539 → 491).
+- Beleg: Positionen aus dem `loadtime`-Log. Vorher Desktop: Name y 979 → 126 bei 1,38 s, Zeile 1275 → 423. Nachher: Name steht ab
+  dem ersten Frame bei y 126 (Handy 491) und rückt nie (0 Sprünge > 1 px in 3 + 3 + 3 Läufen de/en/Handy).
+- Endzustand: Scroll-Stationen 00–03 (Hero, Deckel halb/offen, Explosion halb) sind in allen sechs Größen pixelgleich zum Stand
+  vor der Änderung (Vergleich der Screenshots, 3 Pixel Abweichung bei 03@1440). Abweichungen ab Station 04 gehen auf D zurück.
+
+### B. `modulepreload`
+
+`vite.config.ts`, Plugin `preloadSceneChunks`: ein Inline-Skript am Ende des `<head>` legt `<link rel="modulepreload">` für alle
+Nicht-Einstiegs-Chunks an (`scene`, `screen`, `media`, `gsap`, `timeline`, `ScrollTrigger`, `parts`, `smooth`, `directory`),
+relative Pfade (`../assets/…` in `en/`). **Nur wenn `html.s3d` gesetzt ist.** Reduzierte Bewegung, ohne JS und ohne WebGL laden
+dadurch nichts zusätzlich (Messung reduziert: 227 KB wie zuvor, ohne JS 350 KB wie zuvor). Reihenfolge = Priorität
+(`scene`, `screen`, `media`, `gsap`, `timeline`, …, `smooth`/`directory` zuletzt), weil Firefox je Host nur 6 HTTP/1.1-Verbindungen
+öffnet und der Rest wartet.
+
+| Stand (Desktop 3D, Median) | Szene bereit | bedienbar | KB bis fertig |
+|---|---|---|---|
+| Phase 11 | 1429 ms | 1595 ms | 414 |
+| + modulepreload, alphabetisch | 1372 | 1525 | 414 |
+| + Reihenfolge nach Priorität | 1253 | 1405 | 414 |
+| + Standbild `loading="lazy"` (Endstand) | **1229** | **1381** | **356** |
+
+- **Standbild `loading="lazy"`:** Im 3D-Pfad ist das Standbild ausgeblendet (A) und musste trotzdem 59 KB laden und belegte eine
+  der 6 Verbindungen, genau als `scene`/`screen` anstanden. Mit `lazy` lädt Firefox ein ausgeblendetes Bild nicht. Preis:
+  im reduzierten Modus (Standbild = LCP) **0,96 → 1,01 s** LCP, weil das Bild erst nach dem Layout angefordert wird. Soll < 1,5 s
+  bleibt erfüllt.
+- **Warum nicht ~1,0 s:** Der Wasserfall ist kürzer, aber nicht weg. Die ersten 6 Anfragen (2 Schriften, CSS, `main`,
+  `rolldown-runtime`, `label-keys`) belegen alle Verbindungen bis ~0,75 s (frische Verbindung = 340 ms Handshake + RTT); die
+  Preloads starten erst danach. `rolldown-runtime` und `label-keys` sind winzig (0,3 kB), kosten aber je einen Platz. Sie in
+  `main` zu legen würde das Chunking umbauen, nicht getan. Auf einem Host mit HTTP/2/3 (Multiplexing) entfällt die Warteschlange.
+- Keine zusätzlichen Bytes für 3D-Besucher (der Gesamtwert sinkt sogar um 58 KB durch das Standbild).
+
+### C. Ersatzschriften (`size-adjust`)
+
+`src/styles/tokens.css`: vier `@font-face`-Ersatzfaces (`Archivo Fallback` für 100–599 / 600–799 / 800–900, `Martian Mono Fallback`),
+in `--font-sans` / `--font-mono` hinter dem Webfont und vor `system-ui` / `ui-monospace`.
+
+Werte gemessen, nicht geraten:
+
+- **Breite:** im Firefox je Textstelle der echten Seite (de + en, je rund 180 Textelemente, mit den berechneten Stilen) Breite in Archivo bzw.
+  Martian Mono geteilt durch Breite in Liberation Sans bzw. Liberation Mono (Arial-/Courier-New-Laufweiten): Archivo 400 **0,99**,
+  700 **1,007**, 800 **1,052**; Martian Mono **1,166** (Zeichenbreite 0,70 em gegen 0,60 em). `size-adjust` = 99 / 100,7 / 105,2 /
+  116,6 %.
+- **Höhe:** `hhea`/`OS/2` direkt aus den WOFF2-Dateien gelesen (kleines Node-Skript, Brotli + Tabellenverzeichnis, `fontTools`
+  war nicht installiert): Archivo 878 / 210 / 0 von 1000 UPM, Martian Mono 1000 / 200 / 0. `ascent-override` und
+  `descent-override` = Wert geteilt durch `size-adjust`, `line-gap-override: 0%`.
+- `local()`-Namen: Arial, Liberation Sans, Arimo bzw. Courier New, Liberation Mono, Cousine (alle mit gleichen Laufweiten). Fehlt
+  keiner (z. B. Android ohne Arial), greift `system-ui` wie bisher; die Verschiebung ist dort nicht behoben.
+- `unicode-range` der Ersatzfaces: Basis-Latein, Latin-1, gängige Satzzeichen. Ohne diese Einschränkung zeichnete Liberation Mono
+  das Zeichen ″ (steht im Display-Label) anders als das System-Monospace; im Screenshot fiel das auf.
+- **Drei Folgeänderungen, damit die Zeilen gleich umbrechen:** `ch` hängt von der Ziffer „0“ der gerade benutzten Schrift ab
+  (Archivo 0,573 em, Ersatzschrift 0,551 em). `--measure` ist jetzt `35.53em` (= 62 ch in Archivo, Zeilenlänge unverändert) und
+  `.skill-list li { min-width: 5.73em }` (= 10 ch); `.step .stack` (Mono) behält `62ch`, weil die Mono-„0“ der Ersatzschrift
+  mit `size-adjust` passt. Vorher brach die Hero-Zeile deshalb 3-zeilig (88 px) statt 2-zeilig (59 px) um.
+- **Firefox-Eigenheit:** Eine `local()`-Ersatzschrift wird erst benutzt, wenn sie geladen ist; solange der Webfont lädt, nimmt
+  Firefox `system-ui`, auch mit korrekt gesetzter Familienliste (Messung: Zeilenhöhe 88 px, Face-Status `unloaded`). Ein
+  `document.fonts.load()` der Ersatzfaces nach dem Stylesheet behebt das (Plugin `loadFallbackFonts` in `vite.config.ts`,
+  Inline-Skript nach dem CSS-Link, vor dem ersten Rendern). Ohne JS bleibt es beim Systemfont bis zum Wechsel.
+- **Messung des Wechsels** (Webfont künstlich 3 s verzögert, Layout aller 260 Elemente vor/nach dem Wechsel, `reduziert` und
+  `3D`, 1440 und 390): Elemente mit Verschiebung > 1 px, davon im ersten Bildschirm: Desktop reduziert 254 (4) → **17 (0)**, Handy
+  reduziert 215 (5, bis 267 px) → **16 (0)**, Handy 3D 212 (5) → **17 (0)**, Desktop 3D 172 (7) → **16 (0)**. Größte
+  Restverschiebung 2–4 px (tiefer auf der Seite). Im `loadtime`-Lauf: 0 Verschiebungen.
+- Endzustand (Webfont geladen) unverändert: Layout aller Elemente 390 und 1440 identisch zum Stand vor der Änderung, bis auf zwei
+  H3 mit anderer Kastenbreite (kein sichtbarer Unterschied) und 1 px in der Skill-Liste.
+
+### D. Stückliste-Labels
+
+- **Ursache:** nicht die Abstände. Seit T050 (Chips und Kanäle als Zusatz-Labels) rechnete die Übersicht alle 18 Labels in einer
+  Spalte, davon 10 unsichtbare. 18 × 78 px passen nicht in 900 px; `spreadY` schob die oberen am Rand zusammen, und die
+  Labels 01–04 saßen alle bei y = 34 unter 06 (Text-Überlagerung „Tastatur“ im Screenshot). Dasselbe auf dem Handy (zwei Kreise 06
+  übereinander, 01 fehlte).
+- **Änderung** (`src/scene/labels.ts`): (1) ohne `setLayout` nur die acht Teil-Labels platzieren; (2) Abstand nach unten = gemessene Höhe
+  des Textblocks + `LAYOUT.blockGap` (24 px), nie unter `LAYOUT.gap` (78); (3) reicht die Höhe nicht, schrumpfen alle Abstände gleichmäßig
+  statt sich zu stapeln; (4) `even: 0.6`: die Spalte wird zu 60 % gleichmäßig über die ganze Höhe verteilt (Mischung zweier gültiger
+  Anordnungen hält die Mindestabstände); (5) der unterste Textblock endet noch im Bild. Fokus-Abschnitte (`setLayout`) und Handy
+  (kompakt, keine Texte) rechnen weiter ohne `even`/Blockhöhen.
+- **`src/choreo/score.ts`:** Die Labels sind spätestens bei `rowsEnd` voll da (`min(explodeEnd + 0,15 vh, rowsEnd)`). Bei 1920×1080 lag
+  das Ende hinter der Stückliste, `07`/`08` standen auf der Station nur zu 89/62 %. Bei 1440×900 ändert sich nichts.
+- **Abstände zwischen den Textblöcken** (Station Stückliste): 1440×900 ≥ 46 px (46–70), 1280×720 ≥ 29 px (29–48),
+  1920×1080 ≥ 61 px (aus den Bildern abgelesen, Vorgabe ≥ 24 px). Test `tests/labels.test.ts` prüft ≥ 24 px, Reihenfolge und Bildrand für 807×720,
+  910×900 und 1332×1080 (Overlay-Größen dieser Fenster).
+- Bilder: `test-results/shots/scroll/de/04-explosion@{1280,1440,1920}.png`, `05-stueckliste@{1280,1440,1920}.png`, Handy
+  `…@390.png`. Weitere Folge: In den Projekt-Stationen steht das Display-Label (01) nicht mehr oben am Rand, sondern nah am Display
+  (vorher y = 34 wegen der Stapelung). Kontakt: das Label „GitHub“ rückt ~11 px nach unten (Textblock des 3-zeiligen „Anschlüsse“).
+
+### Offene Punkte
+
+- „Szene bereit“ ~1,2 s statt ~1,0 s (HTTP/1.1-Warteschlange der ersten 6 Anfragen, s. B).
+- LCP im 3D-Pfad jetzt 2,1 s (Text, Intro) statt 0,97 s (Standbild); Intro früher starten würde es drücken.
+- Ersatzschrift greift nur mit Arial/Liberation/Courier New/Cousine/Arimo; ohne JS erst nach dem Webfont-Wechsel.

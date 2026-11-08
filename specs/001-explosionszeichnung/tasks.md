@@ -190,6 +190,8 @@ v1-Quelle: `~/Projects/portfolio/` (nur lesen, nichts dort ändern).
 
 Die Seite wirkt mit Papier, Tinte und Orange als einziger Farbe sehr zurückhaltend. Sie soll etwas mehr Farbe bekommen. Das widerspricht der heutigen Regel „Orange als einzige Signalfarbe“ (Constitution IV, FR-013, `docs/design.md`) und braucht deshalb zuerst Rustams Entscheidung und eine Anpassung dieser Dokumente.
 
+- [ ] T086 [S] [US1] Projekt-Vorschau besser sichtbar (Rustams Eindruck 2026-11-08: vor allem auf dem Handy schlecht erkennbar): Display/Screenshot größer und lesbarer (Bühne auf dem Handy, Zoom/Kamera näher am Display, größere Bildfläche pro Projekt, eventuell Screenshot zusätzlich neben/unter dem Datenblatt), Prüfung auf 390 px und 1440 px
+- [ ] T087 [S] [US1] Seite wirkt „leer“ (Rustams Eindruck 2026-11-08): mehr Inhalt und Leben ohne Überladung (zusammen mit dem Farbkonzept T083: Flächen, Hintergründe pro Abschnitt, Details im Laptop, Zwischenräume zwischen den Abschnitten), Entscheidung mit Rustam
 - [ ] T083 **(Haupt-Session, nicht delegieren – braucht Rustam)** Farbkonzept mit `/frontend-design` und Rustam klären: wie viel Farbe (z. B. zweite Akzentfarbe, getönte Abschnittsflächen, Farbe je Teil/Abschnitt, farbige Teile im Laptop), Kontrast WCAG AA prüfen, Constitution IV, FR-013 und `docs/design.md` anpassen; erst nach Rustams OK weiter
 - [ ] T084 [H] Neue Farben als Tokens in `src/styles/tokens.css` (und ins Modell über die CSS-Variablen in `src/scene/materials.ts`), Werte aus `docs/design.md`
 - [ ] T085 [S] Farbe in Seite und Szene anwenden (Abschnitte, Labels, Teile im Laptop, Standbild `npm run still` neu erzeugen), Screenshots aller Modi neu prüfen, Kontraste in `docs/messungen.md` aktualisieren

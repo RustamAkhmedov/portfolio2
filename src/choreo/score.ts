@@ -261,7 +261,8 @@ export function buildScore(input: ScoreInput): Score {
 
   // Labels gestaffelt in Explosionsreihenfolge; die Linie zeichnet sich über setIn
   const la = m.lidEnd + L.labelsFrom * (m.explodeEnd - m.lidEnd);
-  const lb = Math.max(la + MIN, m.explodeEnd + L.labelsTail * m.vh);
+  // Die Labels stehen spätestens, wenn die Stückliste voll ist (rowsEnd): bei hohem Fenster (1920×1080) lag das Ende sonst dahinter
+  const lb = Math.max(la + MIN, Math.min(m.explodeEnd + L.labelsTail * m.vh, m.rowsEnd));
   const lspan = L.labelSpan * (lb - la);
   labelOrder.forEach((k, i) => {
     const s = la + (labelOrder.length > 1 ? (i * (lb - la - lspan)) / (labelOrder.length - 1) : 0);
