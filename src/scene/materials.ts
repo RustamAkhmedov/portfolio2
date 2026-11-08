@@ -33,7 +33,8 @@ const FALLBACK = {
   '--case-edge': '#CFC9BA',
 } as const;
 
-const EDGE_ANGLE = 30;
+/** Schwellwinkel der Kantenlinien in Grad (auch für zusammengeführte Kanten im Laptop-Modell). */
+export const EDGE_ANGLE = 30;
 const CASE_EDGE_OPACITY = 0.6;
 
 function readColor(name: keyof typeof FALLBACK): Color {

@@ -5,9 +5,29 @@
   --wide: 72rem;
 }
 
-/* Szene: ohne JS (und in dieser Phase immer) unsichtbar */
+/* Szene: ohne JS, bei reduzierter Bewegung oder ohne WebGL unsichtbar */
 #scene,
 #labels { display: none; }
+
+html.scene-on #scene {
+  display: block;
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+html.scene-on.scene-ready #scene { opacity: 1; }
+html.scene-on #scene-fallback { display: none; }
+html.scene-on body { background: transparent; }
+/* ?still: transparenter Hintergrund, nur der Laptop */
+html.still,
+html.still body { background: transparent; }
+html.still body > :not(#scene) { visibility: hidden; }
+@media (prefers-reduced-motion: reduce) {
+  html.scene-on #scene { transition: none; }
+}
 
 body {
   display: flex;

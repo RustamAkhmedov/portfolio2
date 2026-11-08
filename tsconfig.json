@@ -13,5 +13,5 @@
     "forceConsistentCasingInFileNames": true
   },
   "include": ["src", "tests", "tools/**/*.ts"],
-  "exclude": ["tests/explode.test.ts", "tests/camera-path.test.ts"]
+  "exclude": []
 }
