@@ -1,0 +1,46 @@
+<section id="projekte" data-part="P-01" aria-labelledby="projekte-title">
+  <a class="skip-projects" data-skip="projekte" href="#skills">{{proj.skip}}</a>
+  <h2 id="projekte-title">{{sections.projekte}}</h2>
+{{#projects}}
+{{#featured}}
+  <article class="step" data-step="{{name}}">
+    <img src="{{@root}}{{thumb}}" alt="" width="800" height="450" loading="lazy" decoding="async">
+    <h3>{{name}}</h3>
+    <p class="stack">{{stack}}</p>
+    <p>{{desc}}</p>
+    <p class="links">
+{{#repo}}
+      <a href="{{repo}}" target="_blank" rel="noopener">{{proj.repo}}<span class="sr-only"> ({{proj.newTab}})</span></a>
+{{/repo}}
+{{#demo}}
+      <a href="{{demo}}" target="_blank" rel="noopener">{{proj.demo}}<span class="sr-only"> ({{proj.newTab}})</span></a>
+{{/demo}}
+    </p>
+  </article>
+{{/featured}}
+{{/projects}}
+  <div id="projekte-alle">
+    <h3>{{proj.all}}</h3>
+    <table>
+      <tbody>
+{{#projects}}
+{{^featured}}
+        <tr data-project="{{name}}">
+          <th scope="row">{{name}}</th>
+          <td class="stack">{{stack}}</td>
+          <td>{{desc}}</td>
+          <td class="links">
+{{#repo}}
+            <a href="{{repo}}" target="_blank" rel="noopener">{{proj.repo}}<span class="sr-only"> ({{proj.newTab}})</span></a>
+{{/repo}}
+{{#demo}}
+            <a href="{{demo}}" target="_blank" rel="noopener">{{proj.demo}}<span class="sr-only"> ({{proj.newTab}})</span></a>
+{{/demo}}
+          </td>
+        </tr>
+{{/featured}}
+{{/projects}}
+      </tbody>
+    </table>
+  </div>
+</section>

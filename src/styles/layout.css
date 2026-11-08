@@ -1,0 +1,74 @@
+/* Seitengerüst: Zeichnungskopf, Abschnitte, Szene-Platzhalter, Schriftfeld. */
+
+:root {
+  --measure: 62ch;
+  --wide: 72rem;
+}
+
+/* Szene: ohne JS (und in dieser Phase immer) unsichtbar */
+#scene,
+#labels { display: none; }
+
+body {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Zeichnungskopf */
+.head {
+  order: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--s-2) var(--s-5);
+  padding: var(--s-4) var(--gutter);
+  border-bottom: var(--line) solid var(--ink);
+}
+.head__doc { margin-right: auto; }
+.head__lang { display: flex; gap: var(--s-3); font-size: var(--t-small); line-height: var(--t-small-lh); }
+.lang--current { font-weight: 700; }
+
+/* Platzhalter für die Szene (wird mit der Choreografie ersetzt) */
+#scene-fallback,
+#scene-note { margin-inline: var(--gutter); }
+
+#scene-fallback {
+  order: 2;
+  display: block;
+  margin-top: var(--s-6);
+  aspect-ratio: 16 / 9;
+  max-height: 60svh;
+  border: var(--line) solid var(--ink);
+}
+#scene-fallback img { display: none; }
+
+#scene-note {
+  order: 3;
+  margin-top: var(--s-2);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+main {
+  order: 4;
+  display: block;
+}
+
+main > section {
+  padding: var(--s-8) var(--gutter);
+  border-top: var(--line) solid var(--ink);
+}
+main > section:first-child { border-top: 0; }
+
+main > section > * { max-width: var(--measure); }
+main > section > :is(table, .links-wide, #projekte-alle, .step, .skill-list, .info, .ports) { max-width: var(--wide); }
+
+main > section > h2 { margin-bottom: var(--s-6); }
+
+.skip-projects { display: inline-block; margin-bottom: var(--s-5); font-size: var(--t-small); }
+
+@media (min-width: 900px) {
+  main > section { padding-block: var(--s-9); }
+  #scene-fallback { aspect-ratio: 21 / 9; }
+}

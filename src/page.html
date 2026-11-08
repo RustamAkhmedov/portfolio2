@@ -2,11 +2,63 @@
 <html lang="{{@lang}}">
 <head>
   <meta charset="utf-8">
-  <title>{{title}}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{meta.title}}</title>
+  <meta name="description" content="{{meta.description}}">
   <link rel="canonical" href="{{@url}}">
+  <link rel="alternate" hreflang="{{@lang}}" href="{{@url}}">
   <link rel="alternate" hreflang="{{@altLang}}" href="{{@altUrl}}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="{{meta.title}}">
+  <meta property="og:description" content="{{meta.description}}">
+  <meta property="og:url" content="{{@url}}">
+  <meta property="og:locale" content="{{@ogLocale}}">
+  <meta property="og:locale:alternate" content="{{@ogLocaleAlt}}">
+  <meta property="og:image" content="{{@base}}img/explosion-still.webp">
+  <meta property="og:image:alt" content="{{meta.ogImageAlt}}">
+  <meta name="twitter:card" content="summary_large_image">
+  <script>
+    (function () {
+      var c = document.documentElement.classList;
+      c.add('js');
+      try {
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) c.add('reduced');
+      } catch (e) {}
+      try {
+        var cv = document.createElement('canvas');
+        var gl = cv.getContext('webgl2') || cv.getContext('webgl');
+        if (!gl) c.add('no-webgl');
+      } catch (e) { c.add('no-webgl'); }
+    })();
+  </script>
+  <script type="module" src="{{@root}}src/main.ts"></script>
 </head>
 <body>
+<a class="skip" href="#main">{{a11y.skip}}</a>
+<div id="scene" aria-hidden="true"></div>
+<picture id="scene-fallback" aria-hidden="true">
+  <source srcset="{{@root}}img/explosion-still.webp" type="image/webp">
+  <img src="{{@root}}img/explosion-still.webp" alt="" width="1600" height="1000" decoding="async">
+</picture>
+<p id="scene-note" aria-hidden="true">{{scene.placeholder}}</p>
+{{> labels}}
+<header class="head">
+  <p class="head__doc">{{head.doc}}</p>
+  <p class="head__sheet">{{head.sheet}}</p>
+  <nav class="head__lang" aria-label="{{nav.lang}}">
+    <span class="lang lang--current" lang="{{@lang}}" aria-current="true">{{@lang}}</span>
+    <a class="lang" data-lang-switch href="{{@root}}{{@altFile}}" lang="{{@altLang}}" hreflang="{{@altLang}}" aria-label="{{nav.langSwitch}}">{{@altLang}}</a>
+  </nav>
+</header>
+<main id="main">
 {{> hero}}
+{{> bom}}
+{{> projekte}}
+{{> skills}}
+{{> ueber}}
+{{> lebenslauf}}
+{{> kontakt}}
+{{> outro}}
+</main>
 </body>
 </html>

@@ -54,8 +54,7 @@ describe('Regel 2: keine ungenutzten strings.json-Schlüssel', () => {
     ...walk(join(root, 'src'), /\.(html|ts)$/),
   ].filter(existsSync);
   const text = sources.map((p) => readFileSync(p, 'utf8')).join('\n');
-  // TODO(T015): in Phase 3 auf it() umstellen, sobald die Abschnitts-Templates existieren
-  it.skip('jeder Schlüssel kommt in einem Template/Code vor', () => {
+  it('jeder Schlüssel kommt in einem Template/Code vor', () => {
     const unused = Object.keys(strings).filter((k) => !text.includes(k));
     expect(unused).toEqual([]);
   });
@@ -72,8 +71,7 @@ describe('Regel 3: parts.json', () => {
       Array.from({ length: 8 }, (_, i) => `P-0${i + 1}`),
     );
   });
-  // TODO(T015): in Phase 3 auf it() umstellen, sobald alle Abschnitte existieren
-  it.skip('jede section existiert als <section id>', () => {
+  it('jede section existiert als <section id>', () => {
     for (const p of parts) {
       if (p.section === null) continue;
       expect(ids.has(p.section), `${p.id}: section "${p.section}"`).toBe(true);

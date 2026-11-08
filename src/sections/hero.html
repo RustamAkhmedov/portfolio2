@@ -1,4 +1,5 @@
-<section id="hero">
-  <h1>{{heroTitle}}</h1>
-  <a href="{{@root}}img/x.webp">{{@lang}}</a>
+<section id="hero" aria-labelledby="hero-title">
+  <h1 id="hero-title">{{hero.name}}</h1>
+  <p class="hero__lead">{{meta.description}}</p>
+  <a class="hero__scroll" href="#bom">{{hero.scroll}}</a>
 </section>

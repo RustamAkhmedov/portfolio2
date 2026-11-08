@@ -1,0 +1,17 @@
+<section id="bom" aria-labelledby="bom-title">
+  <h2 id="bom-title">{{bom.title}}</h2>
+  <table>
+    <thead>
+      <tr><th scope="col">{{bom.no}}</th><th scope="col">{{bom.part}}</th><th scope="col">{{bom.section}}</th></tr>
+    </thead>
+    <tbody>
+{{#parts}}
+      <tr data-part="{{id}}">
+        <th scope="row">{{id}}</th>
+        <td>{{name}}</td>
+        <td>{{#section}}<a href="#{{section}}">{{sections[section]}}</a>{{/section}}{{^section}}{{bom.none}}{{/section}}</td>
+      </tr>
+{{/parts}}
+    </tbody>
+  </table>
+</section>

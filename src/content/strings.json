@@ -1,12 +1,4 @@
 {
-  "title": {
-    "de": "Rustam Akhmedov – Portfolio",
-    "en": "Rustam Akhmedov – Portfolio"
-  },
-  "heroTitle": {
-    "de": "Platzhalter",
-    "en": "Placeholder"
-  },
   "meta.title": {
     "de": "Rustam — Portfolio",
     "en": "Rustam — Portfolio"
@@ -59,17 +51,9 @@
     "de": "Offen für Praktika, Projekte und alles rund um IT-Security & Development.",
     "en": "Open for internships, projects, and everything related to IT security & development."
   },
-  "contact.email": {
-    "de": "E-Mail",
-    "en": "Email"
-  },
-  "contact.cv": {
-    "de": "Lebenslauf",
-    "en": "Resume"
-  },
   "info.location.k": {
-    "de": "STANDORT",
-    "en": "LOCATION"
+    "de": "Standort",
+    "en": "Location"
   },
   "info.location.v": {
     "de": "Steiermark, AT",
@@ -80,15 +64,130 @@
     "en": "available for internships"
   },
   "info.focus.k": {
-    "de": "FOKUS",
-    "en": "FOCUS"
+    "de": "Fokus",
+    "en": "Focus"
   },
   "info.school.k": {
-    "de": "SCHULE",
-    "en": "SCHOOL"
+    "de": "Schule",
+    "en": "School"
   },
   "info.languages.k": {
-    "de": "SPRACHEN",
-    "en": "LANGUAGES"
+    "de": "Sprachen",
+    "en": "Languages"
+  },
+  "a11y.skip": {
+    "de": "Zum Inhalt springen",
+    "en": "Skip to content"
+  },
+  "head.doc": {
+    "de": "Explosionszeichnung · Portfolio",
+    "en": "Exploded view · portfolio"
+  },
+  "head.sheet": {
+    "de": "Blatt 1 / 1",
+    "en": "Sheet 1 / 1"
+  },
+  "nav.lang": {
+    "de": "Sprache",
+    "en": "Language"
+  },
+  "nav.langSwitch": {
+    "de": "Switch to English",
+    "en": "Auf Deutsch wechseln"
+  },
+  "scene.placeholder": {
+    "de": "Platzhalter für die Explosionszeichnung",
+    "en": "Placeholder for the exploded view"
+  },
+  "hero.name": "Rustam Akhmedov",
+  "hero.scroll": {
+    "de": "Nach unten scrollen",
+    "en": "Scroll down"
+  },
+  "sections": {
+    "projekte": {
+      "de": "Projekte",
+      "en": "Projects"
+    },
+    "skills": {
+      "de": "Skills & Stack",
+      "en": "Skills & stack"
+    },
+    "ueber": {
+      "de": "Über mich",
+      "en": "About me"
+    },
+    "lebenslauf": {
+      "de": "Lebenslauf",
+      "en": "Resume"
+    },
+    "kontakt": {
+      "de": "Kontakt",
+      "en": "Contact"
+    }
+  },
+  "bom.title": {
+    "de": "Stückliste",
+    "en": "Bill of materials"
+  },
+  "bom.no": {
+    "de": "Nr.",
+    "en": "No."
+  },
+  "bom.part": {
+    "de": "Teil",
+    "en": "Part"
+  },
+  "bom.section": {
+    "de": "Abschnitt",
+    "en": "Section"
+  },
+  "bom.none": {
+    "de": "kein eigener Abschnitt",
+    "en": "no section of its own"
+  },
+  "proj.skip": {
+    "de": "Projekte überspringen",
+    "en": "Skip projects"
+  },
+  "proj.all": {
+    "de": "Weitere Projekte",
+    "en": "More projects"
+  },
+  "proj.repo": {
+    "de": "Code",
+    "en": "Code"
+  },
+  "proj.demo": {
+    "de": "Live-Demo",
+    "en": "Live demo"
+  },
+  "proj.newTab": {
+    "de": "öffnet in neuem Tab",
+    "en": "opens in new tab"
+  },
+  "info.title": {
+    "de": "Steckbrief",
+    "en": "Profile"
+  },
+  "info.status.k": "Status",
+  "info.focus.v": "Software Development",
+  "info.school.v": "HTL Pinkafeld",
+  "info.languages.v": "DE · EN · RU",
+  "cv.view": {
+    "de": "Lebenslauf ansehen",
+    "en": "View resume"
+  },
+  "cv.download": {
+    "de": "Herunterladen",
+    "en": "Download"
+  },
+  "outro.v1": {
+    "de": "rustam.os – die Retro-Fassung",
+    "en": "rustam.os – the retro edition"
+  },
+  "outro.langs": {
+    "de": "Sprachwahl",
+    "en": "Language choice"
   }
 }

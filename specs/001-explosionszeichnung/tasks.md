@@ -55,11 +55,11 @@ v1-Quelle: `~/Projects/portfolio/` (nur lesen, nichts dort ändern).
 
 **Zweck**: Die komplette Seite ohne 3D. Sie ist zugleich der Fallback (Constitution I). Erst nach Rustams OK zu T010.
 
-- [ ] T011 [H] Tokens aus dem Designplan in `src/styles/tokens.css`; Schriften via `@fontsource/<name>` installieren oder WOFF2 nach `public/fonts/`
-- [ ] T015 [S] `src/page.html` (Gerüst, Meta/og, hreflang, Inline-Skript im `<head>` setzt `html.js`, `html.reduced`, `html.no-webgl` vor dem ersten Paint) und Abschnitte `src/sections/{hero,bom,projekte,skills,ueber,lebenslauf,kontakt,outro,labels}.html` mit allen Hooks aus `contracts/dom.md`; danach in `tests/content.test.ts` die zwei `it.skip` (Regel 2, Abschnitts-Anker) wieder auf `it` stellen
-- [ ] T016 [S] Statische Gestaltung: `src/styles/{base,layout,sections}.css` – die Seite muss ohne JS komplett und schön sein (Zeichnungskopf, Stückliste als Tabelle, Projekt-Datenblätter, Schriftfeld); `#scene-fallback` zeigt vorerst einen Platzhalter
-- [ ] T017 [P] [S] `tests/render.test.ts`: beide Seiten rendern, gleiche Struktur, keine `{{`-Reste, alle Hooks aus `contracts/dom.md` vorhanden, alle internen Links/Assets existieren
-- [ ] T018 [S] `tools/shot.mjs`: `vite build` + `vite preview` starten, mit `ffbrowser.mjs` jede Abschnitts-ID bei 1440×900 und 390×844 anspringen, PNGs nach `test-results/shots/<lang>/<id>@<w>.png`, Exit 1 bei Konsolenfehlern; `npm run shots`
+- [X] T011 [H] Tokens aus dem Designplan in `src/styles/tokens.css`; Schriften via `@fontsource/<name>` installieren oder WOFF2 nach `public/fonts/`
+- [X] T015 [S] `src/page.html` (Gerüst, Meta/og, hreflang, Inline-Skript im `<head>` setzt `html.js`, `html.reduced`, `html.no-webgl` vor dem ersten Paint) und Abschnitte `src/sections/{hero,bom,projekte,skills,ueber,lebenslauf,kontakt,outro,labels}.html` mit allen Hooks aus `contracts/dom.md`; danach in `tests/content.test.ts` die zwei `it.skip` (Regel 2, Abschnitts-Anker) wieder auf `it` stellen
+- [X] T016 [S] Statische Gestaltung: `src/styles/{base,layout,sections}.css` – die Seite muss ohne JS komplett und schön sein (Zeichnungskopf, Stückliste als Tabelle, Projekt-Datenblätter, Schriftfeld); `#scene-fallback` zeigt vorerst einen Platzhalter
+- [X] T017 [P] [S] `tests/render.test.ts`: beide Seiten rendern, gleiche Struktur, keine `{{`-Reste, alle Hooks aus `contracts/dom.md` vorhanden, alle internen Links/Assets existieren
+- [X] T018 [S] `tools/shot.mjs`: `vite build` + `vite preview` starten, mit `ffbrowser.mjs` jede Abschnitts-ID bei 1440×900 und 390×844 anspringen, PNGs nach `test-results/shots/<lang>/<id>@<w>.png`, Exit 1 bei Konsolenfehlern; `npm run shots`
 
 **Checkpoint**: Statische Seite de/en vollständig, `npm test` und `npm run shots` grün. Screenshots mit Rustam anschauen. Danach committen und auf Rustams OK warten.
 

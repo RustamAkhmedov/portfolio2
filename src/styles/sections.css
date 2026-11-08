@@ -1,0 +1,156 @@
+/* Abschnitte: Hero, Stückliste, Projekt-Datenblätter, Skills, Über mich, Lebenslauf, Kontakt, Schriftfeld. */
+
+/* Hero */
+#hero { padding-top: var(--s-8); }
+#hero h1 {
+  font-size: var(--t-hero);
+  line-height: var(--t-hero-lh);
+  font-weight: var(--wght-title);
+  font-stretch: var(--wdth-title);
+  letter-spacing: var(--track-hero);
+  text-wrap: balance;
+  max-width: 12ch;
+}
+.hero__lead {
+  margin-top: var(--s-6);
+  font-size: var(--t-lead);
+  line-height: var(--t-lead-lh);
+}
+.hero__scroll {
+  display: inline-block;
+  margin-top: var(--s-5);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+}
+
+/* Tabellen: Linien statt Karten */
+table { width: 100%; border-collapse: collapse; text-align: left; }
+th, td {
+  padding: var(--s-3) var(--s-4) var(--s-3) 0;
+  border-bottom: var(--line) solid var(--grid);
+  text-align: left;
+  vertical-align: baseline;
+  font-weight: 400;
+}
+thead th {
+  padding-top: var(--s-2);
+  background: var(--paper-hi);
+  border-top: var(--line) solid var(--ink);
+  border-bottom: var(--line) solid var(--ink);
+  font-size: var(--t-small);
+  line-height: var(--t-small-lh);
+  font-weight: 700;
+  padding-left: var(--s-3);
+}
+thead th:first-child { padding-left: var(--s-3); }
+tbody tr:last-child > * { border-bottom-color: var(--ink); }
+
+/* Stückliste */
+#bom th[scope="row"] { width: 5rem; font-weight: 400; color: var(--ink); }
+#bom td, #bom tbody th { font-size: var(--t-small); line-height: var(--t-small-lh); }
+#bom tbody th { font-size: var(--t-data); }
+#bom tbody th, #bom tbody td { padding-left: var(--s-3); }
+#bom tbody tr:hover > * { background: var(--paper-hi); }
+#bom [data-part] { transition: background var(--d-micro) linear; }
+
+/* Projekt-Datenblätter */
+.step {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--s-2);
+  padding: var(--s-5) 0 var(--s-7);
+  border-top: var(--line) solid var(--ink);
+}
+.step img {
+  order: 3;
+  width: 100%;
+  margin-top: var(--s-3);
+  border: var(--line) solid var(--grid);
+}
+.step > * { max-width: var(--measure); }
+.step .stack { color: var(--ink); }
+.step h3 { margin-top: var(--s-2); }
+.step p:not(.stack):not(.links) { margin-top: var(--s-2); }
+.links { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-5); margin-top: var(--s-3); font-size: var(--t-small); line-height: var(--t-small-lh); }
+.step .links { order: 5; }
+.step img { max-width: 100%; }
+
+#projekte-alle { margin-top: var(--s-7); }
+#projekte-alle h3 { margin-bottom: var(--s-4); }
+#projekte-alle table { border-top: var(--line) solid var(--ink); }
+#projekte-alle th, #projekte-alle td { font-size: var(--t-small); line-height: var(--t-small-lh); }
+#projekte-alle th { font-weight: 700; }
+#projekte-alle td.stack { font-size: var(--t-data); }
+#projekte-alle td.links { margin: 0; display: table-cell; white-space: nowrap; }
+#projekte-alle td.links a + a { margin-left: var(--s-4); }
+
+/* Skills */
+.skill-list { display: flex; flex-wrap: wrap; gap: 0 var(--s-6); border-top: var(--line) solid var(--ink); }
+.skill-list li {
+  padding: var(--s-3) 0;
+  border-bottom: var(--line) solid var(--grid);
+  min-width: 10ch;
+}
+
+/* Über mich */
+.portrait { width: 12rem; height: auto; margin-bottom: var(--s-5); border: var(--line) solid var(--ink); }
+#ueber h3 { margin: var(--s-6) 0 var(--s-3); }
+#ueber h3:first-of-type { margin-top: 0; }
+#ueber p + p { margin-top: var(--s-3); }
+.info { border-top: var(--line) solid var(--ink); max-width: var(--measure); }
+.info > div {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: var(--s-4);
+  padding: var(--s-3) 0;
+  border-bottom: var(--line) solid var(--grid);
+}
+.info dt { font-size: var(--t-small); line-height: var(--t-small-lh); font-weight: 700; }
+.info dd { font-size: var(--t-small); line-height: var(--t-small-lh); font-family: var(--font-sans); }
+
+/* Lebenslauf */
+#lebenslauf .links { margin-top: 0; font-size: var(--t-body); line-height: var(--t-body-lh); }
+
+/* Kontakt */
+.lead { font-size: var(--t-lead); line-height: var(--t-lead-lh); margin-bottom: var(--s-3); }
+.ports { margin-top: var(--s-5); border-top: var(--line) solid var(--ink); }
+.ports li {
+  display: grid;
+  grid-template-columns: 7rem 1fr;
+  gap: var(--s-4);
+  align-items: baseline;
+  padding: var(--s-3) 0;
+  border-bottom: var(--line) solid var(--grid);
+}
+.port { color: var(--ink); }
+
+/* Schriftfeld (statisch am Seitenende) */
+#outro { background: var(--paper-hi); }
+#outro .titleblock { max-width: 36rem; border: var(--line) solid var(--ink); padding: var(--s-5); background: var(--paper-hi); }
+#outro h2 { font-size: var(--t-h3); line-height: var(--t-h3-lh); margin-bottom: var(--s-3); }
+#outro .ports { margin-top: 0; }
+#outro .ports li { display: block; }
+#outro nav { display: flex; gap: var(--s-3); margin-top: var(--s-4); font-size: var(--t-small); line-height: var(--t-small-lh); }
+#outro .titleblock p { margin-top: var(--s-3); font-size: var(--t-small); line-height: var(--t-small-lh); }
+
+@media (min-width: 900px) {
+  .step {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 28rem);
+    column-gap: var(--s-7);
+    align-items: start;
+    align-content: start;
+  }
+  .step > * { grid-column: 1; }
+  .step img { grid-column: 2; grid-row: 1 / span 6; margin-top: 0; order: 0; }
+  .step .links { order: 0; }
+  #hero { display: grid; }
+}
+
+@media (max-width: 640px) {
+  #projekte-alle table, #projekte-alle tbody, #projekte-alle tr, #projekte-alle th, #projekte-alle td { display: block; width: auto; }
+  #projekte-alle tr { padding: var(--s-3) 0; border-bottom: var(--line) solid var(--grid); }
+  #projekte-alle th, #projekte-alle td { padding: 0; border: 0; }
+  #projekte-alle td.links { margin-top: var(--s-1); }
+  #projekte-alle tbody tr:last-child { border-bottom-color: var(--ink); }
+  .info > div, .ports li { grid-template-columns: 6rem 1fr; }
+}

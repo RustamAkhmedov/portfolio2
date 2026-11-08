@@ -1,0 +1,18 @@
+<section id="kontakt" data-part="P-05" aria-labelledby="kontakt-title">
+  <h2 id="kontakt-title">{{sections.kontakt}}</h2>
+  <p class="lead">{{contact.title}}</p>
+  <p>{{contact.text}}</p>
+  <ul class="ports">
+{{#contact}}
+    <li>
+      <span class="port">{{port}}</span>
+{{#type=cv}}
+      <a href="{{@root}}{{cv.file}}">{{label}}</a>
+{{/type=cv}}
+{{^type=cv}}
+      <a href="{{href}}">{{label}}</a>
+{{/type=cv}}
+    </li>
+{{/contact}}
+  </ul>
+</section>

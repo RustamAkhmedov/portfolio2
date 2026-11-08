@@ -1,0 +1,22 @@
+<section id="outro" aria-labelledby="outro-title">
+  <footer class="titleblock">
+    <h2 id="outro-title">{{contact.title}}</h2>
+    <ul class="ports">
+{{#contact}}
+      <li>
+{{#type=cv}}
+        <a href="{{@root}}{{cv.file}}">{{label}}</a>
+{{/type=cv}}
+{{^type=cv}}
+        <a href="{{href}}">{{label}}</a>
+{{/type=cv}}
+      </li>
+{{/contact}}
+    </ul>
+    <nav aria-label="{{outro.langs}}">
+      <span class="lang lang--current" lang="{{@lang}}" aria-current="true">{{@lang}}</span>
+      <a class="lang" data-lang-switch href="{{@root}}{{@altFile}}" lang="{{@altLang}}" hreflang="{{@altLang}}" aria-label="{{nav.langSwitch}}">{{@altLang}}</a>
+    </nav>
+    <p><a href="{{@v1Url}}">{{outro.v1}}</a></p>
+  </footer>
+</section>

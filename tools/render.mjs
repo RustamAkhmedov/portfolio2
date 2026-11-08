@@ -15,7 +15,9 @@
  * Schluessel-Suche: 1. aktuelle Schleifen-Items, 2. src/content/strings.json plus jede weitere
  * src/content/<name>.json als Liste/Objekt unter <name> (z. B. projects, parts, contact),
  * 3. @-Variablen aus site.json: @lang @file @url @base @root @altLang @altFile @altUrl @altRoot
- * @ogLocale @ogLocaleAlt. @root ist der Pfad zur Site-Wurzel ('' bzw. '../' fuer en/).
+ * @ogLocale @ogLocaleAlt @v1Url. @root ist der Pfad zur Site-Wurzel ('' bzw. '../' fuer en/).
+ * Erweiterungen: {{obj.key}} (Punktpfad in ein Objekt aus strings/Content), {{obj[var]}} (Schluessel aus einer
+ * Variablen, z. B. {{sections[section]}}), {{#a=b}}..{{/a=b}} / {{^a=b}} (Gleichheit von Wert a mit Literal b).
  * { "de": .., "en": .. } wird zur aktuellen Sprache aufgeloest. Unbekannter Schluessel oder
  * fehlende Uebersetzung = Build-Fehler (Constitution II), nie ein leeres Feld.
  */
@@ -60,7 +62,7 @@ function loadTemplate(file, seen = []) {
 // Parser: flat tag stream -> tree
 // ---------------------------------------------------------------------------
 
-const TAG = /\{\{\{\s*([\w.@-]+)\s*\}\}\}|\{\{\s*([#^/]?)\s*([\w.@-]+|\.)\s*\}\}/g;
+const TAG = /\{\{\{\s*([\w.@-]+)\s*\}\}\}|\{\{\s*([#^/]?)\s*([\w.@=\[\]-]+|\.)\s*\}\}/g;
 
 function parse(source) {
   const root = { children: [] };
@@ -103,7 +105,7 @@ function vars(site, lang) {
   const cfg = site.languages[lang];
   const altCfg = site.languages[alt];
   return {
-    '@lang': lang, '@file': cfg.file, '@url': site.base + cfg.file, '@base': site.base,
+    '@v1Url': site.v1Url, '@lang': lang, '@file': cfg.file, '@url': site.base + cfg.file, '@base': site.base,
     '@root': cfg.root ?? '', '@altRoot': altCfg.root ?? '',
     '@altLang': alt, '@altFile': altCfg.file, '@altUrl': site.base + altCfg.file,
     '@ogLocale': cfg.ogLocale, '@ogLocaleAlt': altCfg.ogLocale
@@ -124,12 +126,26 @@ function renderLang(tree, data, lang, used = new Set()) {
   }
 
   function lookup(name, ctx, optional) {
+    const idx = name.match(/^([\w.@-]+)\[([\w.@-]+)\]$/);
+    if (idx) {
+      const obj = lookup(idx[1], ctx, optional);
+      const key = lookup(idx[2], ctx, optional);
+      if (isPlainObject(obj) && Object.hasOwn(obj, key)) return translate(obj[key], name);
+      if (optional) return undefined;
+      throw new Error(`Unknown key {{${name}}} (lang ${lang}) — "${key}" is not in "${idx[1]}"`);
+    }
     if (name === '.') return translate(ctx.at(-1), '.');
     for (let i = ctx.length - 1; i >= 0; i--) {
       if (isPlainObject(ctx[i]) && Object.hasOwn(ctx[i], name)) return translate(ctx[i][name], name);
     }
     if (Object.hasOwn(data.strings, name)) { used.add(name); return translate(data.strings[name], name); }
     if (Object.hasOwn(v, name)) return v[name];
+    const dot = name.indexOf('.');
+    if (dot > 0 && Object.hasOwn(data.strings, name.slice(0, dot))) {
+      const head = data.strings[name.slice(0, dot)];
+      const rest = name.slice(dot + 1);
+      if (isPlainObject(head) && Object.hasOwn(head, rest)) { used.add(name.slice(0, dot)); return translate(head[rest], name); }
+    }
     if (optional) return undefined;
     throw new Error(`Unknown key {{${name}}} (lang ${lang}) — add it to src/content/strings.json or the data item`);
   }
@@ -141,7 +157,8 @@ function renderLang(tree, data, lang, used = new Set()) {
       else if (n.type === 'var') out += esc(lookup(n.name, ctx));
       else if (n.type === 'raw') out += String(lookup(n.name, ctx));
       else {
-        const value = lookup(n.name, ctx, true);
+        const eq = n.name.match(/^([\w.@-]+)=([\w.@-]+)$/);
+        const value = eq ? lookup(eq[1], ctx, true) === eq[2] : lookup(n.name, ctx, true);
         const empty = !value || (Array.isArray(value) && value.length === 0);
         if (n.type === 'inverted') { if (empty) out += walk(n.children, ctx); }
         else if (Array.isArray(value)) value.forEach((item) => { out += walk(n.children, [...ctx, item]); });
