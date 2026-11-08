@@ -1,49 +1,93 @@
 # portfolio_v2
 
-Alternative Portfolio-Seite zu `~/Projects/portfolio` (rustam.os, Retro-OS-Look):
-**„Explosionszeichnung“**. Ein 3D-Modell meines Laptops (ASUS Vivobook S 15, stilisiert) zerlegt sich
-beim Scrollen, und jedes Teil führt zu einem Abschnitt. Look „Papier-Datenblatt“ mit Orange, de + en.
+Portfolio „Explosionszeichnung“: ein stilisierter 3D-Laptop (three.js) zerlegt sich beim Scrollen,
+und jedes Teil führt zu einem Abschnitt. Deutsch und Englisch, statisch gebaut mit Vite.
+Alternative zu meinem Portfolio `rustam.os` (`~/Projects/portfolio`, nur lesend genutzt).
 
-**Status:** Planung fertig, Code folgt. Nur lokales git, kein GitHub-Repo.
+Ohne WebGL, ohne JavaScript oder mit reduzierter Bewegung gibt es dieselben Inhalte als normale Seite mit Standbild.
 
-## Nächste Woche: so geht's los
+Nur lokales git, kein GitHub-Repo, kein Deployment.
 
-1. Claude Code in diesem Ordner starten: `cd ~/Projects/portfolio_v2 && claude`
-2. Kurz drüberlesen: `specs/001-explosionszeichnung/spec.md` (was) und `tasks.md` (Schritte).
-3. `/speckit-analyze` (optional), um Spec, Plan und Tasks gegeneinander zu prüfen.
-4. `/speckit-implement`. Claude arbeitet `tasks.md` Phase für Phase ab.
-   - Vorher `/model sonnet`: Die Haupt-Session koordiniert nur und gibt `[H]`/`[S]`/`[O]`-Aufgaben an die
-     Agents `umsetzer-haiku` / `umsetzer-sonnet` / `spezialist-opus` (Regeln in `CLAUDE.md`).
-   - **Phase 1** (Setup) läuft ohne Rückfragen.
-   - **Phase 2, T010 Designplan**: Hier fragt Claude dich (Schriften, Look; Gehäusefarbe steht fest: schwarz). Erst danach wird gestylt.
-   - Nach jeder Phase: Screenshots in `test-results/shots/` anschauen und Feedback geben.
-5. Empfohlen: **„implement phase 1“**, dann „implement phase 2“, … bis 11. Jede Phase ist eine Session,
-   danach stoppt Claude und wartet auf dein OK.
+## Voraussetzungen
 
-## Wo steht was?
+- Node.js ≥ 22 (laut `specs/001-explosionszeichnung/quickstart.md`; lokal getestet mit 24.x), npm
+- Firefox als System-Browser für Screenshots und Messungen (`/usr/bin/firefox`). Chrome/Chromium nicht verwenden.
 
-| Datei | Inhalt |
+## Befehle
+
+Einmalig `npm install` (Abhängigkeiten nur im Projekt).
+
+| Befehl | Wofür |
 |---|---|
-| `.specify/memory/constitution.md` | Projektregeln (Inhalt zuerst, de/en aus einer Quelle, iGPU-Budget, eigene Optik, nur Firefox) |
-| `specs/001-explosionszeichnung/spec.md` | Was die Seite können muss (User Stories, Anforderungen, Erfolgskriterien) |
-| `specs/001-explosionszeichnung/plan.md` | Stack, Ordnerstruktur, Architektur |
-| `specs/001-explosionszeichnung/research.md` | technische Entscheidungen mit Begründung |
-| `specs/001-explosionszeichnung/data-model.md` | Teile, Projekte, Texte, Szenenzustand |
-| `specs/001-explosionszeichnung/contracts/` | DOM-Hooks und Inhaltsregeln |
-| `specs/001-explosionszeichnung/quickstart.md` | Befehle + Abnahme-Szenarien |
-| `specs/001-explosionszeichnung/tasks.md` | 50 Aufgaben in 11 Phasen (eine pro Session) |
-| `docs/referenz/laptop/` | ASUS-Fotos + Maße + deine echten Hardwaredaten (© ASUS, gitignored) |
-| `docs/ideen.md` | die 4 ursprünglichen Richtungen + Entscheidungen |
+| `npm run dev` | Dev-Server, `http://localhost:5173/` (de) und `/en/` (en) |
+| `npm run build` | Typprüfung (`tsc --noEmit`), Seiten rendern, Produktions-Build nach `dist/` |
+| `npm run preview` | Den Build aus `dist/` lokal ausliefern |
+| `npm test` | Vitest: Inhalte und Übersetzungen, Explosionsmathematik, Kamerapfad, Seiten-Render |
+| `npm run shots` | Build, Vorschau und Firefox-Screenshots aller Abschnitte (1440 + 390 px) nach `test-results/shots/` |
+| `npm run shots:modes` | Screenshots für reduzierte Bewegung, ohne WebGL und ohne JS |
+| `npm run still` | Standbild `public/img/explosion-still.webp` neu erzeugen |
+| `npm run scroll-shots` | Screenshots der Scroll-Stationen plus Bildrate (nur Richtwert) |
+| `npm run perf` | Szene-Messung in Firefox (fps, Draw-Calls, Dreiecke, JS-Zeit), Ergebnisse in `docs/messungen.md` |
+| `npm run bundle` | JS-Budget prüfen: Startseite ≤ 350 KB gzip (nach `npm run build`, Exit 1 bei Überschreitung) |
 
-## Werkzeuge (aus /reminder)
+## Ordnerstruktur
 
-| Werkzeug | Wofür hier |
-|---|---|
-| `frontend-design`-Skill | Designplan (T010) vor dem Styling, kein AI-Slop |
-| GSAP + `gsap-skills` | ScrollTrigger (Pin, Scrub), SplitText, Timelines, matchMedia |
-| Lenis | Smooth Scroll, gekoppelt an ScrollTrigger |
-| three.js | prozeduraler Laptop (Bauweise wie im `teardown`-Skill) |
-| Spec Kit | `/speckit-…`-Befehle, eingerichtet |
-| Remotion | später (Feature 002): Projekt-Clips aufs Display |
+```text
+src/
+  page.html            Gerüst der Seite (Reihenfolge der Abschnitte)
+  sections/            ein Abschnitt pro Datei: hero, bom, projekte, skills, ueber, lebenslauf, kontakt, outro, labels
+  content/             alle Texte und Daten: strings.json, parts.json, projects.json, contact.json, site.json
+  styles/              tokens.css (Farben, Schriften, Abstände, Timings), base, layout, sections, labels, reduced
+  scene/               three.js: Zustand (state.ts), Renderer, Laptop-Teile (laptop/), Explosion, Kamerapfad, Labels
+  choreo/              Scroll-Choreografie: Lenis, ScrollTrigger-Timeline, Abschnitte, Sprache, Medien
+  main.ts              Einstieg: Feature-Erkennung, lädt Szene und Choreografie nur wenn erlaubt
+public/                Bilder (img/), Lebensläufe (cv/)
+tools/                 Render-Engine, Vite-Plugin, Firefox-Shim (ffbrowser.mjs), Screenshot- und Messwerkzeuge
+tests/                 Vitest-Tests (Inhalte, Explosion, Kamera, Choreografie, Seiten-Render)
+docs/                  design.md (Designplan), messungen.md (Messwerte), ideen.md, referenz/ (nur lokal, gitignored)
+specs/                 Spec Kit: spec, plan, research, data-model, contracts/, quickstart, tasks
+.specify/              Spec-Kit-Vorlagen und Constitution (Projektregeln)
+```
 
-Libraries nur in diesem Projekt installieren, nie global. Optisch testen nur mit Firefox (nie headless Chrome).
+## Inhalte ändern
+
+Alle Texte stehen in `src/content/*.json`. Jeder Wert hat `{ "de": …, "en": … }` nebeneinander. Eine fehlende
+Übersetzung bricht den Build ab. Die Seiten selbst (`src/sections/*.html`) enthalten nur Markup und
+Platzhalter wie `{{key}}`.
+
+## Wie Seiten gebaut werden
+
+`index.html` (de) und `en/index.html` (en) entstehen aus `src/page.html`, `src/sections/` und `src/content/`
+per `tools/render.mjs`. Das Vite-Plugin `tools/vite-plugin-pages.mjs` ruft das vor dem Build und bei Änderungen
+im Dev-Server auf. Beide Dateien sind generiert und in `.gitignore` eingetragen: nie von Hand bearbeiten.
+`node tools/render.mjs --check` meldet, ob sie veraltet sind.
+
+## Prüfen
+
+- `npm test` und `npm run build` müssen grün sein, bevor etwas committet wird.
+- Optisch nur in Firefox (`npm run shots`, `npm run scroll-shots`, `npm run perf`). Die Werkzeuge
+  starten Firefox über `tools/ffbrowser.mjs` mit WebDriver BiDi.
+- Messwerte und Grenzen: `docs/messungen.md`. Designentscheidungen: `docs/design.md`.
+
+## Regeln
+
+Verbindlich ist `.specify/memory/constitution.md`. Kurzfassung:
+
+- Inhalt zuerst: Alles Wichtige steht als HTML im Dokument. Das 3D-Bild ist Dekoration.
+- Eine Quelle, zwei Sprachen: Texte nur in `src/content/`, de und en gemeinsam pflegen.
+- Leicht für die iGPU: JavaScript der Startseite ≤ 350 KB gzip, Pixelratio ≤ 1,5, rendern nur bei Bewegung.
+- Gestaltung nur über Design-Tokens in `src/styles/tokens.css`. Keine Verläufe, keine Emoji als Icons.
+- Optisch nur mit Firefox testen, nie headless Chrome oder Chromium.
+- Keine Fremd-CDNs. Schriften (Archivo, Martian Mono) sind über `@fontsource-variable` selbst gehostet.
+- Fotos vom ASUS-Laptop (`docs/referenz/laptop/`, © ASUS) sind nur lokale Vorlage: nie in den Build, kein ASUS-Branding.
+- Libraries nur im Projekt installieren, nie global.
+- v1 (`~/Projects/portfolio`) nur lesen, dort nichts ändern.
+- Kein Push, kein Deployment ohne ausdrückliches OK von Rustam. Commits erst nach Freigabe.
+
+## Spec Kit
+
+Die Umsetzung läuft über `specs/001-explosionszeichnung/`:
+
+1. `spec.md` (was), `plan.md` (Aufbau), `tasks.md` (Aufgaben in Phasen, mit `[H]`/`[S]`/`[O]` für die Modellwahl).
+2. Mit Claude Code: „implement phase x“ erledigt genau die Aufgaben von Phase x, prüft den Checkpoint und
+   wartet dann auf die Freigabe. Die Modell-Regeln stehen in `CLAUDE.md`, Hinweise für Agenten in `AGENTS.md`.

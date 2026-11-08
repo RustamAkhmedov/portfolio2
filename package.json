@@ -12,7 +12,8 @@
     "shots:modes": "node tools/shot.mjs --mode reduced && node tools/shot.mjs --mode no-webgl --no-build && node tools/shot.mjs --mode no-js --no-build",
     "still": "node tools/shot.mjs --still",
     "scroll-shots": "node tools/scroll-shot.mjs",
-    "perf": "node tools/perf.mjs"
+    "perf": "node tools/perf.mjs",
+    "bundle": "node tools/bundle.mjs"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",

@@ -27,3 +27,5 @@ Feature in `specs/001-explosionszeichnung/` (spec, plan, research, data-model, c
 - Libraries nur im Projekt installieren, nie global. Keine Fremd-CDNs, Schriften selbst hosten.
 - v1 (`~/Projects/portfolio/`) nur lesen, dort nichts ändern.
 - ASUS-Fotos aus `docs/referenz/laptop/` nie in den Build, kein ASUS-Branding.
+
+@AGENTS.md

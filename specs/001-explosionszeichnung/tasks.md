@@ -165,9 +165,9 @@ v1-Quelle: `~/Projects/portfolio/` (nur lesen, nichts dort ändern).
 
 **Ziel**: Budgets messen, Doku, Abnahme mit Rustam.
 
-- [ ] T070 [S] Bundle-Budget prüfen (`vite build` → JS gzip ≤ 350 KB); three nur über benannte Importe
-- [ ] T071 [P] [S] Lighthouse-ähnliche Messung ohne Chromium: in normalem Firefox Netzwerk „Fast 4G“, LCP/bedienbar laut SC-003 messen und in `docs/messungen.md` notieren
-- [ ] T072 [P] [H] `README.md` aktualisieren (Befehle, Aufbau, Regeln) und `AGENTS.md` wie in v1 anlegen; bestehende `CLAUDE.md` (Modell-Routing) behalten und um `@AGENTS.md` ergänzen
+- [X] T070 [S] Bundle-Budget prüfen (`vite build` → JS gzip ≤ 350 KB); three nur über benannte Importe
+- [X] T071 [P] [S] Lighthouse-ähnliche Messung ohne Chromium: in normalem Firefox Netzwerk „Fast 4G“, LCP/bedienbar laut SC-003 messen und in `docs/messungen.md` notieren
+- [X] T072 [P] [H] `README.md` aktualisieren (Befehle, Aufbau, Regeln) und `AGENTS.md` wie in v1 anlegen; bestehende `CLAUDE.md` (Modell-Routing) behalten und um `@AGENTS.md` ergänzen
 - [ ] T073 **(Haupt-Session, nicht delegieren – braucht Rustam)** Alle quickstart.md-Szenarien durchgehen, Screenshots mit Rustam anschauen, Korrekturen
 - [ ] T074 **(Haupt-Session, nicht delegieren – braucht Rustam)** Rustam fragen: GitHub-Repo/Pages? (Constitution: nur nach OK)
 
