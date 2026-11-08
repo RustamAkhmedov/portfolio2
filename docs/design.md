@@ -233,3 +233,12 @@ Viel Orange auf einen Blick, klar bildstark. Risiko: wirkt flächiger und lauter
 - Die Leiterbahnen laufen **von oben nach unten** wie echte Leitungen auf einem Motherboard: sie wachsen mit dem Scrollen abwärts (Spitze der Bahn = aktueller Scrollfortschritt), Bündel mit 45°-Knicken, Lötpunkte an den Enden und an Abzweigen. Kein Fortschrittsbalken und keine Rückwärtsanimation außer dem Scrollen selbst.
 - Maus: nahe Bahnen werden kurz dicker (Hover ist erwünscht).
 - Mehr Orange nur wie oben unter „entschieden“.
+
+### Hero: erster Eindruck (Ergänzung 2026-11-08, Rustam)
+
+Das Erste, was Besucher sehen, soll mehr Farbe und ein eigenes Gestaltungsmerkmal haben, damit die Seite in den ersten 10 Sekunden nicht weggeklickt wird.
+- **Namens-Unterstrich:** Der Name „Rustam Akhmedov“ bekommt einen dicken orangen Unterstrich (10 px, `--orange`, ganze Breite des längeren Namenszuges), statisch; er erscheint zusammen mit dem Namen im vorhandenen Intro (kein Wachsen, kein Balken).
+- **Hauptleitung:** Der Unterstrich ist die „Hauptleitung“ der Leiterbahnen. An seinen beiden Enden sitzen Lötpunkte (orange Kreise, 14 px), von dort laufen die ersten Bahnen schon im Hero nach unten und außen und führen beim Scrollen weiter durch die Seite (Variante A). So hängt das Muster sichtbar am Namen, und die ersten Pixel der Seite haben Orange, Form und Bewegung.
+- **Oben mehr Fläche in Orange:** Der Hero-Satz bleibt Text in `--ink`; das Wort-Logo in der Kopfzeile bekommt einen schmalen orangen Streifen unter der Zeile (Kopfzeile statt Rahmen, 3 px über die volle Breite, kein Fortschrittsbalken: er füllt sich nicht).
+- **Laptop im Hero:** Der zugeklappte Laptop liegt weiter rechts unter dem Text; sein Gehäuse bleibt Anthrazit, damit das Orange der Leitungen und des Unterstrichs der einzige Farbtupfer ist.
+- Nicht gewünscht bleiben Nummernkästchen, Fortschrittsbalken, Pfeil-Zeichen an Links.
