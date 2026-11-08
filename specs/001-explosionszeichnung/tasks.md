@@ -42,10 +42,10 @@ v1-Quelle: `~/Projects/portfolio/` (nur lesen, nichts dort ändern).
 
 **Zweck**: Look festlegen (mit Rustam) und die Inhaltsdaten mit Tests. T012–T014 hängen nicht am Design und können parallel zu T010 laufen.
 
-- [ ] T010 **(Haupt-Session, nicht delegieren – braucht Rustam)** **Designplan mit Skill `frontend-design`** (vorher `/frontend-design` aufrufen) nach `docs/design.md`: Papier-Datenblatt-Look konkretisieren (Papierton, Linienstärken, Raster, Zeichnungskopf/Schriftfeld, Teilenummern-Stil, Orange-Ton), Schriftpaar wählen (Grotesk + technische Mono, selbst gehostet), Typo-Skala, Abstände, Bewegungs-Timings, Gehäuseton des Laptops (Rustams Gerät ist Neutral Black → dunkles mattes Anthrazit; Kantenlinien müssen darauf lesbar bleiben), AI-Slop-Liste abhaken; **Rustam abnehmen lassen, bevor T011 startet**
-- [ ] T012 [P] [H] `src/content/parts.json` mit P-01…P-08 nach `data-model.md` (Namen/Specs de+en aus `docs/referenz/laptop/README.md`, Explosionsrichtungen grob: Deckel nach hinten-oben, Tastatur nach oben, Board/Akku/SSD gestaffelt nach oben, Lüfter seitlich, Bodenplatte nach unten, Anschlüsse seitlich)
-- [ ] T013 [P] [H] `src/content/contact.json` (E-Mail, GitHub, Lebenslauf … je ein Anschluss) und `src/content/site.json` (Sprachen, Basis-URL, Link zu v1 `https://rustamakhmedov.github.io/portfolio/`)
-- [ ] T014 [P] [S] `tests/content.test.ts` nach `contracts/content.md` (Regeln 1–6)
+- [X] T010 **(Haupt-Session, nicht delegieren – braucht Rustam)** **Designplan mit Skill `frontend-design`** (vorher `/frontend-design` aufrufen) nach `docs/design.md`: Papier-Datenblatt-Look konkretisieren (Papierton, Linienstärken, Raster, Zeichnungskopf/Schriftfeld, Teilenummern-Stil, Orange-Ton), Schriftpaar wählen (Grotesk + technische Mono, selbst gehostet), Typo-Skala, Abstände, Bewegungs-Timings, Gehäuseton des Laptops (Rustams Gerät ist Neutral Black → dunkles mattes Anthrazit; Kantenlinien müssen darauf lesbar bleiben), AI-Slop-Liste abhaken; **Rustam abnehmen lassen, bevor T011 startet**
+- [X] T012 [P] [H] `src/content/parts.json` mit P-01…P-08 nach `data-model.md` (Namen/Specs de+en aus `docs/referenz/laptop/README.md`, Explosionsrichtungen grob: Deckel nach hinten-oben, Tastatur nach oben, Board/Akku/SSD gestaffelt nach oben, Lüfter seitlich, Bodenplatte nach unten, Anschlüsse seitlich)
+- [X] T013 [P] [H] `src/content/contact.json` (E-Mail, GitHub, Lebenslauf … je ein Anschluss) und `src/content/site.json` (Sprachen, Basis-URL, Link zu v1 `https://rustamakhmedov.github.io/portfolio/`)
+- [X] T014 [P] [S] `tests/content.test.ts` nach `contracts/content.md` (Regeln 1–6)
 
 **Checkpoint**: `docs/design.md` von Rustam abgenommen, `npm test` grün (Inhaltsregeln). Danach committen und auf Rustams OK warten.
 
@@ -56,7 +56,7 @@ v1-Quelle: `~/Projects/portfolio/` (nur lesen, nichts dort ändern).
 **Zweck**: Die komplette Seite ohne 3D. Sie ist zugleich der Fallback (Constitution I). Erst nach Rustams OK zu T010.
 
 - [ ] T011 [H] Tokens aus dem Designplan in `src/styles/tokens.css`; Schriften via `@fontsource/<name>` installieren oder WOFF2 nach `public/fonts/`
-- [ ] T015 [S] `src/page.html` (Gerüst, Meta/og, hreflang, Inline-Skript im `<head>` setzt `html.js`, `html.reduced`, `html.no-webgl` vor dem ersten Paint) und Abschnitte `src/sections/{hero,bom,projekte,skills,ueber,lebenslauf,kontakt,outro,labels}.html` mit allen Hooks aus `contracts/dom.md`
+- [ ] T015 [S] `src/page.html` (Gerüst, Meta/og, hreflang, Inline-Skript im `<head>` setzt `html.js`, `html.reduced`, `html.no-webgl` vor dem ersten Paint) und Abschnitte `src/sections/{hero,bom,projekte,skills,ueber,lebenslauf,kontakt,outro,labels}.html` mit allen Hooks aus `contracts/dom.md`; danach in `tests/content.test.ts` die zwei `it.skip` (Regel 2, Abschnitts-Anker) wieder auf `it` stellen
 - [ ] T016 [S] Statische Gestaltung: `src/styles/{base,layout,sections}.css` – die Seite muss ohne JS komplett und schön sein (Zeichnungskopf, Stückliste als Tabelle, Projekt-Datenblätter, Schriftfeld); `#scene-fallback` zeigt vorerst einen Platzhalter
 - [ ] T017 [P] [S] `tests/render.test.ts`: beide Seiten rendern, gleiche Struktur, keine `{{`-Reste, alle Hooks aus `contracts/dom.md` vorhanden, alle internen Links/Assets existieren
 - [ ] T018 [S] `tools/shot.mjs`: `vite build` + `vite preview` starten, mit `ffbrowser.mjs` jede Abschnitts-ID bei 1440×900 und 390×844 anspringen, PNGs nach `test-results/shots/<lang>/<id>@<w>.png`, Exit 1 bei Konsolenfehlern; `npm run shots`

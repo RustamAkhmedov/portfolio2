@@ -1,0 +1,26 @@
+[
+  {
+    "type": "email",
+    "label": { "de": "E-Mail", "en": "Email" },
+    "href": "mailto:rustamakhmedov923@gmail.com",
+    "port": "TB4-1"
+  },
+  {
+    "type": "github",
+    "label": { "de": "GitHub", "en": "GitHub" },
+    "href": "https://github.com/rustamakhmedov",
+    "port": "TB4-2"
+  },
+  {
+    "type": "cv",
+    "label": { "de": "Lebenslauf", "en": "Resume" },
+    "href": "cv/lebenslauf.pdf",
+    "port": "USB-A-1"
+  },
+  {
+    "type": "linkedin",
+    "label": { "de": "LinkedIn", "en": "LinkedIn" },
+    "href": "https://www.linkedin.com/in/rakhmedov",
+    "port": "USB-A-2"
+  }
+]

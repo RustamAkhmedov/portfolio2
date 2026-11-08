@@ -1,0 +1,66 @@
+[
+  {
+    "id": "P-01",
+    "key": "lid",
+    "name": { "de": "Display", "en": "Display" },
+    "spec": { "de": "15,6″ OLED · 2880 × 1620", "en": "15.6″ OLED · 2880 × 1620" },
+    "section": "projekte",
+    "explode": { "dir": [0, 0.6, -1], "dist": 2.2, "order": 0 }
+  },
+  {
+    "id": "P-02",
+    "key": "board",
+    "name": { "de": "Mainboard", "en": "Mainboard" },
+    "spec": { "de": "Intel Core Ultra 9 185H · 32 GB LPDDR5X", "en": "Intel Core Ultra 9 185H · 32 GB LPDDR5X" },
+    "section": "skills",
+    "explode": { "dir": [0, 1, 0], "dist": 0.8, "order": 1 }
+  },
+  {
+    "id": "P-03",
+    "key": "battery",
+    "name": { "de": "Akku", "en": "Battery" },
+    "spec": { "de": "75 Wh · 4S1P Li-Ion", "en": "75 Wh · 4S1P Li-ion" },
+    "section": "ueber",
+    "explode": { "dir": [0, 1, 0], "dist": 1.2, "order": 2 }
+  },
+  {
+    "id": "P-04",
+    "key": "ssd",
+    "name": { "de": "SSD", "en": "SSD" },
+    "spec": { "de": "M.2 2280 · PCIe 4.0 x4", "en": "M.2 2280 · PCIe 4.0 x4" },
+    "section": "lebenslauf",
+    "explode": { "dir": [0, 1, 0], "dist": 1.6, "order": 3 }
+  },
+  {
+    "id": "P-05",
+    "key": "ports",
+    "name": { "de": "Anschlüsse", "en": "Ports" },
+    "spec": { "de": "HDMI 2.1 · 2× Thunderbolt 4 · 2× USB-A 3.2", "en": "HDMI 2.1 · 2× Thunderbolt 4 · 2× USB-A 3.2" },
+    "section": "kontakt",
+    "explode": { "dir": [-1, 0, 0], "dist": 1.0, "order": 4 }
+  },
+  {
+    "id": "P-06",
+    "key": "keyboard",
+    "name": { "de": "Tastatur", "en": "Keyboard" },
+    "spec": { "de": "Chiclet · 1-Zonen-RGB · Numpad", "en": "Chiclet · 1-zone RGB · numpad" },
+    "section": null,
+    "explode": { "dir": [0, 1, 0], "dist": 0.9, "order": 5 }
+  },
+  {
+    "id": "P-07",
+    "key": "fans",
+    "name": { "de": "Lüfter", "en": "Fans" },
+    "spec": { "de": "2× Lüfter · 2 Heatpipes", "en": "2× fans · 2 heat pipes" },
+    "section": null,
+    "explode": { "dir": [1, 0, 0], "dist": 0.8, "order": 6 }
+  },
+  {
+    "id": "P-08",
+    "key": "bottom",
+    "name": { "de": "Bodenplatte", "en": "Bottom cover" },
+    "spec": { "de": "Metall · Unibody", "en": "Metal · unibody" },
+    "section": null,
+    "explode": { "dir": [0, -1, 0], "dist": 1.0, "order": 7 }
+  }
+]

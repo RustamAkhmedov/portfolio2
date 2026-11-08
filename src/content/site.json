@@ -1,5 +1,6 @@
 {
   "base": "https://example.invalid/",
+  "v1Url": "https://rustamakhmedov.github.io/portfolio/",
   "languages": {
     "de": { "file": "index.html", "root": "", "ogLocale": "de_AT" },
     "en": { "file": "en/index.html", "root": "../", "ogLocale": "en_US" }
