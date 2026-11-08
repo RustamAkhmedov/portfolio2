@@ -159,3 +159,72 @@ AI-Slop-Liste (Constitution IV):
 3. Schriftfeld als feste Live-Navigation unten rechts: gewünscht?
 
 Kontrast-Werte oben sind gerechnet; T054 prüft sie nach dem Bau noch einmal mit echten Werkzeugen.
+
+## Orange-Muster und mehr Orange (T084, Entwurf 2026-11-08, wartet auf Rustams Wahl)
+
+Rustams Vorgabe: Orange bleibt die einzige Signalfarbe, aber deutlich mehr davon; ein interaktives orangenes Muster im Hintergrund, das beim Scrollen mitgeht; die leeren Desktop-Flächen füllen. **Kein Mathe-Gitter**, kein Rahmen, kein Raster (Entscheidung vom 2026-11-08 bleibt). Das Papier bleibt einfarbig, das Muster ist eine eigene Ebene darüber/darunter.
+
+Gemeinsame Regeln für alle Varianten:
+- Eine Canvas-2D-Ebene `#pattern` (kein WebGL, keine neue Bibliothek, GSAP/Lenis liefern den Scrollfortschritt), `position: fixed`, hinter Szene und Text, `aria-hidden`.
+- Gezeichnet wird nur bei Scroll, Mausbewegung oder Resize (wie die Szene, on demand), Pause bei unsichtbarem Tab, DPR max. 1, Ziel ≤ 1 ms pro Frame, JS-Budget +≤ 4 KB gzip.
+- Hinter Text-Spalten Deckkraft stark abgesenkt (Maske), Text bleibt AA-Kontrast; Muster nur in Orange (`--orange`, Linien 1 bis 2 px, Flächen max. 12 % Deckkraft).
+- reduced: Muster einmal statisch gezeichnet (keine Scroll-/Mausreaktion); no-webgl wie normal (Canvas 2D geht), ohne JS: kein Muster.
+- Mobil: dünner (weniger Linien), nur Scrollreaktion, keine Maus.
+
+### Variante A · Leiterbahnen
+
+Orange Leiterbahnen wie auf einer Platine: Bündel paralleler Linien, die mit 45°-Knicken in den freien Randflächen laufen und an Lötpunkten (kleine Kreise) enden. Beim Scrollen zeichnen sie sich Stück für Stück (`stroke-dashoffset` an den Scrollfortschritt gekoppelt); die Bahnen führen zum jeweils aktiven Teil und enden an seiner Beschriftung. Maus: Bahnen in der Nähe leuchten kurz stärker (Linienstärke 1 → 2 px).
+```
++--------------------------------------------------+
+|~~o--+                     [Laptop]          +--o~~|
+|     +--+      Text                 Label 01-+     |
+|        +--o~~                      Label 02-+--o  |
+|  ~~~o--+                                  +--+    |
+|        +----o      Text                   o~~     |
++--------------------------------------------------+
+```
+Passt zum Gegenstand (Mainboard, Explosion), liest sich als Zeichnungs-/Platinenlinie, nicht als Gitter, weil Bahnen unregelmäßig und gebündelt verlaufen. Risiko: kann an ein Gitter erinnern, wenn zu regelmäßig; deshalb unregelmäßige Abstände und Bündel mit 2 bis 4 Linien.
+
+### Variante B · Explosionsachsen
+
+Die Strich-Punkt-Achsen der Explosion (DIN-Mittellinien) werden über die Szene hinaus bis an den Rand verlängert: orange Strahlen, die vom Laptop in die leeren Flächen laufen, dazu große Positionszahlen („01 bis 08“) in sehr heller orangener Tönung als Hintergrundtypo. Beim Scrollen wachsen die Achsen mit dem Explosionsgrad (länger, wenn explode steigt) und schwenken leicht mit der Kamera; die Achse des aktiven Teils wird kräftig. Maus: der nächste Strahl neigt sich dem Cursor zu.
+```
++--------------------------------------------------+
+|  \        .                    .         /       |
+|   \  `-.  Text       [Laptop]    .-'    /        |
+|  --.\   `-.      01 -.---.-- 02 .-'  .-/--       |
+|      `-.                                         |
++--------------------------------------------------+
+```
+Sehr nah an der Explosionszeichnung, wenig Aufwand. Risiko: Linien laufen leicht durch Text, deshalb Maske hinter den Textspalten.
+
+### Variante C · Schnittschraffur
+
+Orange Schraffur wie bei Schnittflächen in technischen Zeichnungen: diagonale Linien (45°, ungleiche Abstände), die als große Flächen die leeren Ränder der Seite füllen und mit dem Scrollen wandern (die Schraffurfläche folgt dem aktiven Abschnitt und verschiebt sich parallel zur Scrollrichtung, das Muster „fließt“). Die Fläche hinter dem aktiven Teil wird dichter. Maus: Schraffurwinkel dreht sich minimal mit der Mausposition.
+```
++--------------------------------------------------+
+|////////                                  ////////|
+|////////   Text          [Laptop]         ////////|
+|////////                                  ////////|
+|////////   Text                           ////////|
++--------------------------------------------------+
+```
+Viel Orange auf einen Blick, klar bildstark. Risiko: wirkt flächiger und lauter als A/B und liegt am nächsten an einem Raster (parallele Linien), obwohl diagonal und unregelmäßig.
+
+### Mehr Orange im Layout (für jede Variante)
+
+- Stückliste: Zeilen-Nummer (P-01 …) als orange gefüllte Kästchen statt reiner Mono-Zahl; Hover/Fokus der Zeile hinterlegt orange (Text `--ink`).
+- Abschnittstitel: eine kurze orange Linie (4 px) links über dem Titel, die beim Eintritt wächst.
+- Schriftfeld im Outro: orange Kopfstreifen mit Teilenummer.
+- Links: Unterstreichung orange (Text bleibt `--ink`; `--orange-ink` nur, wenn Orange als Text nötig ist).
+
+### Selbstprüfung gegen die Standard-Muster
+
+- Kein Aurora-/Mesh-Gradient, kein Rauschen, keine Partikel- oder Konfetti-Wolke (React-Bits-Hintergründe bewusst nicht benutzt).
+- Kein Gitter, kein Rahmen, keine Zonenmarken (Entscheidung des Auftraggebers).
+- Jede Bewegung hängt am Scrollfortschritt oder an der Maus, keine selbstlaufenden Animationen (Regel aus „Bewegung“).
+- Alle Varianten sind aus dem Gegenstand abgeleitet (Platine, Explosionsachse, Schnittschraffur), nicht aus einem allgemeinen Effektkatalog.
+
+### Empfehlung
+
+**A · Leiterbahnen**, kombiniert mit den „Mehr Orange“-Details. Es nutzt die Leerflächen am besten (Ränder links und rechts), hängt am Scroll und am aktiven Teil, und es ist die stärkste Verbindung zum Thema. B ist die billigere Alternative, C die auffälligste.
