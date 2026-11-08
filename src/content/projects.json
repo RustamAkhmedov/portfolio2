@@ -4,7 +4,7 @@
     "stack": "Python · Claude · Gemini · Ollama",
     "desc": {
       "de": "Macht aus Fotos und Mitschriften interaktive Offline-Lernseiten. Rechnungen, SQL und Subnetze werden nachgeprüft, bevor sie auf der Seite landen.",
-      "en": "Turns photos of class notes into interactive offline study pages. Maths, SQL and subnetting results are checked before they reach the page."
+      "en": "Turns photos and class notes into interactive offline study pages. Calculations, SQL and subnets are checked before they end up on the page."
     },
     "thumb": "img/projects/genut.webp",
     "repo": "https://github.com/RustamAkhmedov/genut",
@@ -15,7 +15,7 @@
     "stack": "JavaScript · PWA · Web Audio",
     "desc": {
       "de": "Lern-App für die Töne auf dem Gitarren-Griffbrett, mit Lernpfad und Übungsmodi. Offline nutzbar, komplett mit KI gebaut.",
-      "en": "Learning app for the notes on a guitar fretboard, with a learning path and practice modes. Works offline, built entirely with AI."
+      "en": "Learning app for the notes on the guitar fretboard, with a learning path and practice modes. Works offline, built entirely with AI."
     },
     "thumb": "img/projects/fretlearn.webp",
     "repo": "https://github.com/RustamAkhmedov/fretlearn",
@@ -27,7 +27,7 @@
     "stack": "JavaScript",
     "desc": {
       "de": "Browser-Spiel, direkt im Browser spielbar.",
-      "en": "Browser game, playable right in the browser."
+      "en": "Browser game you can play right in the browser."
     },
     "thumb": "img/projects/weitland.webp",
     "demo": "https://rustamakhmedov.github.io/weitland/",
@@ -38,7 +38,7 @@
     "stack": "JavaScript",
     "desc": {
       "de": "Lernseite, direkt im Browser nutzbar.",
-      "en": "Study page, usable right in the browser."
+      "en": "Study page you can use right in the browser."
     },
     "thumb": "img/projects/nscs.webp",
     "demo": "https://rustamakhmedov.github.io/nscs/",
@@ -49,7 +49,7 @@
     "stack": "JavaScript · Judge0 · json-server",
     "desc": {
       "de": "Browserbasierte IDE mit Code-Ausführung über die Judge0-API und json-server-Backend.",
-      "en": "Browser-based IDE with code execution via the Judge0 API and json-server backend."
+      "en": "Browser-based IDE with code execution via the Judge0 API and a json-server backend."
     },
     "thumb": "img/projects/onlineide.webp",
     "repo": "https://github.com/RustamAkhmedov/OnlineIDE",
@@ -61,7 +61,7 @@
     "stack": "C++ · raylib",
     "desc": {
       "de": "Zeichen-Tool mit Raylib, geschrieben in C++.",
-      "en": "Drawing tool built with Raylib, written in C++."
+      "en": "Drawing tool written in C++ with raylib."
     },
     "thumb": "img/projects/drawingtool.webp",
     "repo": "https://github.com/RustamAkhmedov/DrawingTool",
@@ -72,7 +72,7 @@
     "stack": "Java · Spring · JDBC",
     "desc": {
       "de": "Ticket-WebApp mit Spring und JDBC.",
-      "en": "Ticket WebApp built with Spring and JDBC."
+      "en": "Ticket web app built with Spring and JDBC."
     },
     "thumb": "img/projects/jdbc-ticketsystem.webp",
     "repo": "https://github.com/RustamAkhmedov/JDBC-TicketSystem",
@@ -128,7 +128,7 @@
     "stack": "Python · Django",
     "desc": {
       "de": "Online-Shop als Web-App mit Django.",
-      "en": "Store web app built with Django."
+      "en": "Online store as a web app, built with Django."
     },
     "thumb": "img/projects/store.webp",
     "repo": "https://github.com/RustamAkhmedov/Store",

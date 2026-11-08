@@ -5,8 +5,11 @@ import './styles/sections.css';
 import './styles/labels.css';
 import * as st from './scene/state';
 import './styles/reduced.css';
+import { initLangSwitch } from './choreo/lang';
 
 const root = document.documentElement;
+// Sprachumschalter hängt den aktuellen Abschnitt an (T061); Marken kommen von der Timeline, sonst DOM-Ersatz
+const langSwitch = initLangSwitch();
 const params = new URLSearchParams(location.search);
 /** ?still / ?state setzen den Zustand fest: dann keine Scroll-Choreografie (contracts/dom.md). */
 const fixedState = params.has('still') || params.has('state');
@@ -82,13 +85,18 @@ async function initScene(): Promise<void> {
       const { DESKTOP, MOBILE } = await import('./choreo/score');
       const timeline = createTimeline({
         labels: current?.handle.labels ?? null,
-        scrollTo: (y) => scrollTo(y),
+        scrollTo: (y, immediate) => {
+          // Lenis kennt die Dokumenthöhe nach dem Aufbau der Pins noch nicht und klemmt sonst weit unten liegende Ziele
+          smoothRef?.lenis.resize();
+          scrollTo(y, immediate);
+        },
         lengths: mobile ? MOBILE : DESKTOP,
         // Handy: Szene ist die Bühne oben (layout.css), Hero und Projekte pinnen darunter
         stageTop: mobile ? () => container.getBoundingClientRect().height : undefined,
       });
       // Anker (#id) landen auf der Scroll-Position des Abschnitts, nicht auf seinem DOM-Abstand
       smoothRef?.setResolver((id) => timeline.anchorY(id));
+      langSwitch.setMarks(() => timeline.marks());
       if (window.__v2) {
         window.__v2.marks = () => {
           const m = timeline.marks();
@@ -108,6 +116,7 @@ async function initScene(): Promise<void> {
       return {
         kill() {
           smoothRef?.setResolver(null);
+          langSwitch.setMarks(null);
           timeline.kill();
           if (window.__v2) window.__v2.marks = () => null;
         },

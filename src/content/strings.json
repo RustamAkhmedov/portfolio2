@@ -33,7 +33,7 @@
   },
   "about.text2": {
     "de": "Nebenbei würde ich gerne praktische Erfahrungen in Sommerpraktiken sammeln und ziele langfristig auf eine Laufbahn im <span class=\"hl\">Software-Engineering-, DevOps-, IT-Security- oder KI-Bereich.</span>",
-    "en": "Additionally, I am looking to gain practical experience through summer internships and aim for a long-term career in the <span class=\"hl\">Software Engineering, DevOps, IT Security, or AI fields.</span>"
+    "en": "On the side, I'd like to gain hands-on experience through summer internships, and I'm aiming for a long-term career in <span class=\"hl\">software engineering, DevOps, IT security or AI.</span>"
   },
   "skills": [
     "C++",
@@ -49,7 +49,7 @@
   },
   "contact.text": {
     "de": "Offen für Praktika, Projekte und alles rund um IT-Security & Development.",
-    "en": "Open for internships, projects, and everything related to IT security & development."
+    "en": "Open to internships, projects and anything around IT security & development."
   },
   "info.location.k": {
     "de": "Standort",
@@ -97,7 +97,7 @@
   },
   "scene.alt": {
     "de": "Explosionszeichnung eines Laptops: Display, Tastatur, SSD, Akku, Mainboard, Anschlüsse, Lüfter und Bodenplatte schweben auseinander und sind nummeriert beschriftet.",
-    "en": "Exploded view of a laptop: display, keyboard, SSD, battery, mainboard, ports, fan and bottom plate float apart, each with a numbered label."
+    "en": "Exploded view of a laptop: display, keyboard, SSD, battery, mainboard, ports, fans and bottom cover float apart, each with a numbered label."
   },
   "hero.name": "Rustam Akhmedov",
   "hero.scroll": {
@@ -164,7 +164,7 @@
   },
   "proj.newTab": {
     "de": "öffnet in neuem Tab",
-    "en": "opens in new tab"
+    "en": "opens in a new tab"
   },
   "info.title": {
     "de": "Steckbrief",
@@ -188,6 +188,6 @@
   },
   "outro.langs": {
     "de": "Sprachwahl",
-    "en": "Language choice"
+    "en": "Language selection"
   }
 }

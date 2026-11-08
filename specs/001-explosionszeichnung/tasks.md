@@ -153,9 +153,9 @@ v1-Quelle: `~/Projects/portfolio/` (nur lesen, nichts dort ändern).
 **Ziel**: Englische Seite gleichwertig, Umschalter landet an derselben Stelle.
 **Unabhängiger Test**: quickstart.md Szenario 6.
 
-- [ ] T060 [S] [US3] Alle englischen Texte prüfen und glätten (`strings.json`, `parts.json`, `projects.json`, `contact.json`); englischer Lebenslauf `public/cv/resume.pdf`
-- [ ] T061 [S] [US3] Sprachumschalter `a[data-lang-switch]` hängt den aktuellen Abschnitts-Anker an; nach dem Laden setzt die Timeline den Zustand passend zum Anker
-- [ ] T062 [P] [S] [US3] `tests/render.test.ts` erweitern: en-Seite hat `lang="en"`, alle `href`/`src` funktionieren aus `en/` heraus
+- [X] T060 [S] [US3] Alle englischen Texte prüfen und glätten (`strings.json`, `parts.json`, `projects.json`, `contact.json`); englischer Lebenslauf `public/cv/resume.pdf`
+- [X] T061 [S] [US3] Sprachumschalter `a[data-lang-switch]` hängt den aktuellen Abschnitts-Anker an; nach dem Laden setzt die Timeline den Zustand passend zum Anker
+- [X] T062 [P] [S] [US3] `tests/render.test.ts` erweitern: en-Seite hat `lang="en"`, alle `href`/`src` funktionieren aus `en/` heraus
 
 **Checkpoint**: de und en gleichwertig. Danach committen und auf Rustams OK warten.
 

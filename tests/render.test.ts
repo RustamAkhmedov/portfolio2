@@ -152,8 +152,133 @@ describe('render: interne Links und Assets', () => {
     });
   }
 
+  for (const lang of langs) {
+    it(`${lang}: poster, CSS-url(), Script/Stylesheet und CV-Link lösen relativ zur Seite auf`, () => {
+      const d = docs[lang];
+      const pageDir = posix.dirname(FILES[lang]);
+      const prefix = lang === 'en' ? '../' : '';
+      const refs: string[] = [];
+      for (const el of d.querySelectorAll('[poster]')) refs.push(el.getAttribute('poster')!);
+      for (const el of d.querySelectorAll('[style]'))
+        for (const m of el.getAttribute('style')!.matchAll(/url\(\s*['"]?([^'")]+)/g)) refs.push(m[1]);
+      for (const el of d.querySelectorAll('style'))
+        for (const m of el.textContent!.matchAll(/url\(\s*['"]?([^'")]+)/g)) refs.push(m[1]);
+      const problems: string[] = [];
+      for (const ref of refs) {
+        if (external.test(ref) || ref.startsWith('#')) continue;
+        const site = posix.normalize(posix.join(pageDir, ref.split(/[#?]/)[0]));
+        if (!existsSync(join(root, 'public', site)) && !existsSync(join(root, site))) problems.push(`${ref} -> ${site} fehlt`);
+      }
+      expect(problems).toEqual([]);
+
+      // Einstiegs-Script und Stylesheets: relativ zur Seite, Ziel im Projektroot vorhanden
+      const entries = [...d.querySelectorAll('script[src], link[rel="stylesheet"][href]')].map(
+        (el) => el.getAttribute('src') ?? el.getAttribute('href')!,
+      );
+      expect(entries.some((e) => e.endsWith('src/main.ts'))).toBe(true);
+      for (const e of entries) {
+        expect(e.startsWith(prefix), e).toBe(true);
+        expect(existsSync(join(root, posix.normalize(posix.join(pageDir, e)))), e).toBe(true);
+      }
+
+      // alle internen Bild-/PDF-Verweise tragen das Präfix der Seite (en: ../)
+      const files = [...d.querySelectorAll('img[src], source[srcset], a[href$=".pdf"]')].map(
+        (el) => el.getAttribute('src') ?? el.getAttribute('srcset') ?? el.getAttribute('href')!,
+      );
+      expect(files.length).toBeGreaterThan(5);
+      for (const f of files) {
+        expect(f.startsWith(prefix + (f.endsWith('.pdf') ? 'cv/' : 'img/')), f).toBe(true);
+        if (lang === 'de') expect(f.startsWith('../'), f).toBe(false);
+      }
+
+      // Lebenslauf-Datei je Sprache (strings.json cv.file), alle Verweise gleich
+      const cvFile = ({ de: 'cv/lebenslauf.pdf', en: 'cv/resume.pdf' })[lang];
+      const cvLinks = [...d.querySelectorAll('a[href$=".pdf"]')].map((a) => a.getAttribute('href'));
+      expect(cvLinks.length).toBeGreaterThan(0);
+      expect(new Set(cvLinks)).toEqual(new Set([prefix + cvFile]));
+      expect(existsSync(join(root, 'public', cvFile))).toBe(true);
+    });
+  }
+
   it('MISSING_OK enthält keine inzwischen vorhandenen Dateien', () => {
     const stale = Object.keys(MISSING_OK).filter((f) => existsSync(join(root, 'public', f)));
     expect(stale).toEqual([]);
+  });
+});
+
+describe('render: Sprachbeziehung', () => {
+  const site = JSON.parse(readFileSync(join(root, 'src/content/site.json'), 'utf8')) as {
+    base: string;
+    languages: Record<string, { file: string; root: string; ogLocale: string }>;
+  };
+  const abs = (l: keyof typeof FILES) => site.base + FILES[l];
+
+  it('lang-Attribut: de-Seite de, en-Seite en', () => {
+    expect(docs.de.documentElement.getAttribute('lang')).toBe('de');
+    expect(docs.en.documentElement.getAttribute('lang')).toBe('en');
+  });
+
+  for (const lang of langs) {
+    const other = lang === 'de' ? 'en' : 'de';
+    it(`${lang}: canonical und hreflang zeigen gegenseitig aufeinander`, () => {
+      const d = docs[lang];
+      expect(d.querySelector('link[rel="canonical"]')!.getAttribute('href')).toBe(abs(lang));
+      const alt = Object.fromEntries(
+        [...d.querySelectorAll('link[rel="alternate"][hreflang]')].map((l) => [l.getAttribute('hreflang'), l.getAttribute('href')]),
+      );
+      expect(alt).toEqual({ de: abs('de'), en: abs('en') });
+      expect(d.querySelector('meta[property="og:url"]')!.getAttribute('content')).toBe(abs(lang));
+      expect(d.querySelector('meta[property="og:locale"]')!.getAttribute('content')).toBe(site.languages[lang].ogLocale);
+      expect(d.querySelector('meta[property="og:locale:alternate"]')!.getAttribute('content')).toBe(
+        site.languages[other].ogLocale,
+      );
+    });
+
+    it(`${lang}: a[data-lang-switch] zeigt auf die ${other}-Seite`, () => {
+      const href = lang === 'de' ? 'en/index.html' : '../index.html';
+      const pageDir = posix.dirname(FILES[lang]);
+      const switches = [...docs[lang].querySelectorAll('a[data-lang-switch]')];
+      expect(switches.length).toBeGreaterThan(0);
+      for (const a of switches) {
+        const h = a.getAttribute('href')!.split('#')[0];
+        expect(h).toBe(href);
+        expect(posix.normalize(posix.join(pageDir, h))).toBe(FILES[other]);
+        expect(a.getAttribute('hreflang')).toBe(other);
+        expect(a.getAttribute('lang')).toBe(other);
+      }
+    });
+
+    it(`${lang}: Teilenamen und Spec-Texte stammen aus parts.json`, () => {
+      const full = JSON.parse(readFileSync(join(root, 'src/content/parts.json'), 'utf8')) as {
+        id: string;
+        name: Record<string, string>;
+        spec: Record<string, string>;
+      }[];
+      for (const p of full) {
+        const row = docs[lang].querySelector(`#bom tr[data-part="${p.id}"]`)!;
+        const text = row.textContent!.replace(/\s+/g, ' ');
+        expect(text, `${p.id} name`).toContain(p.name[lang]);
+        const label = docs[lang].querySelector(`#labels .label[data-part="${p.id}"]`)!;
+        expect(label.querySelector('.label__name')!.textContent, `${p.id} label`).toBe(p.name[lang]);
+        expect(label.querySelector('.label__spec')!.textContent, `${p.id} spec`).toBe(p.spec[lang]);
+      }
+    });
+  }
+
+  it('en: aria-label und alt sind übersetzt (nicht identisch mit de, außer Allowlist)', () => {
+    // Eigennamen, die in beiden Sprachen gleich lauten dürfen
+    const ALLOW = new Set<string>([]);
+    const collect = (d: Document) =>
+      [...d.querySelectorAll('[aria-label], img[alt]')].map((el) => ({
+        tag: el.tagName.toLowerCase() + (el.id ? `#${el.id}` : ''),
+        value: (el.getAttribute('aria-label') ?? el.getAttribute('alt') ?? '').trim(),
+      }));
+    const de = collect(docs.de);
+    const en = collect(docs.en);
+    expect(en.length).toBe(de.length);
+    expect(en.length).toBeGreaterThan(3);
+    const same = en.filter((e, i) => e.value !== '' && e.value === de[i].value && !ALLOW.has(e.value)).map((e) => `${e.tag}: ${e.value}`);
+    expect(same).toEqual([]);
+    expect(en.filter((e, i) => (e.value === '') !== (de[i].value === ''))).toEqual([]); // leer <-> leer
   });
 });

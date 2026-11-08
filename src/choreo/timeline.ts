@@ -358,17 +358,26 @@ export function createTimeline(ctx: TimelineContext): ChoreoTimeline {
     return el ? Math.round(el.getBoundingClientRect().top + window.scrollY) : null;
   };
   let followHash = true;
-  const settle = (): void => {
-    if (!followHash) return;
+  let settleFrame = 0;
+  // Lenis kennt die neue Dokumenthöhe (Pin-Abstände) erst nach seinem eigenen Resize und klemmt den Sprung
+  // sonst zu früh (Handy: Ziel weit unten). Darum einige Frames lang nachsetzen, solange die Position abweicht.
+  const settle = (tries = 12): void => {
+    if (!followHash || !alive) return;
     const y = hashY();
-    if (y !== null && Math.abs(y - window.scrollY) > 1) jumpNow(y);
+    if (y === null || Math.abs(y - window.scrollY) <= 1) return;
+    jumpNow(y);
+    if (tries > 0) {
+      cancelAnimationFrame(settleFrame);
+      settleFrame = requestAnimationFrame(() => settle(tries - 1));
+    }
   };
+  const onSettleRefresh = (): void => settle();
   const stopFollow = (): void => {
     followHash = false;
   };
   const userEvents = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const;
   for (const ev of userEvents) window.addEventListener(ev, stopFollow, { passive: true, once: true });
-  ScrollTrigger.addEventListener('refresh', settle);
+  ScrollTrigger.addEventListener('refresh', onSettleRefresh);
   settle();
 
   return {
@@ -380,7 +389,8 @@ export function createTimeline(ctx: TimelineContext): ChoreoTimeline {
       if (!alive) return;
       alive = false;
       ScrollTrigger.removeEventListener('refresh', onRefresh);
-      ScrollTrigger.removeEventListener('refresh', settle);
+      ScrollTrigger.removeEventListener('refresh', onSettleRefresh);
+      cancelAnimationFrame(settleFrame);
       for (const ev of userEvents) window.removeEventListener(ev, stopFollow);
       document.removeEventListener('focusin', onFocusIn);
       window.removeEventListener('load', refresh);
