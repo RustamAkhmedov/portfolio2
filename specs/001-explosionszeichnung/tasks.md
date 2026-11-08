@@ -175,29 +175,25 @@ v1-Quelle: `~/Projects/portfolio/` (nur lesen, nichts dort ändern).
 
 ---
 
-## Phase 12: Erweiterungen – Live-Demo im Laptop und mehr Farbe (Ideen 2026-11-08, nach Phase 11)
+## Phase 12: Mehr Orange, Leiterbahnen-Hintergrund und Live-Demo (Entscheidungen 2026-11-08)
 
-**Ziel**: Bei Projekten mit Live-Demo (fretlearn, Weitland, NSCS, OnlineIDE, Sudoku) gibt es einen Knopf „Live-Demo“. Die Kamera zoomt in den Laptop, die Demo läuft bedienbar auf dem Display; Schließen fährt zurück.
-**Vorab zu klären (Rustams Entscheidung)**: Die Demos liegen auf `rustamakhmedov.github.io` (andere Domain als v2). Ein `<iframe>` darauf ist eine bewusste Ausnahme zu „keine Fremdquellen“; GitHub-Pages-URL von v2 und Frame-Header prüfen.
+**Ziel**: Die Seite wirkt lebendig statt leer (mehr Orange, scrollgebundenes Leiterbahnen-Muster, gefüllte Desktop-Flächen, starker erster Eindruck) und hat ein „Ausprobieren“: Knopf „Live-Demo“, Kamera zoomt in den Laptop, die Demo läuft bedienbar auf dem Display.
+**Unabhängiger Test**: Screenshots aller Modi, fps ≥ 55, Demo öffnet/schließt, Fokus kehrt zurück.
+**Verbindliche Vorgaben (Rustam)**: `docs/design.md` Abschnitte „Orange-Muster und mehr Orange“, „Entscheidung 2026-11-08“ (Variante A · Leiterbahnen) und „Hero: erster Eindruck“. Kurz: Orange bleibt einzige Signalfarbe; **Leiterbahnen wachsen von oben nach unten mit dem Scroll wie echte Motherboard-Leitungen** (Lötpunkte, 45°-Knicke, Hover dickt nahe Bahnen an); Name im Hero mit 10 px orangem Unterstrich als „Hauptleitung“ mit Lötpunkten an den Enden; `h2` mit 6 px orangem Unterstrich (Alternative: orange Hintergrundfläche); Stücklisten-Hover orange; **kein** Mathe-Gitter/Raster/Rahmen, **keine** Nummernkästchen, **kein** Fortschrittsbalken, Links bleiben schwarz.
+**Entscheidung zum iframe (Rustam, OK)**: Die Live-Demos liegen auf `rustamakhmedov.github.io/...` (andere Domain); ein `<iframe>` darauf ist erlaubt (eigene Seiten). Nur Projekte mit `demo`: fretlearn, Weitland, NSCS, OnlineIDE, Sudoku. Auf dem Handy öffnet der Knopf die Demo direkt im Vollbild (neuer Tab), ohne 3D/JS/reduced normaler Link.
+**Reihenfolge**: T085 → T087 → T080 → T081 → T082 → T088 (abhängig: T087 braucht das Muster aus T085, T081 braucht T080).
 
-- [ ] T080 [S] [US1] Knopf „Live-Demo“ im Datenblatt (`[data-step]`, nur bei Projekten mit `demo`), Zustand `demoOpen` (state/choreo), Escape/„Schließen“, Tastaturbedienung; ohne 3D/Handy/reduced: normaler Link in neuem Tab
-- [ ] T081 [O] [US1] Kamera zoomt auf das Display (neuer Keyframe `demo`), `<iframe>` deckungsgleich über der projizierten Displayfläche (Eckpunkte pro Frame, `transform` per CSS), Scroll- und Tastaturfokus sauber getrennt (Lenis pausieren, `inert` für Seite), iframe erst bei Klick laden und beim Schließen entfernen
-- [ ] T082 [S] [US1] Tests und Screenshots (Zoom-Zustand, Schließen, Fokus-Rückgabe), Messung fps mit offenem iframe in `docs/messungen.md`, `contracts/dom.md` um Hooks (`[data-demo]`, `#demo-frame`) ergänzen
+- [X] T083 Farbkonzept geklärt (mehr Orange, einzige Signalfarbe, interaktives scrollgebundenes Muster, keine Gitter)
+- [X] T084 Designvorschlag erstellt, Variante A · Leiterbahnen gewählt (`docs/design.md`)
+- [X] T086 Projekt-Vorschau größer (Kamera `projekte`, Display 1,6× Desktop / 2,9× Mobil)
+- [ ] T085 [S] Variante A umsetzen laut `docs/design.md`: Canvas-2D-Ebene `#pattern` (fixed, hinter Szene und Text, `aria-hidden`, zeichnet nur bei Scroll/Maus/Resize, pausiert bei unsichtbarem Tab, DPR ≤ 1, ≤ 1 ms/Frame, JS ≤ +4 KB gzip) mit Leiterbahnen in den Rändern, Wachstum von oben nach unten am Scrollfortschritt, Lötpunkten, Maus-Hover, Maske hinter Textspalten (Kontrast AA), reduced statisch, mobil dünner und nur Scroll; `h2` mit 6 px orangem Unterstrich; Hero: Name mit 10 px orangem Unterstrich als Hauptleitung, Lötpunkte an den Enden, erste Bahnen starten dort; schmaler oranger Streifen unter der Kopfzeile; Stücklisten-Hover orange; Standbild `npm run still` und Link-Vorschau `npm run brand` neu erzeugen; Screenshots aller Modi und Kontraste prüfen, fps ≥ 55 (`npm run perf`)
+- [ ] T087 [S] [US1] Desktop-Leerflächen nutzen: in den gepinnten Abschnitten links/rechts mehr Gewicht (größere Typo, orange Akzente, das Leiterbahnen-Muster), Entscheidung am Bild mit Rustam, danach Hero-Wirkung der ersten 10 Sekunden prüfen (Screenshots `hero@1440`, `hero@390`)
+- [ ] T080 [S] [US1] Knopf „Live-Demo“ im Datenblatt (`[data-step]`, nur bei Projekten mit `demo`), Zustand `demoOpen` (state/choreo), Escape/„Schließen“, Tastaturbedienung; ohne 3D/JS/reduced normaler Link in neuem Tab; auf dem Handy öffnet der Knopf die Demo in neuem Tab
+- [ ] T081 [O] [US1] Kamera zoomt auf das Display (neuer Keyframe `demo`), `<iframe>` deckungsgleich über der projizierten Displayfläche (Eckpunkte pro Frame, `transform` per CSS), Scroll- und Tastaturfokus sauber getrennt (Lenis pausieren, `inert` für Seite), iframe erst bei Klick laden und beim Schließen entfernen; Fokus kehrt zum Knopf zurück
+- [ ] T082 [S] [US1] Tests und Screenshots (Zoom-Zustand, Schließen, Fokus-Rückgabe), Messung fps mit offenem iframe in `docs/messungen.md`, `contracts/dom.md` um Hooks (`[data-demo]`, `#demo-frame`, `#pattern`) ergänzen
+- [ ] T088 **(Haupt-Session, nicht delegieren – braucht Rustam)** Abnahme der Phase mit Rustam (Screenshots, normales Firefox); nach seinem OK committen und `git push` (deployt automatisch auf https://rustamakhmedov.github.io/portfolio2/, lokale Doku-Commits dieser Session sind noch nicht gepusht)
 
-**Checkpoint**: Demo öffnet und schließt flüssig, Fokus kehrt zurück, Seite ohne JS/3D unverändert nutzbar. Danach committen und auf Rustams OK warten.
-
-### Mehr Farbe (Rustams Wunsch 2026-11-08)
-
-Die Seite wirkt mit Papier, Tinte und Orange als einziger Farbe sehr zurückhaltend. Sie soll etwas mehr Farbe bekommen. Das widerspricht der heutigen Regel „Orange als einzige Signalfarbe“ (Constitution IV, FR-013, `docs/design.md`) und braucht deshalb zuerst Rustams Entscheidung und eine Anpassung dieser Dokumente.
-
-- [X] T086 [S] [US1] Projekt-Vorschau besser sichtbar (Rustams Eindruck 2026-11-08: vor allem auf dem Handy schlecht erkennbar): Display/Screenshot größer und lesbarer (Bühne auf dem Handy, Zoom/Kamera näher am Display, größere Bildfläche pro Projekt, eventuell Screenshot zusätzlich neben/unter dem Datenblatt), Prüfung auf 390 px und 1440 px
-- [ ] T087 [S] [US1] Desktop-Leerflächen nutzen (Rustams Eindruck 2026-11-08: viel ungenutzte Fläche am Desktop, Seite wirkt leer): in den gepinnten Abschnitten links/rechts mehr Gewicht durch größere Typo, orange Flächen/Akzente und das Hintergrundmuster aus T084/T085; Entscheidung am Bild mit Rustam
-- [X] T083 **(Haupt-Session)** Farbkonzept mit Rustam geklärt (2026-11-08): **Orange bleibt die einzige Signalfarbe, es soll aber deutlich mehr davon auf der Seite sichtbar sein.** Kein zweiter Akzent, keine Abschnittsfarben. Constitution IV/FR-013 bleiben gültig (kein Konflikt). Gewünscht: **interaktives Muster in Orange als Hintergrund, das beim Scrollen mitgeht**; am Desktop ist viel ungenutzte Fläche, die gefüllt werden soll. Wichtig: **kein „Mathe-Gitter“/Zeichenblatt-Raster** (Rustams früherer Wunsch bleibt: einfarbiger Papierhintergrund ohne Raster/Rahmen/Zonenmarken). Das Muster muss etwas anderes sein (z. B. organische Linien/Schraffur/Punkte/Konturen, abgeleitet vom Laptop oder von Teilen) – die genaue Form wird im Designplan (T084) vorgeschlagen und von Rustam abgenommen.
-- [X] T084 Designvorschlag erstellt (`docs/design.md`, Abschnitt Orange-Muster); Rustam hat **Variante A · Leiterbahnen** gewählt: Bahnen wachsen von oben nach unten mit dem Scroll (wie Motherboard-Leitungen), Maus-Hover dickt nahe Bahnen an; Überschriften (`h2`) mit dickem orangem Unterstrich (oder Hintergrund); keine Nummernkästchen, kein Fortschrittsbalken, Links bleiben schwarz.
-- [ ] T085 [S] Variante A umsetzen laut `docs/design.md` (Entscheidung 2026-11-08): Canvas-2D-Ebene `#pattern` mit Leiterbahnen in den Rändern, Wachstum von oben nach unten am Scrollfortschritt, Lötpunkte, Maus-Hover, Maske hinter Textspalten, reduced statisch, mobil dünner; `h2` mit 6 px orangem Unterstrich; **Hero (erster Eindruck): Name mit 10 px orangem Unterstrich als „Hauptleitung“, Lötpunkte an den Enden, erste Leiterbahnen starten dort und laufen nach unten (siehe design.md „Hero: erster Eindruck“)**; Stücklisten-Hover orange; Standbild `npm run still` und `npm run brand` neu erzeugen; Screenshots aller Modi, Kontraste, fps ≥ 55 prüfen
-
-**Checkpoint (Farbe)**: Neues Farbkonzept von Rustam abgenommen, alle Modi und Kontraste geprüft.
-
+**Checkpoint**: Muster, Hero, Überschriften und Demo abgenommen; `npm run build && npm test && npm run shots && npm run bundle` grün; Modi (reduced, no-webgl, no-js) und 390 px sauber. Danach committen und auf Rustams OK warten.
 
 ---
 
