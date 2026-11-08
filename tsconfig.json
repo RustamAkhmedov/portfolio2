@@ -12,5 +12,6 @@
     "types": ["node"],
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src", "tests", "tools/**/*.ts"]
+  "include": ["src", "tests", "tools/**/*.ts"],
+  "exclude": ["tests/explode.test.ts", "tests/camera-path.test.ts"]
 }

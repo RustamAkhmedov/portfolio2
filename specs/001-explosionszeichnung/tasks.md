@@ -69,11 +69,11 @@ v1-Quelle: `~/Projects/portfolio/` (nur lesen, nichts dort ändern).
 
 **Ziel**: Zustand, Renderer und Materialien stehen, Tests für Explosion und Kamerapfad sind geschrieben (dürfen noch rot sein).
 
-- [ ] T020 [P] [S] [US1] `tests/explode.test.ts`: `pose(part, state)` – bei `explode=0` Ausgangslage, bei 1 Ausgangslage + `dir·dist`, monoton, Teile mit kleinerem `order` starten früher, Werte außerhalb 0…1 werden geklemmt
-- [ ] T021 [P] [S] [US1] `tests/camera-path.test.ts`: Keyframes je Abschnitt, Interpolation stetig, Index wird an den Rändern geklemmt
-- [ ] T022 [S] [US1] `src/scene/state.ts`: `SceneState` + `setState()` (einziger Schreibweg, markiert `needsRender`)
-- [ ] T023 [S] [US1] `src/scene/renderer.ts`: WebGLRenderer (DPR-Deckel 1,5 / Handy 2), Kamera, 2 Lichter, render on demand, Pause per `IntersectionObserver` + `visibilitychange`, Resize; `window.__v2`-Hook laut `contracts/dom.md`
-- [ ] T024 [P] [S] [US1] `src/scene/materials.ts`: Papier-, Gehäuse-, Ghost- und Fokus-Material (Orange aus Tokens per CSS-Variable gelesen), `addEdges(mesh)` für Kantenlinien
+- [X] T020 [P] [S] [US1] `tests/explode.test.ts`: `pose(part, state)` – bei `explode=0` Ausgangslage, bei 1 Ausgangslage + `dir·dist`, monoton, Teile mit kleinerem `order` starten früher, Werte außerhalb 0…1 werden geklemmt
+- [X] T021 [P] [S] [US1] `tests/camera-path.test.ts`: Keyframes je Abschnitt, Interpolation stetig, Index wird an den Rändern geklemmt
+- [X] T022 [S] [US1] `src/scene/state.ts`: `SceneState` + `setState()` (einziger Schreibweg, markiert `needsRender`)
+- [X] T023 [S] [US1] `src/scene/renderer.ts`: WebGLRenderer (DPR-Deckel 1,5 / Handy 2), Kamera, 2 Lichter, render on demand, Pause per `IntersectionObserver` + `visibilitychange`, Resize; `window.__v2`-Hook laut `contracts/dom.md`
+- [X] T024 [P] [S] [US1] `src/scene/materials.ts`: Papier-, Gehäuse-, Ghost- und Fokus-Material (Orange aus Tokens per CSS-Variable gelesen), `addEdges(mesh)` für Kantenlinien
 
 **Checkpoint**: `npm run build` ohne Fehler, übrige Tests grün; T020/T021 dürfen nur rot sein, weil `explode.ts`/`camera-path.ts` noch fehlen. Danach committen und auf Rustams OK warten.
 
@@ -84,8 +84,8 @@ v1-Quelle: `~/Projects/portfolio/` (nur lesen, nichts dort ändern).
 **Ziel**: Der prozedurale Laptop steht, zerlegt sich per `?state=` und sieht aus wie das Foto.
 
 - [ ] T025 [O] [US1] `src/scene/laptop/dims.ts` + Teile `base.ts` (Keil 13,9→15,9 mm, 353,6×246,9 mm, abgerundete Ecken), `lid.ts` (Deckel + Display-Fläche 16:9, Kamera-Bucht, Scharnierachse hinten), `keyboard.ts` (InstancedMesh mit Numpad, Touchpad), `board.ts` (Platine, CPU, RAM-Chips), `battery.ts` (4 Zellen), `ssd.ts` (M.2 2280), `fans.ts` (2 Lüfter + Heatpipes), `ports.ts` (links HDMI, 2× TB4, microSD, Klinke; rechts 2× USB-A), `index.ts` (Teile nach `parts.json`-`key` zusammenbauen); Abgleich mit Fotos `docs/referenz/laptop/04-schraeg-rechts.png`, `06`/`07` (Seiten)
-- [ ] T026 [S] [US1] `src/scene/explode.ts` (reine Funktion, macht T020 grün) und Anbindung an die Teile
-- [ ] T027 [S] [US1] `src/scene/camera-path.ts` (macht T021 grün): Hero-Ansicht 3/4 von vorne rechts, Totale für Explosion, je ein Keyframe pro Teil-Abschnitt
+- [ ] T026 [S] [US1] `src/scene/explode.ts` (reine Funktion, macht T020 grün) und Anbindung an die Teile; Signatur laut Kopf von `tests/explode.test.ts` (Stagger-Schritt ≥ 0,01 je `order`-Stufe); danach `tests/explode.test.ts` aus `exclude` in `tsconfig.json` nehmen
+- [ ] T027 [S] [US1] `src/scene/camera-path.ts` (macht T021 grün) (API laut Kopf von `tests/camera-path.test.ts`; danach aus `exclude` in `tsconfig.json` nehmen): Hero-Ansicht 3/4 von vorne rechts, Totale für Explosion, je ein Keyframe pro Teil-Abschnitt
 - [ ] T032 [S] [US1] `src/main.ts`: Feature-Erkennung, dynamischer Import von `scene` (+ `choreo`, sobald es in Phase 6 existiert) nur bei WebGL + keine reduzierte Bewegung, Canvas einblenden, sobald das erste Bild gerendert ist
 - [ ] T033 [S] [US1] `?state=` und `?still` laut `contracts/dom.md` umsetzen; Screenshots (Explosion per `?state=` gesetzt, Scroll-Steuerung kommt erst in Phase 6) von Explosion 0 / 0,5 / 1 mit `npm run shots` prüfen und mit Fotos vergleichen, nachbessern
 
