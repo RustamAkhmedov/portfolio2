@@ -64,6 +64,8 @@ html.still body > #labels { visibility: visible; }
   top: 0;
   width: 190px;
   display: block;
+  /* Papier-Hof: Ghost-Linien hinter dem Text stören die Lesbarkeit nicht */
+  text-shadow: 0 0 2px var(--paper), 0 0 4px var(--paper), 0 0 6px var(--paper);
 }
 .label--right .label__text { left: 36px; text-align: left; }
 .label--left .label__text { right: 36px; text-align: right; }
@@ -81,9 +83,8 @@ html.still body > #labels { visibility: visible; }
   font-size: var(--t-data);
   line-height: var(--t-data-lh);
 }
-@media (max-width: 767px) {
-  .label__text { display: none; }
-}
+/* Schmale Bühne (Handy): nur die Nummernkreise; labels.ts setzt die Klasse nach der Breite des Overlays */
+#labels.labels--compact .label__text { display: none; }
 
 /* Neben der Textspalte (Desktop) stehen alle Labels rechts vom Laptop (labels.ts liest --labels-side) */
 @media (min-width: 900px) {

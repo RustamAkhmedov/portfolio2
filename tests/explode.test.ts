@@ -121,3 +121,13 @@ describe('pose(): alle echten Teile aus parts.json', () => {
     for (let i = 1; i < sorted.length; i++) expect(start(sorted[i - 1])).toBeLessThan(start(sorted[i]));
   });
 });
+
+describe('pose(): kompakte Darstellung', () => {
+  it('compact = 1 skaliert den Versatz mit COMPACT_DIST, compact = 0 nicht', async () => {
+    const { COMPACT_DIST } = await import('../src/scene/explode');
+    const part = { dir: [0, 1, 0] as [number, number, number], dist: 2, order: 0 };
+    expect(pose(part, { explode: 1, compact: 0 }).offset[1]).toBeCloseTo(2, 9);
+    expect(pose(part, { explode: 1, compact: 1 }).offset[1]).toBeCloseTo(2 * COMPACT_DIST, 9);
+    expect(pose(part, { explode: 1 }).offset[1]).toBeCloseTo(2, 9);
+  });
+});

@@ -41,11 +41,10 @@
 <body>
 <a class="skip" href="#main">{{a11y.skip}}</a>
 <div id="scene" aria-hidden="true"></div>
-<picture id="scene-fallback" aria-hidden="true">
+<picture id="scene-fallback">
   <source srcset="{{@root}}img/explosion-still.webp" type="image/webp">
-  <img src="{{@root}}img/explosion-still.webp" alt="" width="1600" height="1000" decoding="async">
+  <img src="{{@root}}img/explosion-still.webp" alt="{{scene.alt}}" width="1600" height="1000" decoding="async">
 </picture>
-<p id="scene-note" aria-hidden="true">{{scene.placeholder}}</p>
 {{> labels}}
 <header class="head">
   <p class="head__doc">{{head.doc}}</p>

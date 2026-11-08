@@ -5,6 +5,7 @@
 import partsData from '../content/parts.json';
 import { applyState, type ApplyPart } from './apply';
 import { cameraAt } from './camera-path';
+import { createFocusController } from './focus';
 import { buildLaptop } from './laptop';
 import { createMaterials } from './materials';
 import { createRenderer, type SceneRig } from './renderer';
@@ -25,14 +26,17 @@ export interface SceneHandle {
 export function startScene(container: HTMLElement): SceneHandle {
   const parts = partsData as unknown as ApplyPart[];
   const rig = createRenderer(container);
-  const laptop = buildLaptop(parts, createMaterials());
+  const materials = createMaterials();
+  const laptop = buildLaptop(parts, materials);
+  const focus = createFocusController(laptop.parts, materials);
   rig.scene.add(laptop.root);
 
   const screen = createScreen(rig.renderer, laptop, requestRender);
   const sync = (): void => {
     applyState(laptop, parts, state);
+    focus.update(state);
     screen.update(state);
-    rig.applyCamera(cameraAt(state.cam));
+    rig.applyCamera(cameraAt(state.cam, state.compact));
   };
   sync();
   onChange(sync);

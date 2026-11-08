@@ -11,9 +11,9 @@ import type { Materials } from '../materials';
 import { buildBottom } from './base';
 import { buildBattery } from './battery';
 import { buildBoard } from './board';
-import { MM, PORTS } from './dims';
+import { CHIP_ANCHORS, MM, PORTS } from './dims';
 import { buildFans } from './fans';
-import { ANCHOR, portAnchorName, type PartBuild } from './geom';
+import { ANCHOR, chipAnchorName, portAnchorName, type PartBuild } from './geom';
 import { buildKeyboard } from './keyboard';
 import { buildLid, setLid as setLidRig, type LidRig } from './lid';
 import { buildPorts } from './ports';
@@ -38,7 +38,7 @@ export interface Laptop {
   restPositions: Record<string, Vector3>;
   /** 0 = zu, 1 = ~110° offen */
   setLid(amount: number): void;
-  /** Weltpunkte je Teil-key und je Anschluss (TB4-1, TB4-2, HDMI, USB-A-1, USB-A-2, microSD, Audio) */
+  /** Weltpunkte je Teil-key, je Anschluss (TB4-1, TB4-2, HDMI, USB-A-1, USB-A-2, microSD, Audio) und je Chip (`chip:CPU` …) */
   anchors: Record<string, Vector3>;
   /** Rechnet anchors aus den aktuellen Transformationen neu (dieselben Vector3-Objekte). */
   updateAnchors(): void;
@@ -117,6 +117,13 @@ export function buildLaptop(parts: readonly PartRef[], materials: Materials): La
     for (const p of PORTS) {
       const a = ports.getObjectByName(portAnchorName(p.name));
       if (a) markers[p.name] = a;
+    }
+  }
+  const board = groups['board'];
+  if (board) {
+    for (const c of CHIP_ANCHORS) {
+      const a = board.getObjectByName(chipAnchorName(c.name));
+      if (a) markers[`chip:${c.name}`] = a;
     }
   }
   const anchors: Record<string, Vector3> = {};

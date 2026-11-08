@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "shots": "node tools/shot.mjs",
+    "shots:modes": "node tools/shot.mjs --mode reduced && node tools/shot.mjs --mode no-webgl --no-build && node tools/shot.mjs --mode no-js --no-build",
     "still": "node tools/shot.mjs --still",
     "scroll-shots": "node tools/scroll-shot.mjs",
     "perf": "node tools/perf.mjs"

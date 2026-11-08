@@ -19,9 +19,7 @@ const langs = Object.keys(FILES) as (keyof typeof FILES)[];
  * Bekannte, noch nicht gebaute Dateien (Pfad relativ zur Site-Wurzel). Jeder Eintrag nennt die Aufgabe,
  * die ihn liefert; mit dem Bau der Datei hier streichen (der Test meldet veraltete Einträge).
  */
-const MISSING_OK: Record<string, string> = {
-  'img/explosion-still.webp': 'T042 (Phase 8): Standbild aus ?still',
-};
+const MISSING_OK: Record<string, string> = {};
 
 /** Struktur ohne Texte: Tag, id, data-*, class, role/aria-hidden je Element in Dokumentreihenfolge. */
 function skeleton(doc: Document) {

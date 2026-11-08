@@ -153,6 +153,8 @@ export function linesFrom(chunks: Float32Array[], kind: EdgeKind, materials: Mat
 /** Name des Ankers eines Teils bzw. eines Anschlusses (`anchor:HDMI`). */
 export const ANCHOR = 'anchor';
 export const portAnchorName = (port: string): string => `${ANCHOR}:${port}`;
+/** Anker eines Chips auf dem Mainboard; in `Laptop.anchors` als `chip:<Name>`. */
+export const chipAnchorName = (chip: string): string => `${ANCHOR}:chip:${chip}`;
 
 /** Leerer Ankerpunkt (für Beschriftungslinien), Position in mm im Teil-Inhalt. */
 export function marker(name: string, x: number, y: number, z: number): Object3D {

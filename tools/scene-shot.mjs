@@ -1,5 +1,6 @@
 // Szene-Screenshots über ?state=<json> (und ?still) mit Firefox.
 // Aufruf: node tools/scene-shot.mjs [--no-build] [--cam n,n,...] [--size 1440x900] [--screen n,n,...]
+// --states '[{"name":"x","state":{...}}]': eigene Zustände statt der Standardliste
 // --screen: nur Display-Stände (explode 1, lid 1, cam 2, screen = Wert) -> screen_<wert>.png
 // Ausgabe: test-results/shots/scene/<name>.png; Exit 1 bei Konsolen-/Seitenfehlern.
 import {spawn, spawnSync} from 'node:child_process';
@@ -10,11 +11,12 @@ import {launch} from './ffbrowser.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
-let build = true, size = [1440, 900], cams = [0, 1], screens = null;
+let build = true, size = [1440, 900], cams = [0, 1], screens = null, custom = null;
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--no-build') build = false;
   else if (args[i] === '--size') size = args[++i].split('x').map(Number);
   else if (args[i] === '--screen') screens = args[++i].split(',').map(Number);
+  else if (args[i] === '--states') custom = JSON.parse(args[++i]); // [{name, state}, ...]
   else if (args[i] === '--cam') cams = args[++i].split(',').map(Number);
 }
 const states = [];
@@ -26,7 +28,7 @@ for (const cam of cams) {
 if (screens) {
   states.length = 0;
   for (const sc of screens) states.push({name: `screen_${String(sc).replace('.', '_').replace('-', 'm')}`, state: {explode: 1, lid: 1, cam: 2, screen: sc}});
-} else states.push({name: 'still', still: true});
+} else if (custom) { states.length = 0; states.push(...custom); } else states.push({name: 'still', still: true});
 
 const freePort = () => new Promise((res, rej) => {
   const s = net.createServer(); s.once('error', rej);

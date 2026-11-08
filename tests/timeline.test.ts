@@ -36,7 +36,7 @@ function mountPage(): void {
 }
 
 function fakeLabels() {
-  return { update: vi.fn(), show: vi.fn(), setIn: vi.fn(), setActive: vi.fn(), dispose: vi.fn() };
+  return { update: vi.fn(), show: vi.fn(), setIn: vi.fn(), setActive: vi.fn(), setLayout: vi.fn(), dispose: vi.fn() };
 }
 
 describe('createTimeline', () => {
@@ -46,10 +46,11 @@ describe('createTimeline', () => {
     const before = ScrollTrigger.getAll().length;
     const tl = createTimeline({ labels });
     expect(document.documentElement.classList.contains('choreo')).toBe(true);
-    expect(ScrollTrigger.getAll().length - before).toBe(6);
+    expect(ScrollTrigger.getAll().length - before).toBe(15);
     expect(ScrollTrigger.getAll().filter((t) => t.pin).map((t) => t.pin)).toEqual([
       document.getElementById('hero'),
       document.querySelector('#projekte .proj-pin'),
+      ...['skills', 'ueber', 'lebenslauf', 'kontakt'].map((id) => document.getElementById(id)),
     ]);
     expect(tl.marks()).not.toBeNull();
     expect(tl.score()!.labels).toHaveProperty('projekte-5');
@@ -59,6 +60,24 @@ describe('createTimeline', () => {
     expect(steps[1]!.style.pointerEvents).toBe('none');
     expect(state.explode).toBe(0);
     expect(labels.setIn).toHaveBeenCalled();
+    tl.kill();
+  });
+
+  it('anchorY löst Anker auf Marken auf (Pin-Beginn), unbekannte Ids auf null', () => {
+    mountPage();
+    const tl = createTimeline({ labels: fakeLabels() });
+    const m = tl.marks()!;
+    expect(tl.anchorY('projekte')).toBe(Math.max(0, Math.round(m.projEnd)));
+    expect(tl.anchorY('kontakt')).toBe(Math.max(0, Math.round(m.sections[3]!.pinStart)));
+    expect(tl.anchorY('gibt-es-nicht')).toBeNull();
+    tl.kill();
+  });
+
+  it('Fokus auf ein verdecktes Datenblatt springt nativ zur Position des Schritts (kein Fehler ohne Layout)', () => {
+    mountPage();
+    const tl = createTimeline({ labels: fakeLabels() });
+    const link = document.querySelectorAll<HTMLElement>('[data-step]')[2]!.querySelector<HTMLElement>('a')!;
+    expect(() => link.dispatchEvent(new FocusEvent('focusin', { bubbles: true }))).not.toThrow();
     tl.kill();
   });
 

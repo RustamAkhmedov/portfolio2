@@ -18,6 +18,7 @@ import {
   KEYBOARD_DEPTH,
   KEYBOARD_WIDTH,
   LID_OPEN_DEG,
+  CHIP_ANCHORS,
   LID_THICKNESS,
   MM,
   PORTS,
@@ -229,7 +230,7 @@ describe('buildLaptop', () => {
     laptop.setLid(0);
   });
 
-  it('Anker: 8 Teile + 7 Anschlüsse, Anschlüsse auf der richtigen Seite', () => {
+  it('Anker: 8 Teile + 7 Anschlüsse + Chips, Anschlüsse auf der richtigen Seite', () => {
     for (const { key } of parts) expect(laptop.anchors[key], key).toBeInstanceOf(Vector3);
     for (const p of PORTS) {
       const a = laptop.anchors[p.name];
@@ -237,7 +238,8 @@ describe('buildLaptop', () => {
       if (p.side === 'left') expect(mm(a!.x)).toBeLessThan(-HALF_W);
       else expect(mm(a!.x)).toBeGreaterThan(HALF_W);
     }
-    expect(Object.keys(laptop.anchors)).toHaveLength(15);
+    for (const c of CHIP_ANCHORS) expect(laptop.anchors[`chip:${c.name}`], c.name).toBeInstanceOf(Vector3);
+    expect(Object.keys(laptop.anchors)).toHaveLength(15 + CHIP_ANCHORS.length);
   });
 
   it('updateAnchors folgt der Explosion (gleiche Vector3-Objekte)', () => {

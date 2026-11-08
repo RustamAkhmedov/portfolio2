@@ -14,6 +14,8 @@ export interface SceneState {
   cam: number;
   /** stetiger Index des Projekts auf dem Display; -1 = kein Projekt (neutrale Fläche), Werte dazwischen blenden */
   screen: number;
+  /** 0 (Desktop) … 1 (Handy/Tablet-Hochformat, < 900 px): kleinere Explosion, eigene Kamera-Rahmung */
+  compact: number;
 }
 
 const mutable: SceneState = {
@@ -23,17 +25,19 @@ const mutable: SceneState = {
   focusMix: 0,
   cam: 0,
   screen: -1,
+  compact: 0,
 };
 
 /** Nur lesen. Die Objektidentität bleibt stabil. */
 export const state: Readonly<SceneState> = mutable;
 
-const RANGES: Record<'lid' | 'explode' | 'focusMix' | 'cam' | 'screen', [number, number]> = {
+const RANGES: Record<'lid' | 'explode' | 'focusMix' | 'cam' | 'screen' | 'compact', [number, number]> = {
   lid: [0, 1],
   explode: [0, 1],
   focusMix: [0, 1],
   cam: [0, Infinity],
   screen: [-1, Infinity],
+  compact: [0, 1],
 };
 
 let needsRender = true;
@@ -64,6 +68,18 @@ export function setState(patch: Partial<SceneState>): void {
     needsRender = true;
     listeners.forEach((fn) => fn(state));
   }
+}
+
+/** Ab dieser Breite steht die Szene neben der Textspalte (layout.css, --scene-left); darunter oben als Bühne. */
+export const COMPACT_QUERY = '(max-width: 899px)';
+
+/** Hält `compact` im State passend zur Fensterbreite (COMPACT_QUERY); liefert die Abmelde-Funktion. */
+export function trackCompact(): () => void {
+  const mq = window.matchMedia(COMPACT_QUERY);
+  const set = (): void => setState({ compact: mq.matches ? 1 : 0 });
+  set();
+  mq.addEventListener('change', set);
+  return () => mq.removeEventListener('change', set);
 }
 
 /** Liefert das Flag und löscht es. */

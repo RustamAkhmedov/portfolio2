@@ -76,3 +76,39 @@ describe('Label-Projektion und Platzierung', () => {
     expect(lineEnd({ x: 3, y: 4 }, { x: 0, y: 0 }, 14)).toEqual({ x: 0, y: 0 });
   });
 });
+
+describe('placeLabels: Abschnitts-Layouts', () => {
+  const w = 922;
+  const h = 900;
+  it('edge: Spalten am Bildrand, einzelnes Label auf der freieren Seite', () => {
+    const [p] = placeLabels([{ x: 300, y: 400 }], w, h, { ...LAYOUT, edge: true });
+    expect(p!.side).toBe(1);
+    expect(p!.x).toBe(w - LAYOUT.pad - LAYOUT.radius - (LAYOUT.textWidth + 8));
+  });
+
+  it('split: je Hälfte eine Spalte, Abstand, nichts außerhalb', () => {
+    const anchors = [200, 260, 330, 400, 460, 520].map((x, i) => ({ x: 300 + x, y: 380 + (i % 3) * 8 }));
+    const p = placeLabels(anchors, w, h, { ...LAYOUT, edge: true, split: true });
+    expect(p.filter((l) => l.side === -1)).toHaveLength(3);
+    expect(p.filter((l) => l.side === 1)).toHaveLength(3);
+    for (const side of [-1, 1] as const) {
+      const ys = p.filter((l) => l.side === side).map((l) => l.y).sort((a, b) => a - b);
+      for (let i = 1; i < ys.length; i++) expect(ys[i]! - ys[i - 1]!).toBeGreaterThanOrEqual(LAYOUT.gap - 1e-9);
+    }
+  });
+
+  it('split: zwei getrennte Gruppen (links/rechts) bleiben getrennt, Spalten nah an der Gruppe', () => {
+    const anchors = [
+      { x: 300, y: 300 },
+      { x: 310, y: 400 },
+      { x: 600, y: 330 },
+      { x: 610, y: 420 },
+    ];
+    const p = placeLabels(anchors, w, h, { ...LAYOUT, edge: true, split: true });
+    expect(p.map((l) => l.side)).toEqual([-1, -1, 1, 1]);
+    expect(p[0]!.x).toBeLessThan(300);
+    expect(p[0]!.x).toBeGreaterThan(200);
+    expect(p[2]!.x).toBeGreaterThan(610);
+    expect(p[2]!.x).toBeLessThan(700);
+  });
+});

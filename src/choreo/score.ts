@@ -11,11 +11,18 @@
  * Alle Segmente sind linear (die Glättung macht der Scrub). Segmente desselben Schlüssels überlappen nie:
  * Ein später angelegtes Segment beginnt frühestens am Ende des vorigen, sein Startwert ist dessen Endwert.
  *
- * Erweiterung für Phase 9 (T050 ff.): weitere Abschnitte als eigene Blöcke in buildScore() anhängen
- * (Marken + Label je Abschnitt, cam auf den Keyframe-Index des Abschnitts, focus auf das Teil).
+ * Phase 9: Skills (Board, Chips), Über mich (Akku), Lebenslauf (SSD), Kontakt (Anschlüsse) folgen nach den Projekten.
+ * Je Abschnitt: Kamera fährt zum Teil (cam 3…6) und Fokus wechselt (altes Teil/Labels aus, Fokus springt in der Mitte
+ * der Einfahrt, neues Teil/Labels ein), danach hält die kurze gepinnte Strecke. Outro: Explosion und Deckel kehren
+ * um, Kamera zurück in die Hero-Ansicht (cam 7), Schriftfeld (`outro` 0→1).
+ * Zusätzliche Schlüssel: `in:skill-<i>`, `in:port-<i>` (Labels an Chips/Anschlüssen), `outro`, `layout` (welche Labels
+ * sich die Spalte teilen: -1 alle, sonst Index in SECTIONS).
  */
+import { skillKey, portKey } from '../scene/label-keys';
 
-/** Strecken in Viewport-Höhen bzw. Anteilen. T041 übergibt kürzere Werte fürs Handy. */
+export { skillKey, portKey };
+
+/** Strecken in Viewport-Höhen bzw. Anteilen. Fürs Handy gilt MOBILE. */
 export interface Lengths {
   /** Hero-Pin (Deckel klappt auf), in Viewport-Höhen */
   lid: number;
@@ -31,6 +38,8 @@ export interface Lengths {
   labelSpan: number;
   /** Einblendstrecke je Stücklistenzeile, Anteil des Zeilen-Fensters */
   rowSpan: number;
+  /** Gepinnte Strecke je Abschnitt Skills … Kontakt, in Viewport-Höhen */
+  section: number;
   /** Sprünge größer als so viele Viewport-Höhen werden ohne Glättung übernommen */
   snap: number;
 }
@@ -43,8 +52,41 @@ export const DESKTOP: Lengths = {
   labelsTail: 0.15,
   labelSpan: 0.35,
   rowSpan: 0.3,
+  section: 0.6,
   snap: 1.5,
 };
+
+/** Handy / Tablet-Hochformat (< 900 px): etwa halbe Strecken, Pin je Projekt 0,35 Viewport-Höhen. */
+export const MOBILE: Lengths = {
+  lid: 0.4,
+  step: 0.35,
+  swap: 0.25,
+  labelsFrom: 0.5,
+  labelsTail: 0.08,
+  labelSpan: 0.35,
+  rowSpan: 0.3,
+  section: 0.3,
+  snap: 1.5,
+};
+
+/** Teil und Kamera-Keyframe je Abschnitt nach den Projekten (Reihenfolge = Seitenreihenfolge, cam = 3 + Index). */
+export const SECTIONS = [
+  { id: 'skills', part: 'board' },
+  { id: 'ueber', part: 'battery' },
+  { id: 'lebenslauf', part: 'ssd' },
+  { id: 'kontakt', part: 'ports' },
+] as const;
+
+/** Anteil der Outro-Strecke, in dem sich der Laptop zusammensetzt (danach hält das Bild bis zum Seitenende). */
+export const OUTRO_DONE = 0.85;
+
+export interface SectionMark {
+  /** Der Abschnitt rückt herein (Einfahrt der Kamera beginnt frühestens, wenn der vorige Pin endet) */
+  inStart: number;
+  /** Pin-Beginn = Abschnitt oben, Kamera angekommen */
+  pinStart: number;
+  pinEnd: number;
+}
 
 /** Scroll-Positionen in px (window.scrollY), gemessen inkl. Pin-Abständen. */
 export interface Marks {
@@ -63,6 +105,72 @@ export interface Marks {
   projEnd: number;
   /** Pin-Ende von #projekte (danach scrollt #projekte-alle normal) */
   stepsEnd: number;
+  /** Skills, Über mich, Lebenslauf, Kontakt (SECTIONS) */
+  sections: readonly SectionMark[];
+  /** Outro rückt herein … Seitenende */
+  outroStart: number;
+  outroEnd: number;
+}
+
+/**
+ * Scroll-Ziel für einen Anker `#id` (reine Funktion der Marken). Die Abschnitte sind gepinnt: Das Ziel ist nicht
+ * ihr DOM-Abstand, sondern die Position, an der Titel sichtbar und Kamera/Fokus angekommen sind
+ * (Hero: Seitenanfang, Stückliste: Explosion fertig, Projekte/Skills …/Kontakt: Pin-Beginn, Outro: Seitenende).
+ * `null` für unbekannte Ids (dann gilt die normale Position im Dokument).
+ */
+export function anchorY(m: Marks, id: string): number | null {
+  const y = ((): number | null => {
+    switch (id) {
+      case 'hero':
+        return 0;
+      case 'bom':
+        return m.explodeEnd;
+      case 'projekte':
+        return m.projEnd;
+      case 'outro':
+        return m.outroEnd;
+      default: {
+        const i = SECTIONS.findIndex((s) => s.id === id);
+        return i >= 0 ? (m.sections[i]?.pinStart ?? null) : null;
+      }
+    }
+  })();
+  return y === null || !Number.isFinite(y) ? null : Math.max(0, Math.round(y));
+}
+
+/** Wo ein fokussiertes Element liegt (timeline.ts ermittelt das aus dem DOM). */
+export type FocusRegion =
+  | { kind: 'step'; index: number; count: number }
+  | { kind: 'projekte' } // gepinnter Teil von #projekte (Überspringen-Link, Titel)
+  | { kind: 'row' } // Stücklistenzeile
+  | { kind: 'section'; index: number } // SECTIONS[index]
+  | { kind: 'outro' };
+
+/**
+ * Scroll-Position, die für ein per Tastatur fokussiertes Element nötig ist, oder `null` (nichts zu tun).
+ * Der Browser scrollt beim Fokus zum DOM-Abstand des Elements; in gepinnten Abschnitten und bei noch nicht
+ * eingeblendeten Elementen (Datenblatt, Stücklistenzeile, Schriftfeld) ist das die falsche Stelle.
+ * `shown` = aktuelle Deckkraft (0…1) des Elements bzw. seines Datenblatts/seiner Zeile/des Schriftfelds.
+ */
+export function focusScrollY(m: Marks, region: FocusRegion, scrollY: number, shown = 1): number | null {
+  const EPS = 2;
+  switch (region.kind) {
+    case 'step': {
+      if (shown > 0.99 || region.count <= 0) return null;
+      const len = (m.stepsEnd - m.projEnd) / region.count;
+      return Math.round(m.projEnd + (region.index + 0.5) * len);
+    }
+    case 'projekte':
+      return scrollY < m.projEnd - EPS ? Math.round(m.projEnd) : null;
+    case 'row':
+      return shown > 0.99 ? null : Math.round(m.rowsEnd);
+    case 'section': {
+      const pin = m.sections[region.index]?.pinStart;
+      return pin !== undefined && scrollY < pin - EPS ? Math.round(pin) : null;
+    }
+    case 'outro':
+      return shown > 0.99 ? null : Math.round(m.outroEnd);
+  }
 }
 
 export interface ScoreInput {
@@ -75,6 +183,9 @@ export interface ScoreInput {
   rows: number;
   /** Anzahl Projekt-Schritte ([data-step]) */
   steps: number;
+  /** Anzahl Skill-Labels (Chips) und Kontaktkanäle (Anschlüsse) */
+  skills?: number;
+  ports?: number;
   lengths?: Lengths;
 }
 
@@ -125,6 +236,8 @@ export const stepKey = (i: number): string => `step:${i}`;
 
 export function buildScore(input: ScoreInput): Score {
   const { marks: m, labelOrder, partKeys, rows, steps } = input;
+  const nSkills = input.skills ?? 0;
+  const nPorts = input.ports ?? 0;
   const L = input.lengths ?? DESKTOP;
   const b = new Builder();
 
@@ -132,6 +245,10 @@ export function buildScore(input: ScoreInput): Score {
   b.init('screen', -1); // -1 = kein Projekt auf dem Display
   b.init('focus', -1);
   for (const k of partKeys) b.init(inKey(k), 0);
+  for (let i = 0; i < nSkills; i++) b.init(inKey(skillKey(i)), 0);
+  for (let i = 0; i < nPorts; i++) b.init(inKey(portKey(i)), 0);
+  b.init('outro', 0);
+  b.init('layout', -1); // -1 = alle Teile-Labels teilen sich die Spalte, 0…3 = Labels von SECTIONS[i]
   for (let i = 0; i < rows; i++) b.init(rowKey(i), 0);
   for (let i = 0; i < steps; i++) b.init(stepKey(i), i === 0 ? 1 : 0);
 
@@ -187,8 +304,66 @@ export function buildScore(input: ScoreInput): Score {
   }
   labels['projekte-alle'] = m.stepsEnd;
 
+  // Staffel: Labels `keys` gleiten zwischen from und to nacheinander ein
+  const stagger = (keys: readonly string[], from: number, to: number): void => {
+    const span = L.labelSpan * (to - from);
+    keys.forEach((k, i) => {
+      const s = from + (keys.length > 1 ? (i * (to - from - span)) / (keys.length - 1) : 0);
+      b.to(inKey(k), 1, s, s + span);
+    });
+  };
+  const out = (keys: readonly string[], from: number, to: number): void => {
+    for (const k of keys) b.to(inKey(k), 0, from, to);
+  };
+
+  // Skills … Kontakt: Kamera fährt zum Teil, Fokus wechselt, Labels des Teils erscheinen
+  let prevEnd = m.stepsEnd;
+  let prevLabels: string[] = ['lid'];
+  SECTIONS.forEach((sec, i) => {
+    const S = m.sections[i];
+    const idx = partKeys.indexOf(sec.part);
+    if (!S || idx < 0) return;
+    const start = Math.max(S.inStart, prevEnd);
+    const pin = Math.max(S.pinStart, start + 4 * MIN);
+    const mid = start + 0.5 * (pin - start);
+    const extra =
+      sec.part === 'board'
+        ? Array.from({ length: nSkills }, (_, n) => skillKey(n))
+        : sec.part === 'ports'
+          ? Array.from({ length: nPorts }, (_, n) => portKey(n))
+          : [];
+    b.to('cam', 3 + i, start, pin);
+    b.to('focusMix', 0, start, mid);
+    b.to('focus', idx, mid, mid + MIN);
+    b.to('focusMix', 1, mid + MIN, pin);
+    if (i === 0) b.to('screen', -1, mid, mid + MIN); // Display ist weggeblendet: neutrale Fläche für das Outro
+    b.to('layout', i, mid, mid + MIN);
+    out(prevLabels, start, mid);
+    stagger([sec.part, ...extra], mid + MIN, pin);
+    prevLabels = [sec.part, ...extra];
+    labels[sec.id] = pin;
+    prevEnd = Math.max(S.pinEnd, pin);
+  });
+
+  // Outro: Explosion und Deckel kehren um, Kamera zurück in die Hero-Ansicht, dann das Schriftfeld
+  {
+    const o = Math.max(m.outroStart, prevEnd);
+    const e = o + OUTRO_DONE * Math.max(m.outroEnd - o, 6 * MIN);
+    const r = e - o;
+    out(prevLabels, o, o + 0.3 * r);
+    b.to('focusMix', 0, o, o + 0.3 * r);
+    b.to('focus', -1, o + 0.3 * r, o + 0.3 * r + MIN);
+    b.to('layout', -1, o + 0.3 * r, o + 0.3 * r + MIN);
+    b.to('explode', 0, o, o + 0.7 * r);
+    b.to('lid', 0, o + 0.45 * r, e);
+    b.to('cam', 7, o, e);
+    b.to('outro', 1, o + 0.55 * r, e);
+    labels['outro'] = o;
+    prevEnd = e;
+  }
+
   const segments = b.segments.slice().sort((x, y) => x.start - y.start);
-  const end = Math.max(m.stepsEnd, ...segments.map((s) => s.end));
+  const end = Math.max(m.stepsEnd, prevEnd, ...segments.map((s) => s.end));
   return { initial: b.initial, segments, labels, end };
 }
 

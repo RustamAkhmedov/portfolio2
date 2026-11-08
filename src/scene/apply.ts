@@ -13,7 +13,7 @@ export interface ApplyPart {
 export function applyState(
   laptop: Laptop,
   parts: readonly ApplyPart[],
-  s: { lid: number; explode: number },
+  s: { lid: number; explode: number; compact?: number },
 ): void {
   const count = Math.max(1, ...parts.map((p) => p.explode.order + 1));
   laptop.setLid(s.lid);

@@ -20,13 +20,15 @@ html.scene-on #scene {
   transition: opacity 400ms ease;
 }
 html.scene-on.scene-ready #scene { opacity: 1; }
-html.scene-on #scene-fallback,
-html.scene-on #scene-note { display: none; }
+html.scene-on #scene-fallback { display: none; }
 html.scene-on body { background: transparent; }
 /* ?still: transparenter Hintergrund, nur der Laptop */
 html.still,
 html.still body { background: transparent; }
 html.still body > :not(#scene) { visibility: hidden; }
+/* Standbild: Szene und Labels über die volle Breite, ohne Textspalte (html.still.scene-on schlägt die Spalte unten) */
+html.still { overflow: hidden; }
+html.still.scene-on { --scene-left: 0px; }
 @media (prefers-reduced-motion: reduce) {
   html.scene-on #scene { transition: none; }
 }
@@ -51,25 +53,18 @@ body {
 .head__lang { display: flex; gap: var(--s-3); font-size: var(--t-small); line-height: var(--t-small-lh); }
 .lang--current { font-weight: 700; }
 
-/* Platzhalter für die Szene (wird mit der Choreografie ersetzt) */
-#scene-fallback,
-#scene-note { margin-inline: var(--gutter); }
-
+/* Standbild der Explosionszeichnung (Fallback ohne WebGL / bei reduzierter Bewegung, Details in reduced.css) */
 #scene-fallback {
   order: 2;
   display: block;
-  margin-top: var(--s-6);
-  aspect-ratio: 16 / 9;
-  max-height: 60svh;
-  border: var(--line) solid var(--ink);
+  margin: var(--s-6) var(--gutter) 0;
+  aspect-ratio: 1600 / 1000;
 }
-#scene-fallback img { display: none; }
-
-#scene-note {
-  order: 3;
-  margin-top: var(--s-2);
-  font-size: var(--t-small);
-  line-height: var(--t-small-lh);
+#scene-fallback img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1600 / 1000;
 }
 
 main {
@@ -93,7 +88,6 @@ main section > h2,
 
 @media (min-width: 900px) {
   main section { padding-block: var(--s-9); }
-  #scene-fallback { aspect-ratio: 21 / 9; }
 }
 
 /*
@@ -123,3 +117,57 @@ html.choreo .proj-steps { display: grid; }
 html.choreo .proj-steps > .step { grid-area: 1 / 1; grid-template-columns: minmax(0, 1fr); }
 /* Der Screenshot läuft über das Display (T031) */
 html.choreo .proj-steps .step img { display: none; }
+
+/* Skills … Kontakt (T050): jeder Abschnitt füllt den Schirm, damit beim Pinnen nie der nächste Abschnitt durchscheint */
+html.choreo :is(#skills, #ueber, #lebenslauf, #kontakt) { min-height: 100svh; }
+
+/* Outro (T052): Das Schriftfeld liegt unten im Schirm, der Laptop setzt sich dahinter wieder zusammen */
+html.scene-on #outro { background: transparent; }
+html.choreo #outro {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+/*
+ * Handy und Tablet-Hochformat (< 900 px) mit 3D-Szene: Die Szene ist eine Bühne oben (46 svh, svh = von der
+ * Adressleiste unabhängig), Labels liegen darauf. Der Text scrollt darunter und verschwindet hinter der
+ * Bühne (deckendes Papier), nie über dem Laptop. Hero und Projekte pinnen direkt unter der Bühne
+ * (timeline.ts, stageTop). Gilt nicht für ?still (volle Fläche).
+ */
+@media (max-width: 899px) {
+  html.scene-on:not(.still) { --stage-h: clamp(240px, 46svh, 560px); }
+  html.scene-on:not(.still) :is(#scene, #labels) {
+    left: 0;
+    right: 0;
+    bottom: auto;
+    height: var(--stage-h);
+  }
+  html.scene-on:not(.still) #scene {
+    z-index: 2;
+    background: var(--paper);
+    border-bottom: var(--line) solid var(--ink);
+  }
+  html.scene-on:not(.still) #labels { z-index: 3; }
+  html.scene-on:not(.still) body { padding-top: var(--stage-h); }
+  html.scene-on:not(.still) { scroll-padding-top: calc(var(--stage-h) + var(--s-4)); }
+
+  html.scene-on:not(.still) main section { padding-block: var(--s-6); }
+  html.choreo #hero {
+    min-height: calc(100svh - var(--stage-h));
+    padding-top: var(--s-5);
+    padding-bottom: var(--s-4);
+  }
+  html.choreo #hero h1 { font-size: clamp(2.75rem, 12vw, 3.5rem); }
+  html.choreo .hero__lead { margin-top: var(--s-4); font-size: var(--t-body); line-height: var(--t-body-lh); }
+  html.choreo .hero__scroll { margin-top: var(--s-4); }
+
+  /* Projekt-Pin: Überschrift und ein Datenblatt müssen unter die Bühne passen */
+  html.choreo .proj-pin { padding-top: var(--s-4); }
+  html.choreo .proj-pin > h2 { margin-bottom: var(--s-3); font-size: var(--t-h3); line-height: var(--t-h3-lh); }
+  html.choreo .proj-steps > .step { padding: var(--s-3) 0 0; }
+  html.choreo .skip-projects { margin-bottom: var(--s-3); }
+  html.choreo :is(#skills, #ueber, #lebenslauf, #kontakt) { min-height: calc(100svh - var(--stage-h)); }
+  html.choreo #outro { min-height: calc(100svh - var(--stage-h)); }
+}

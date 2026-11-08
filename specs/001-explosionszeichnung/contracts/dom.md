@@ -34,7 +34,7 @@ Diese Hooks sind eine Schnittstelle. Umbenennen nur zusammen mit dem lesenden Co
 
 | Parameter | Wirkung |
 |---|---|
-| `?still` | kein Lenis, keine Timeline; Szene fest auf `explode = 1`, alle Labels sichtbar, transparenter Hintergrund → Quelle für `public/img/explosion-still.webp` |
+| `?still` | kein Lenis, keine Timeline; Szene fest auf `explode = 1`, `lid = 1`, `cam = 1` (Totale), alle Labels sichtbar, transparenter Hintergrund → Quelle für `public/img/explosion-still.webp` |
 | `?state=<json>` | setzt `sceneState` direkt (z. B. `{"explode":0.5}`), für Screenshots einzelner Zustände |
 
 ## Test-Hook
@@ -44,6 +44,14 @@ Diese Hooks sind eine Schnittstelle. Umbenennen nur zusammen mit dem lesenden Co
 `tools/shot.mjs` wartet auf `ready`. `marks()` (nur mit Choreografie) liefert die Scroll-Marken in px
 (`lidEnd`, `explodeEnd`, `projEnd`, `stepsEnd` …) und die Abschnitts-Labels der Master-Timeline (`@hero`, `@projekte-3` …);
 `tools/scroll-shot.mjs` scrollt damit durch die Stationen.
+
+## Anker (T053)
+
+`a[href^="#"]` springt mit Choreografie (Lenis) nicht zum DOM-Abstand, sondern zur Scroll-Position aus
+`anchorY(marks, id)` (`score.ts`): `hero` 0, `bom` Ende der Explosion, `projekte`/`skills`/`ueber`/`lebenslauf`/`kontakt`
+Pin-Beginn, `outro` Seitenende. Unbekannte Ids (`#main`) scrollen zum Element. Danach hat das Ziel Fokus (`tabindex="-1"`),
+`history.pushState` setzt den Hash, die Zurück-Taste stellt die gemerkte Position wieder her. `/#id` beim Laden landet an
+derselben Stelle. Bei reduzierter Bewegung, ohne WebGL und ohne JS bleiben Anker nativ.
 
 ## Sprachen
 

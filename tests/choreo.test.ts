@@ -1,7 +1,7 @@
 // T030: Partitur der Scroll-Choreografie (Scroll-Position → SceneState/Overlay-Werte) und die daraus
 // gebaute GSAP-Master-Timeline. Läuft ohne Browser.
 import { describe, it, expect } from 'vitest';
-import { buildScore, valueAt, valuesAt, DESKTOP, inKey, rowKey, stepKey, type Marks, type Segment } from '../src/choreo/score';
+import { buildScore, valueAt, valuesAt, DESKTOP, MOBILE, SECTIONS, inKey, portKey, rowKey, skillKey, stepKey, type Marks, type Score, type Segment } from '../src/choreo/score';
 import { buildMaster, type Proxy } from '../src/choreo/master';
 
 const vh = 900;
@@ -14,10 +14,17 @@ const marks: Marks = {
   projStart: 2400,
   projEnd: 2700,
   stepsEnd: 2700 + 6 * 450,
+  // Einfahrt 700 px, Pin 540 px (0,6 vh) je Abschnitt; Outro: 900 px
+  sections: [0, 1, 2, 3].map((i) => {
+    const pinStart = 5400 + 1400 * i + 700;
+    return { inStart: pinStart - 700, pinStart, pinEnd: pinStart + 540 };
+  }),
+  outroStart: 5400 + 1400 * 4 - 100,
+  outroEnd: 5400 + 1400 * 4 + 800,
 };
 const partKeys = ['lid', 'board', 'battery', 'ssd', 'ports', 'keyboard', 'fans', 'bottom'];
 const labelOrder = ['lid', 'keyboard', 'ssd', 'battery', 'board', 'ports', 'fans', 'bottom'];
-const input = { marks, partKeys, labelOrder, rows: 8, steps: 6 };
+const input = { marks, partKeys, labelOrder, rows: 8, steps: 6, skills: 6, ports: 4 };
 const score = buildScore(input);
 
 describe('Partitur', () => {
@@ -104,7 +111,7 @@ describe('Partitur', () => {
     }
     // Kamera erreicht trotzdem erst total, dann das Display
     const camSegs = byKey.get('cam')!;
-    expect(camSegs.map((s) => s.to)).toEqual([1, 2]);
+    expect(camSegs.map((s) => s.to).slice(0, 2)).toEqual([1, 2]);
   });
 
   it('Abschnitts-Labels sind aufsteigend (erweiterbar für Phase 9)', () => {
@@ -113,7 +120,145 @@ describe('Partitur', () => {
     expect(Object.keys(score.labels)).toEqual([
       'hero', 'explode', 'bom', 'projekte',
       'projekte-0', 'projekte-1', 'projekte-2', 'projekte-3', 'projekte-4', 'projekte-5', 'projekte-alle',
+      'skills', 'ueber', 'lebenslauf', 'kontakt', 'outro',
     ]);
+  });
+});
+
+describe('Abschnitte Skills … Kontakt und Outro (T050/T052)', () => {
+  const sMarks = marks.sections;
+
+  it('Kamera erreicht je Abschnitt den Keyframe 3…6 und steht am Pin-Beginn; im Pin bleibt alles stehen', () => {
+    SECTIONS.forEach((sec, i) => {
+      const S = sMarks[i]!;
+      const v = valuesAt(score, S.pinStart);
+      expect(v.cam).toBe(3 + i);
+      expect(partKeys[v.focus!]).toBe(sec.part);
+      expect(v.focusMix).toBe(1);
+      expect(v[inKey(sec.part)]).toBe(1);
+      const w = valuesAt(score, S.pinEnd);
+      expect(w.cam).toBe(3 + i);
+      expect(w.focusMix).toBe(1);
+      expect(w.explode).toBe(1);
+      expect(w.lid).toBe(1);
+    });
+  });
+
+  it('Kamera ist zwischen den Keyframes stetig und monoton bis zum Outro', () => {
+    let prev = 0;
+    for (let y = 0; y <= marks.outroStart; y += 10) {
+      const c = valueAt(score, 'cam', y);
+      expect(c).toBeGreaterThanOrEqual(prev);
+      expect(c - prev).toBeLessThan(0.1);
+      prev = c;
+    }
+  });
+
+  it('Fokus wechselt erst, wenn focusMix 0 ist (kein Aufblitzen des falschen Teils)', () => {
+    for (let y = marks.stepsEnd; y <= marks.outroEnd + 300; y += 3) {
+      const v = valuesAt(score, y);
+      const idx = Math.round(v.focus!);
+      const near = (k: number) => Math.abs(v.focus! - k) < 0.999;
+      if (v.focus !== Math.round(v.focus!)) expect(v.focusMix, `y=${y}`).toBe(0);
+      expect(near(idx)).toBe(true);
+    }
+  });
+
+  it('Labels: je Abschnitt zuerst das alte Teil aus, dann das Teil mit Chips/Kanälen ein; nie zwei Teile zugleich ganz', () => {
+    const board = 'board';
+    const at = (i: number) => valuesAt(score, sMarks[i]!.pinStart);
+    for (let n = 0; n < 6; n++) expect(at(0)[inKey(skillKey(n))]).toBe(1);
+    expect(at(0)[inKey('lid')]).toBe(0);
+    expect(at(1)[inKey(board)]).toBe(0);
+    for (let n = 0; n < 6; n++) expect(at(1)[inKey(skillKey(n))]).toBe(0);
+    expect(at(1)[inKey('battery')]).toBe(1);
+    expect(at(2)[inKey('battery')]).toBe(0);
+    expect(at(2)[inKey('ssd')]).toBe(1);
+    for (let n = 0; n < 4; n++) expect(at(3)[inKey(portKey(n))]).toBe(1);
+    expect(at(3)[inKey('ports')]).toBe(1);
+    // gestaffelt: erster Chip beginnt vor dem letzten
+    const starts = [0, 5].map((n) => score.segments.find((s) => s.key === inKey(skillKey(n)))!.start);
+    expect(starts[0]).toBeLessThan(starts[1]!);
+  });
+
+  it('Einzelne Strecken liegen in Seitenreihenfolge (Einfahrt nie vor dem Ende des vorigen Pins)', () => {
+    SECTIONS.forEach((_, i) => {
+      const camSeg = score.segments.filter((s) => s.key === 'cam' && s.to === 3 + i)[0]!;
+      const prevEnd = i === 0 ? marks.stepsEnd : sMarks[i - 1]!.pinEnd;
+      expect(camSeg.start).toBeGreaterThanOrEqual(prevEnd);
+      expect(camSeg.end).toBeLessThanOrEqual(sMarks[i]!.pinStart + 1);
+    });
+  });
+
+  it('Outro: Explosion und Deckel kehren um, Kamera = Hero-Ansicht, kein Fokus, keine Labels, Schriftfeld da', () => {
+    const v = valuesAt(score, marks.outroEnd);
+    expect(v.explode).toBe(0);
+    expect(v.lid).toBe(0);
+    expect(v.cam).toBe(7);
+    expect(v.focus).toBe(-1);
+    expect(v.focusMix).toBe(0);
+    expect(v.outro).toBe(1);
+    for (const k of Object.keys(v)) if (k.startsWith('in:')) expect(v[k], k).toBe(0);
+    // vor dem Outro noch zerlegt, Schriftfeld erst am Ende
+    const before = valuesAt(score, marks.outroStart - 50);
+    expect(before.explode).toBe(1);
+    expect(before.outro).toBe(0);
+    // Deckel schließt erst, wenn die Explosion zu großen Teilen zurück ist
+    let y = marks.outroStart;
+    while (valueAt(score, 'lid', y) === 1) y++;
+    expect(valueAt(score, 'explode', y)).toBeLessThan(0.7);
+  });
+
+  it('Outro-Zustände sind monoton (explode, lid fallen; outro steigt)', () => {
+    let e = 1;
+    let l = 1;
+    let o = 0;
+    for (let y = sMarks[3]!.pinEnd; y <= score.end; y += 5) {
+      const v = valuesAt(score, y);
+      expect(v.explode!).toBeLessThanOrEqual(e);
+      expect(v.lid!).toBeLessThanOrEqual(l);
+      expect(v.outro!).toBeGreaterThanOrEqual(o);
+      e = v.explode!;
+      l = v.lid!;
+      o = v.outro!;
+    }
+  });
+
+  it('Segmente überlappen nie; auch mit MOBILE und dicht liegenden Marken (z. B. Abschnitt ohne Pin)', () => {
+    const check = (s: Score) => {
+      const byKey = new Map<string, Segment[]>();
+      for (const seg of s.segments) byKey.set(seg.key, [...(byKey.get(seg.key) ?? []), seg]);
+      for (const list of byKey.values()) {
+        for (let i = 1; i < list.length; i++) expect(list[i]!.start).toBeGreaterThanOrEqual(list[i - 1]!.end);
+        for (const seg of list) expect(seg.end).toBeGreaterThan(seg.start);
+      }
+    };
+    check(score);
+    const mobile = buildScore({
+      ...input,
+      lengths: MOBILE,
+      marks: {
+        ...marks,
+        sections: sMarks.map((S, i) => ({ inStart: S.inStart, pinStart: S.pinStart, pinEnd: S.pinStart + (i === 1 ? 1 : 270) })),
+      },
+    });
+    check(mobile);
+    // zu dicht: Einfahrt beginnt vor dem Ende des vorigen Pins, Outro vor dem letzten Pin
+    const tight = buildScore({
+      ...input,
+      marks: {
+        ...marks,
+        sections: sMarks.map((S) => ({ inStart: S.inStart - 600, pinStart: S.pinStart - 650, pinEnd: S.pinEnd - 650 })),
+        outroStart: sMarks[3]!.pinStart,
+        outroEnd: sMarks[3]!.pinStart + 100,
+      },
+    });
+    check(tight);
+    for (const s of [mobile, tight]) {
+      const v = valuesAt(s, s.end);
+      expect(v.cam).toBe(7);
+      expect(v.explode).toBe(0);
+    }
   });
 });
 
@@ -147,5 +292,34 @@ describe('Master-Timeline (GSAP)', () => {
     master.time(1300);
     expect(proxy.explode).toBeCloseTo(valueAt(moved, 'explode', 1300), 5);
     expect(master.labels.explode).toBe(900);
+  });
+});
+
+describe('Mobile Strecken (T041)', () => {
+  it('MOBILE ist durchweg kürzer als DESKTOP, Pin je Projekt 0,35 vh', () => {
+    expect(MOBILE.lid).toBeLessThan(DESKTOP.lid);
+    expect(MOBILE.step).toBeLessThan(DESKTOP.step);
+    expect(MOBILE.step).toBe(0.35);
+    expect(MOBILE.labelsTail).toBeLessThanOrEqual(DESKTOP.labelsTail);
+  });
+
+  it('Partitur mit MOBILE bleibt gültig: Segmente überlappen nie, ein Datenblatt je Schritt', () => {
+    const m = { ...marks, lidEnd: 400, stepsEnd: 2700 + 6 * Math.round(MOBILE.step * vh) };
+    const s = buildScore({ ...input, marks: m, lengths: MOBILE });
+    const byKey = new Map<string, Segment[]>();
+    for (const seg of s.segments) byKey.set(seg.key, [...(byKey.get(seg.key) ?? []), seg]);
+    for (const list of byKey.values()) for (let i = 1; i < list.length; i++) expect(list[i]!.start).toBeGreaterThanOrEqual(list[i - 1]!.end);
+    const len = (m.stepsEnd - m.projEnd) / 6;
+    for (let i = 0; i < 6; i++) {
+      const v = valuesAt(s, m.projEnd + (i + 0.5) * len);
+      expect(v[stepKey(i)]).toBe(1);
+      expect(v.screen).toBe(i);
+    }
+    for (let y = m.projEnd; y <= m.stepsEnd; y += 7) {
+      const v = valuesAt(s, y);
+      let sum = 0;
+      for (let i = 0; i < 6; i++) sum += v[stepKey(i)]!;
+      expect(sum).toBeLessThanOrEqual(1.0001);
+    }
   });
 });

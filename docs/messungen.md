@@ -173,3 +173,58 @@ Geometrie vereinfachen, Antialiasing aus. Dafür gibt es keinen Messgrund, und d
    Zum Beenden `clearInterval(<Nummer>)` eingeben oder die Seite neu laden.
 4. Für den Produktions-Build ohne Konsole: `npm run perf -- --prod --headed --wheel` öffnet ein
    Firefox-Fenster, scrollt per Mausrad und gibt alle Werte aus (ca. 1 min, Fenster nicht verdecken).
+
+## Kontraste und Tastatur (T054, 2026-11-08)
+
+Gerechnet mit `node tools/contrast.mjs` (liest die Farben aus `src/styles/tokens.css`, WCAG-2.x-Luminanz).
+Maßstab: Text 4,5:1 (große Schrift 3:1), UI-Elemente und Fokusring 3:1.
+
+| Paarung | Verhältnis | Mindest | Ergebnis |
+|---|---|---|---|
+| Text `--ink` auf `--paper` | 12,42:1 | 4,5 | ok |
+| Text `--ink` auf `--paper-hi` (Schriftfeld, Tabellenkopf, Hover-Zeile) | 13,99:1 | 4,5 | ok |
+| Text `--orange-ink` auf `--paper` (Link-Hover) | 4,95:1 | 4,5 | ok |
+| Text `--orange-ink` auf `--paper-hi` | 5,57:1 | 4,5 | ok |
+| Fokusring `--orange-ink` auf `--paper` | 4,95:1 | 3 | ok |
+| Fokusring `--orange-ink` auf `--paper-hi` (Skip-Link, Schriftfeld) | 5,57:1 | 3 | ok |
+| Label-Nummer `--ink` auf `--orange` (aktives Teil) | 5,24:1 | 4,5 | ok |
+| Linien `--ink` auf `--paper` | 12,42:1 | 3 | ok |
+| Stücklistenzeile während der Einblendung: `--ink` bei Deckkraft 0,75 / 0,5 | 6,11 / 2,97:1 | 4,5 | Übergang, Endzustand (Deckkraft 1) 12,42:1 |
+| `--grid` auf `--paper` | 1,45:1 | – | nur Trennlinien, nie als Text (per grep geprüft) |
+| Fokusring `--orange-ink` auf `--case` (dunkler Laptop) | 2,08:1 | 3 | nicht erfüllt, tritt nicht auf (s. u.) |
+| Label-Linie `--ink` auf `--case` | 1,21:1 | 3 | nur Zierlinie über dem Gehäuse (s. u.) |
+
+Ergebnis: Alle **Textfarben** erfüllen AA, es musste kein Token geändert werden (`--orange-ink` gab das Ziel ≈ 4,9:1 schon
+vor). Grau wird nirgends für Text benutzt (`--grid` nur als Linie), Nebentexte (`.stack`, `.port`, Labels) sind `--ink`.
+Die Stücklistenzeilen blenden nur ein und stehen im Endzustand mit Deckkraft 1 da; bei reduzierter Bewegung gibt es
+gar keine Deckkraft-Animation (`reduced.css`).
+
+Zu den zwei nicht erfüllten Zeilen:
+
+- **Fokusring auf dem Gehäuse:** Fokussierbar sind nur Links im Textbereich. Der steht auf Papier (Desktop: Spalte links
+  neben der Szene, Handy: unter der deckenden Bühne). Kein Fokusring liegt über dem Laptop; geprüft mit Screenshots aller
+  Tab-Stopps. Wäre es nötig, ist `--orange` (#FF5F1F) mit 4,34:1 auf `--case` die Ausweichfarbe.
+- **Label-Linien über dem Gehäuse:** Die Zierlinie und der Punkt (`--ink`) enden auf dem dunklen Teil und sind dort schwach.
+  Die Information steckt in Nummernkreis (Papier) und Beschriftung (`--ink` auf Papier), nicht in der Linie. Aktive Linien
+  sind `--orange-ink`. Nach WCAG 1.4.11 ist die Linie keine nötige Grafik. Nicht geändert, weil es das Zeichnungsbild ändern würde.
+
+### Fokus und Anker per Tastatur
+
+- Fokusring `:focus-visible`: 2px `--orange-ink`, Abstand 4px (`--line-bold`, `--s-1`), überall gleich (`base.css`);
+  im Hochkontrast-Modus Systemfarbe `Highlight`. Anker-Ziele (Abschnitte, `tabindex="-1"`) bekommen keinen Ring.
+- `scroll-padding-top`: Desktop `--s-5`, Handy `--stage-h + --s-4` (Fokus verschwindet nie unter der Bühne), unten `--s-5`.
+- Tab-Reihenfolge = visuelle Reihenfolge (Skip-Link, Sprachumschalter, Hero, Stückliste, Projekte, … Schriftfeld), kein
+  Fokus-Trap: nach dem letzten Link verlässt der Fokus die Seite, Shift+Tab läuft rückwärts durch alle Stopps.
+- Fokus in gepinnten Abschnitten, in noch verdeckten Datenblättern, in noch nicht eingeblendeten Stücklistenzeilen und im
+  Schriftfeld springt zur passenden Scroll-Position (`focusScrollY` in `score.ts`, `onFocusIn` in `timeline.ts`).
+- Screenreader: `#scene` und `#labels` sind `aria-hidden`, Sprachumschalter mit `lang`/`hreflang` am Link, beide
+  `nav` mit `aria-label`, Abschnitte mit `aria-labelledby`, externe Links mit „(öffnet in neuem Tab)“.
+
+### Selbst prüfen
+
+`node tools/focus-shot.mjs [--size 390x844]` startet Dev-Server und Firefox, klickt alle Anker (Ziel = Marke der Timeline,
+±2 px), prüft `/#kontakt`, Zurück/Vor, läuft per echter Tab-Taste durch alle Stopps und danach rückwärts (je Stopp: im Bild,
+deckend, Ring da) und schreibt Screenshots nach `test-results/shots/focus/<Breite>/`. Hinweis: das headless-Firefox-Fenster
+ist nie „aktiv“ (`document.hasFocus()` ist false), dann liefert Firefox weder `focusin` noch `:focus`. Das Skript reicht
+`focusin` deshalb von Hand nach und spiegelt die `:focus`/`:focus-visible`-Regeln der echten Stylesheets auf `[data-ring]`
+(gleiche Tokens, anderer Selektor). In einem normalen Firefox-Fenster kommt beides von selbst.

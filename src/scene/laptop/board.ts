@@ -5,8 +5,8 @@
  */
 import { Mesh, Shape } from 'three';
 import { addEdges, type Materials } from '../materials';
-import { BOARD, BOARD_TOP, CPU_TOP, SSD } from './dims';
-import { ANCHOR, box, contentGroup, extrudeUp, marker, merge, type PartBuild } from './geom';
+import { BOARD, BOARD_TOP, CHIP_ANCHORS, CPU_TOP, SSD } from './dims';
+import { ANCHOR, box, chipAnchorName, contentGroup, extrudeUp, marker, merge, type PartBuild } from './geom';
 
 /** Umriss der Platine im Grundriss (Formkoordinaten: x, −z). */
 function boardShape(): Shape {
@@ -58,5 +58,6 @@ export function buildBoard(materials: Materials): PartBuild {
   addEdges(mesh, 'ink', materials);
 
   const anchor = marker(ANCHOR, cpu.x, CPU_TOP, cpu.z);
-  return { content: contentGroup(mesh, anchor) };
+  const chips = CHIP_ANCHORS.map((c) => marker(chipAnchorName(c.name), c.x, c.y, c.z));
+  return { content: contentGroup(mesh, anchor, ...chips) };
 }

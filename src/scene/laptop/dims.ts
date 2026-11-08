@@ -163,6 +163,18 @@ export const BOARD = {
 } as const;
 export const BOARD_TOP = BOARD.bottom + BOARD.thickness;
 export const CPU_TOP = BOARD_TOP + BOARD.cpu.substrate + BOARD.cpu.die;
+/**
+ * Beschriftbare Chips auf dem Mainboard (Anker für die Skill-Labels, Reihenfolge = Reihenfolge der Skills in
+ * strings.json). Position in mm im Platinen-Inhalt (x, z = Mitte, y = Oberkante des Chips).
+ */
+export const CHIP_ANCHORS = [
+  { name: 'CPU', x: BOARD.cpu.x + 7, y: CPU_TOP, z: BOARD.cpu.z - 5.5 },
+  { name: 'RAM-1', x: BOARD.ram.xs[0], y: BOARD_TOP + BOARD.ram.height, z: BOARD.ram.z },
+  { name: 'RAM-2', x: BOARD.ram.xs[3], y: BOARD_TOP + BOARD.ram.height, z: BOARD.ram.z },
+  { name: 'WLAN', x: -70, y: BOARD_TOP + 1.2, z: -10 },
+  { name: 'EC', x: 55, y: BOARD_TOP + 0.8, z: -15 },
+  { name: 'VRM', x: -20, y: BOARD_TOP + 2, z: -96 },
+] as const;
 /** Kühlplatte auf der CPU (gehört zum Kühlmodul `fans`). */
 export const COLD_PLATE = { width: 34, depth: 28, thickness: 1.0 } as const;
 

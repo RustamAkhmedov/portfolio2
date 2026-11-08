@@ -1,0 +1,54 @@
+/*
+ * Ruhige Dokumentseite: reduzierte Bewegung (html.reduced), kein WebGL (html.no-webgl) oder kein JS
+ * (html:not(.js)). Standbild im Hero, Abschnitte normal untereinander, nichts fixed/sticky, keine Animation.
+ * Wird nach layout/sections/labels geladen und schlägt sie über gleiche oder höhere Spezifität (R5, FR-009/010).
+ */
+
+:is(html.reduced, html.no-webgl, html:not(.js)) {
+  --scene-left: 0;
+}
+
+/* Szene und Beschriftungen gibt es hier nicht */
+html.reduced #scene, html.reduced #labels,
+html.no-webgl #scene, html.no-webgl #labels,
+html:not(.js) #scene, html:not(.js) #labels {
+  display: none;
+  position: static;
+}
+
+/* Standbild statt Platzhalter-Rahmen, im normalen Fluss */
+html.reduced #scene-fallback, html.no-webgl #scene-fallback, html:not(.js) #scene-fallback {
+  display: block;
+  position: static;
+  width: auto;
+  max-height: none;
+  aspect-ratio: auto;
+  border: 0;
+  margin-block: var(--s-6) 0;
+}
+html.reduced #scene-fallback img, html.no-webgl #scene-fallback img, html:not(.js) #scene-fallback img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+/* der Platzhaltertext gehört zum Rahmen ohne Bild */
+html.reduced #scene-note, html.no-webgl #scene-note, html:not(.js) #scene-note { display: none; }
+
+/* Abschnitte voll breit, nicht in einer Spalte neben der Szene; Datenblätter untereinander statt übereinander */
+:is(html.reduced, html.no-webgl, html:not(.js)) main section:not(#hero) { width: auto; }
+:is(html.reduced, html.no-webgl, html:not(.js)) #hero { min-height: 0; }
+:is(html.reduced, html.no-webgl, html:not(.js)) #projekte { padding-top: var(--s-8); }
+:is(html.reduced, html.no-webgl, html:not(.js)) .proj-pin { padding-top: 0; }
+:is(html.reduced, html.no-webgl, html:not(.js)) .proj-steps { display: block; }
+:is(html.reduced, html.no-webgl, html:not(.js)) .proj-steps > .step { grid-area: auto; opacity: 1; visibility: visible; transform: none; }
+:is(html.reduced, html.no-webgl, html:not(.js)) .proj-steps .step img { display: block; }
+
+/* Keine Animationen und Übergänge */
+:is(html.reduced, html.no-webgl, html:not(.js)),
+:is(html.reduced, html.no-webgl, html:not(.js)) *,
+:is(html.reduced, html.no-webgl, html:not(.js)) *::before,
+:is(html.reduced, html.no-webgl, html:not(.js)) *::after {
+  scroll-behavior: auto;
+  animation: none;
+  transition: none;
+}

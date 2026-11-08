@@ -10,11 +10,18 @@
  *     zeichnet sich per stroke-dashoffset (1 → 0, pathLength = 1), Kreis/Text blenden per opacity ein.
  *     Der Wert steht auch als CSS-Variable `--label-in` am `.label`, am Pfad und am Punkt.
  *   - `setActive(key | null)`: aktives Teil (Klasse `is-active`, Kreis orange gefüllt).
+ *   - `setLayout(keys | null)`: nur diese Labels teilen sich die Spalte (null = alle, Standard). Für die Abschnitte
+ *     nach den Projekten: unsichtbare Labels anderer Teile würden sonst Platz belegen und die sichtbaren verschieben.
  *   - `update()`: Positionen neu rechnen; wird nach jedem gezeichneten Frame (rig.onFrame) aufgerufen.
+ * Zusätzliche Labels (T050) entstehen beim Anlegen aus dem DOM der Abschnitte: je Eintrag in `#skills .skill-list`
+ * ein Label an einem Chip des Mainboards, je Kanal in `#kontakt .ports` eines am passenden Anschluss
+ * (`.label[data-anchor]`, Schlüssel `data-label-key`, siehe label-keys.ts). Die Texte bleiben im Markup.
  * Animiert werden nur transform, opacity und stroke-dashoffset. Die endgültige Deckkraft ist
  * in × Bildrand-Faktor (Anker außerhalb des Bildes → 0).
  */
 import { Vector3, type Camera } from 'three';
+import { skillKey, portKey } from './label-keys';
+import { CHIP_ANCHORS } from './laptop/dims';
 
 // ---------- reine Funktionen (ohne WebGL testbar) ----------
 
@@ -31,9 +38,18 @@ export interface LayoutOptions {
   radius: number;
   /** Alle Labels auf eine Seite zwingen (-1 links, 1 rechts); sonst nach Bildschirmhälfte */
   side?: -1 | 1;
+  /** Spalten ganz außen am Bildrand statt neben dem äußersten Anker (Abschnitte mit Fokus: Linien laufen nach außen) */
+  edge?: boolean;
+  /** Ohne `side`: Seite nach Median der Anker-x (je Hälfte eine Spalte) statt nach Bildschirmhälfte */
+  split?: boolean;
 }
 
+/** Abstand der Spalten von den Gruppen bei getrennten Anker-Gruppen (Anschlüsse links/rechts) */
+const CLUSTER_OFFSET = 70;
 export const LAYOUT: LayoutOptions = { offset: 200, gap: 78, pad: 20, textWidth: 190, radius: 14 };
+/** Schmale Bühne (Overlay < COMPACT_WIDTH px breit, Handy): nur Nummernkreise, enger gestaffelt, näher am Bauteil */
+export const COMPACT_WIDTH = 768;
+export const LAYOUT_COMPACT: LayoutOptions = { ...LAYOUT, offset: 70, gap: 40, pad: 14, textWidth: 0 };
 
 export interface Pt {
   x: number;
@@ -83,7 +99,23 @@ export function placeLabels(
 ): PlacedLabel[] {
   const { offset, gap, pad, textWidth, radius } = opts;
   const text = textWidth > 0 ? textWidth + 8 : 0;
-  const sides = anchors.map((a): -1 | 1 => opts.side ?? (a.x < w / 2 ? -1 : 1));
+  let mid = w / 2;
+  // Ohne side/split-Vorgabe: Bildschirmhälfte. Mit split: zwei deutlich getrennte Gruppen (größte Lücke ≥ 25 % der
+  // Breite, z. B. linke/rechte Anschlüsse) trennen dort, sonst nach Median (je Hälfte eine Spalte).
+  let clustered = false;
+  if (opts.split && anchors.length > 1) {
+    const xs = anchors.map((a) => a.x).sort((a, b) => a - b);
+    let best = 0;
+    for (let i = 1; i < xs.length - 1; i++) if (xs[i + 1]! - xs[i]! > xs[best + 1]! - xs[best]!) best = i;
+    const gap = xs[best + 1]! - xs[best]!;
+    if (gap >= 0.25 * w) {
+      mid = (xs[best]! + xs[best + 1]!) / 2;
+      clustered = true;
+    } else mid = (xs[Math.floor((xs.length - 1) / 2)]! + xs[Math.floor(xs.length / 2)]!) / 2;
+  }
+  // edge ohne split: Spalte auf der Seite mit mehr Platz (das Teil bleibt frei vom Label)
+  const far = !!opts.edge && !opts.split;
+  const sides = anchors.map((a): -1 | 1 => opts.side ?? (far ? (a.x < mid ? 1 : -1) : a.x < mid ? -1 : 1));
   const result: PlacedLabel[] = anchors.map((a, i) => ({ x: a.x, y: a.y, side: sides[i]! }));
 
   for (const side of [-1, 1] as const) {
@@ -93,7 +125,8 @@ export function placeLabels(
     // links liegt der Text links vom Kreis, rechts rechts davon
     const lo = side === -1 ? pad + radius + text : pad + radius;
     const hi = side === -1 ? w - pad - radius : w - pad - radius - text;
-    const col = Math.min(Math.max(extreme + side * offset, lo), Math.max(lo, hi));
+    const want = opts.edge && !clustered ? (side === -1 ? lo : hi) : extreme + side * (clustered ? CLUSTER_OFFSET : offset);
+    const col = Math.min(Math.max(want, lo), Math.max(lo, hi));
     const ys = spreadY(idx.map((i) => anchors[i]!.y), gap, pad + radius, h - pad - radius);
     idx.forEach((i, k) => {
       result[i] = { x: col, y: ys[k]!, side };
@@ -125,6 +158,7 @@ export interface Labels {
   show(keys: readonly string[] | 'all'): void;
   setIn(key: string, value: number): void;
   setActive(key: string | null): void;
+  setLayout(keys: readonly string[] | null): void;
   dispose(): void;
 }
 
@@ -132,6 +166,8 @@ const SVG_NS = 'http://www.w3.org/2000/svg';
 
 interface Item {
   key: string;
+  /** Name in `laptop.anchors` */
+  anchor: string;
   el: HTMLElement;
   path: SVGPathElement;
   dot: SVGCircleElement;
@@ -142,15 +178,66 @@ interface Item {
   lastT: string;
 }
 
+/** Beschreibung eines zusätzlichen Labels aus dem DOM. */
+export interface ExtraLabel {
+  key: string;
+  anchor: string;
+  no: string;
+  name: string;
+  spec?: string;
+}
+
+/** Skill-Chips und Kontaktkanäle aus dem Dokument lesen (Texte kommen aus dem Markup). */
+export function extraLabels(doc: ParentNode): ExtraLabel[] {
+  const out: ExtraLabel[] = [];
+  doc.querySelectorAll('#skills .skill-list li').forEach((li, i) => {
+    const chip = CHIP_ANCHORS[i];
+    const name = li.textContent?.trim();
+    if (chip && name) out.push({ key: skillKey(i), anchor: `chip:${chip.name}`, no: `S${i + 1}`, name });
+  });
+  doc.querySelectorAll('#kontakt .ports li').forEach((li, i) => {
+    const port = li.querySelector('.port')?.textContent?.trim();
+    const name = li.querySelector('a')?.textContent?.trim();
+    if (port && name) out.push({ key: portKey(i), anchor: port, no: `K${i + 1}`, name, spec: port });
+  });
+  return out;
+}
+
+function appendExtraLabels(overlay: HTMLElement): void {
+  for (const x of extraLabels(document)) {
+    if (overlay.querySelector(`[data-label-key="${x.key}"]`)) continue;
+    const el = document.createElement('div');
+    el.className = 'label label--extra';
+    el.dataset.anchor = x.anchor;
+    el.dataset.labelKey = x.key;
+    const no = document.createElement('span');
+    no.className = 'label__no';
+    no.textContent = x.no;
+    const name = document.createElement('span');
+    name.className = 'label__name';
+    name.textContent = x.name;
+    el.append(no, ' ', name);
+    if (x.spec) {
+      const spec = document.createElement('span');
+      spec.className = 'label__spec';
+      spec.textContent = x.spec;
+      el.append(' ', spec);
+    }
+    overlay.appendChild(el);
+  }
+}
+
 export function createLabels(overlay: HTMLElement, rig: LabelRig): Labels {
   const svg = overlay.querySelector('svg');
   if (!svg) throw new Error('#labels: <svg> fehlt');
   const byId = new Map(rig.parts.map((p) => [p.id, p.key]));
   const items: Item[] = [];
+  appendExtraLabels(overlay);
 
-  overlay.querySelectorAll<HTMLElement>('.label[data-part]').forEach((el) => {
-    const key = byId.get(el.dataset.part ?? '');
-    if (!key || !rig.laptop.anchors[key]) return;
+  overlay.querySelectorAll<HTMLElement>('.label[data-part], .label[data-anchor]').forEach((el) => {
+    const anchor = el.dataset.anchor ?? byId.get(el.dataset.part ?? '');
+    const key = el.dataset.labelKey ?? anchor;
+    if (!key || !anchor || !rig.laptop.anchors[anchor]) return;
     const no = el.querySelector('.label__no');
     if (no) no.textContent = (no.textContent ?? '').replace(/^P-/, ''); // Kreis zeigt „01“
     // Name und Spec in einen Textblock (Kreis bleibt für sich)
@@ -166,7 +253,7 @@ export function createLabels(overlay: HTMLElement, rig: LabelRig): Labels {
     dot.setAttribute('class', 'label-dot');
     dot.setAttribute('r', '1.5');
     svg.append(path, dot);
-    items.push({ key, el, path, dot, in: 0, edge: 1, side: 0, lastD: '', lastT: '' });
+    items.push({ key, anchor, el, path, dot, in: 0, edge: 1, side: 0, lastD: '', lastT: '' });
   });
 
   function applyIn(it: Item): void {
@@ -183,10 +270,12 @@ export function createLabels(overlay: HTMLElement, rig: LabelRig): Labels {
   items.forEach(applyIn);
 
   const v = new Vector3();
+  let layout: Set<string> | null = null;
   // Layout kann die Seite vorgeben: CSS-Variable --labels-side (-1/1) am Overlay, gelesen bei Größenänderung.
   let lastW = 0;
   let lastH = 0;
   let forcedSide: -1 | 1 | undefined;
+  let lastNarrow: boolean | undefined;
   function update(): void {
     const w = overlay.clientWidth;
     const h = overlay.clientHeight;
@@ -198,19 +287,31 @@ export function createLabels(overlay: HTMLElement, rig: LabelRig): Labels {
       forcedSide = raw === -1 || raw === 1 ? raw : undefined;
     }
     rig.camera.updateMatrixWorld();
-    const narrow = w < 768;
-    const opts: LayoutOptions = { ...LAYOUT, textWidth: narrow ? 0 : LAYOUT.textWidth, side: forcedSide };
+    const narrow = w < COMPACT_WIDTH;
+    if (narrow !== lastNarrow) {
+      lastNarrow = narrow;
+      overlay.classList.toggle('labels--compact', narrow); // CSS blendet die Texte aus (labels.css)
+    }
+    // Abschnitte mit Fokus (layout gesetzt): Spalten am Rand; mit Chips/Kanälen beide Seiten nach Median der Anker
+    const multi = !!layout && [...layout].some((k) => k.startsWith('skill-') || k.startsWith('port-'));
+    const opts: LayoutOptions = {
+      ...(narrow ? LAYOUT_COMPACT : LAYOUT),
+      side: multi ? undefined : forcedSide,
+      split: multi,
+      edge: !!layout,
+    };
     svg!.setAttribute('viewBox', `0 0 ${w} ${h}`);
 
+    const list = layout ? items.filter((it) => layout!.has(it.key)) : items;
     const px: Pt[] = [];
     const z: number[] = [];
-    for (const it of items) {
-      v.copy(rig.laptop.anchors[it.key]!).project(rig.camera);
+    for (const it of list) {
+      v.copy(rig.laptop.anchors[it.anchor]!).project(rig.camera);
       px.push(ndcToPixel(v.x, v.y, w, h));
       z.push(v.z);
     }
     const placed = placeLabels(px, w, h, opts);
-    items.forEach((it, i) => {
+    list.forEach((it, i) => {
       const a = px[i]!;
       const p = placed[i]!;
       const edge = edgeFactor(a, z[i]!, w, h);
@@ -253,6 +354,9 @@ export function createLabels(overlay: HTMLElement, rig: LabelRig): Labels {
       if (!it) return;
       it.in = Math.min(1, Math.max(0, value));
       applyIn(it);
+    },
+    setLayout(keys) {
+      layout = keys ? new Set(keys) : null;
     },
     setActive(key) {
       for (const it of items) {

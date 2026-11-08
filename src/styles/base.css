@@ -13,6 +13,7 @@ html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
   scroll-padding-top: var(--s-5);
+  scroll-padding-bottom: var(--s-5); /* fokussierte Elemente kleben nicht am unteren Rand */
 }
 
 body {
@@ -64,6 +65,14 @@ a:hover { color: var(--orange-ink); }
 :focus-visible {
   outline: var(--line-bold) solid var(--orange-ink);
   outline-offset: var(--s-1);
+}
+
+/* Anker-Ziele (Abschnitte, per Sprung fokussiert, tabindex="-1") zeigen keinen Ring; Bedienelemente behalten ihn */
+[tabindex="-1"]:focus { outline: none; }
+
+/* Hochkontrast-Modus: Systemfarbe statt Token */
+@media (forced-colors: active) {
+  :focus-visible { outline-color: Highlight; }
 }
 
 ::selection { background: var(--orange); color: var(--ink); }

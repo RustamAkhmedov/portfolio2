@@ -1,7 +1,8 @@
 // Scroll-Choreografie prüfen (T030): Dev-Server + Firefox (ffbrowser.mjs, nie Chrome), scrollt zu den
 // Marken der Timeline (window.__v2.marks()), macht je Station einen Screenshot, liest window.__v2.state
 // und misst beim Durchscrollen die Bildrate (headless = nur Richtwert).
-// Aufruf: node tools/scroll-shot.mjs [--size 1440x900] [--lang de|en] [--no-fps] [--settle ms]
+// Aufruf: node tools/scroll-shot.mjs [--size 1440x900] [--lang de|en] [--no-fps] [--settle ms] [--only name,name] [--dump]
+// --only: nur diese Stationen (Namen wie in der Ausgabe), --dump: Position/Deckkraft aller sichtbaren Labels ausgeben
 // Ausgabe: test-results/shots/scroll/<lang>/<nr>-<name>@<breite>.png + state@<breite>.json; Exit 1 bei Konsolen-/Seitenfehlern.
 import {spawn} from 'node:child_process';
 import fs from 'node:fs';
@@ -12,11 +13,13 @@ import {launch} from './ffbrowser.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
-let size = [1440, 900], lang = 'de', fps = true, settle = 1400;
+let size = [1440, 900], lang = 'de', fps = true, settle = 1400, only = null, dump = false;
 for (let i = 0; i < args.length; i++) {
   if (args[i] === '--size') size = args[++i].split('x').map(Number);
   else if (args[i] === '--lang') lang = args[++i];
   else if (args[i] === '--no-fps') fps = false;
+  else if (args[i] === '--only') only = args[++i].split(',');
+  else if (args[i] === '--dump') dump = true;
   else if (args[i] === '--settle') settle = Number(args[++i]);
   else { console.error('Unbekanntes Argument: ' + args[i]); process.exit(2); }
 }
@@ -48,6 +51,14 @@ function stations(m) {
   for (let i = 0; i < 6; i++) list.push([`projekt-${i + 1}`, m.projEnd + (i + 0.5) * step]);
   list.push(['wechsel-1-2', m.projEnd + step]);
   list.push(['verzeichnis', m.stepsEnd + 0.6 * m.vh]);
+  // Skills … Kontakt: Mitte der Einfahrt, Pin (Mitte) und Ende der Strecke; dann Outro halb und am Seitenende
+  ['skills', 'ueber', 'lebenslauf', 'kontakt'].forEach((name, i) => {
+    const a = m[`sec${i}In`], p = m[`sec${i}Pin`], e = m[`sec${i}End`];
+    list.push([`${name}-rein`, (Math.max(a, i ? m[`sec${i - 1}End`] : m.stepsEnd) + p) / 2]);
+    list.push([name, (p + e) / 2]);
+  });
+  list.push(['outro-halb', (m.outroStart + m.outroEnd) / 2]);
+  list.push(['outro', m.outroEnd]);
   return list.map(([n, y]) => [n, Math.round(y)]);
 }
 
@@ -76,7 +87,8 @@ try {
 
   fs.mkdirSync(outDir, {recursive: true});
   const report = {size, lang, marks, stations: []};
-  const list = stations(marks);
+  const full = stations(marks);
+  const list = only ? full.filter(([n]) => only.includes(n)) : full;
   for (let k = 0; k < list.length; k++) {
     const [name, y] = list[k];
     await page.evaluate((top) => window.scrollTo({top, behavior: 'instant'}), y);
@@ -86,18 +98,22 @@ try {
       const vis = [...document.querySelectorAll('[data-step]')].map((el) => Number(getComputedStyle(el).opacity).toFixed(2));
       const rows = [...document.querySelectorAll('#bom tbody tr')].map((el) => Number(getComputedStyle(el).opacity).toFixed(2));
       const labels = [...document.querySelectorAll('#labels .label')].map((el) => Number(el.style.opacity || 0).toFixed(2));
-      return {scrollY: Math.round(scrollY), state: {...s}, steps: vis.join(' '), rows: rows.join(' '), labels: labels.join(' ')};
+      const lab = [...document.querySelectorAll('#labels .label')].filter((el) => Number(el.style.opacity || 0) > 0.01)
+        .map((el) => `${el.dataset.labelKey || el.dataset.part}@${el.style.transform.replace('translate3d', '').replace(/, 0\)?$/, '')}:${Number(el.style.opacity).toFixed(2)}`);
+      const ov = document.getElementById('labels'); lab.unshift(`overlay ${ov.clientWidth}x${ov.clientHeight}`);
+      return {scrollY: Math.round(scrollY), state: {...s}, steps: vis.join(' '), rows: rows.join(' '), labels: labels.join(' '), lab};
     });
-    const file = path.join(outDir, `${String(k).padStart(2, '0')}-${name}@${size[0]}.png`);
+    const file = path.join(outDir, `${String(full.findIndex(([n]) => n === name)).padStart(2, '0')}-${name}@${size[0]}.png`);
     await page.screenshot({path: file});
     const st = info.state;
     console.log(`${name.padEnd(15)} y=${String(info.scrollY).padStart(5)}  lid=${st.lid.toFixed(2)} explode=${st.explode.toFixed(2)} cam=${st.cam.toFixed(2)} ` +
       `screen=${st.screen.toFixed(2)} focus=${st.focus} | steps ${info.steps} | rows ${info.rows} | labels ${info.labels}`);
+    if (dump) console.log('   ', info.lab.join(' | '));
     report.stations.push({name, y, ...info, file: path.relative(root, file)});
   }
 
   // Verzeichnis-Hover (T035): synthetisches pointerover auf die 3. Zeile, screen muss Index 8 sein
-  {
+  if (list.some(([n]) => n === 'verzeichnis')) {
     const y = list.find(([n]) => n === 'verzeichnis')[1];
     await page.evaluate((top) => window.scrollTo({top, behavior: 'instant'}), y);
     await page.sleep(settle);
@@ -109,7 +125,7 @@ try {
       return {name: row.dataset.project, before, after: window.__v2.state.screen};
     });
     await page.sleep(settle);
-    const file = path.join(outDir, `${String(list.length).padStart(2, '0')}-verzeichnis-hover@${size[0]}.png`);
+    const file = path.join(outDir, `${String(full.length).padStart(2, '0')}-verzeichnis-hover@${size[0]}.png`);
     await page.screenshot({path: file});
     console.log('Verzeichnis-Hover:', JSON.stringify(hov));
     report.hover = hov;

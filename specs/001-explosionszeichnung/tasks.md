@@ -123,11 +123,11 @@ v1-Quelle: `~/Projects/portfolio/` (nur lesen, nichts dort ändern).
 **Ziel**: Seite bleibt mit reduzierter Bewegung, ohne WebGL, ohne JS und auf 390 px voll nutzbar.
 **Unabhängiger Test**: quickstart.md Szenarien 7–9 und 390-px-Screenshots.
 
-- [ ] T040 [S] [US4] `src/choreo/media.ts`: `gsap.matchMedia()` mit desktop / mobile / reduced; `timeline.ts` und `smooth.ts` darin anlegen, damit beim Umschalten aufgeräumt wird
-- [ ] T041 [S] [US4] Mobil-Choreografie: kürzere Pin-Strecken, kleinere Explosion (`dist`-Faktor), Datenblätter unter dem Modell, Labels nur für das aktive Teil
-- [ ] T042 [S] [US4] `npm run still` (`tools/shot.mjs --still`): Seite mit `?still` bei 1600×1000 rendern, Hintergrund transparent → `public/img/explosion-still.webp`; `#scene-fallback` nutzt es (`<picture>`, `width`/`height` gesetzt)
-- [ ] T043 [P] [S] [US4] `src/styles/reduced.css`: `html.reduced` und `html.no-webgl` → Standbild sichtbar, Abschnitte normal untereinander, keine `position: sticky`-Tricks
-- [ ] T044 [S] [US4] Prüfen mit Firefox-Prefs (`ui.prefersReducedMotion=1`, `webgl.disabled=true`, `javascript.enabled=false`): `tools/shot.mjs` um `--pref key=value` erweitern und je einen Durchlauf speichern
+- [X] T040 [S] [US4] `src/choreo/media.ts`: `gsap.matchMedia()` mit desktop / mobile / reduced; `timeline.ts` und `smooth.ts` darin anlegen, damit beim Umschalten aufgeräumt wird
+- [X] T041 [S] [US4] Mobil-Choreografie: kürzere Pin-Strecken, kleinere Explosion (`dist`-Faktor), Datenblätter unter dem Modell, Labels nur für das aktive Teil
+- [X] T042 [S] [US4] `npm run still` (`tools/shot.mjs --still`): Seite mit `?still` bei 1600×1000 rendern, Hintergrund transparent → `public/img/explosion-still.webp`; `#scene-fallback` nutzt es (`<picture>`, `width`/`height` gesetzt)
+- [X] T043 [P] [S] [US4] `src/styles/reduced.css`: `html.reduced` und `html.no-webgl` → Standbild sichtbar, Abschnitte normal untereinander, keine `position: sticky`-Tricks
+- [X] T044 [S] [US4] Prüfen mit Firefox-Prefs (`ui.prefersReducedMotion=1`, `webgl.disabled=true`, `javascript.enabled=false`): `tools/shot.mjs` um `--pref key=value` erweitern und je einen Durchlauf speichern
 
 **Checkpoint**: Alle drei Ersatzmodi und 390 px sind sauber. Danach committen und auf Rustams OK warten.
 
@@ -138,11 +138,11 @@ v1-Quelle: `~/Projects/portfolio/` (nur lesen, nichts dort ändern).
 **Ziel**: Fokusfahrten zu P-02…P-05, Inhalte, Outro.
 **Unabhängiger Test**: quickstart.md Szenarien 4–5.
 
-- [ ] T050 [S] [US2] Timeline-Abschnitte für `#skills` (Board orange, Chips beschriftet mit `skills` aus den Strings, als Labels im Overlay), `#ueber` (Akku), `#lebenslauf` (SSD), `#kontakt` (Anschlüsse; je Kanal ein Label am passenden Port laut `contact.json`)
-- [ ] T051 [S] [US2] Ghost/Fokus-Überblendung über `focus` + `focusMix` in `materials.ts`/`index.ts`
-- [ ] T052 [S] [US2] Outro: `explode` 1→0, `lid` 1→0, Kamera zurück in die Hero-Ansicht; Schriftfeld mit Kontakt, Sprachwahl, Link zu v1
-- [ ] T053 [S] [US2] Stückliste: Zeilen verlinken auf die Abschnitte; Anker-Sprung per Lenis `scrollTo` (bei reduced: nativ)
-- [ ] T054 [S] [US2] Fokus-Sichtbarkeit: Fokus in gepinnten Abschnitten scrollt das Element sichtbar, `:focus-visible`-Stil aus Tokens; Kontraste prüfen (WCAG AA)
+- [X] T050 [S] [US2] Timeline-Abschnitte für `#skills` (Board orange, Chips beschriftet mit `skills` aus den Strings, als Labels im Overlay), `#ueber` (Akku), `#lebenslauf` (SSD), `#kontakt` (Anschlüsse; je Kanal ein Label am passenden Port laut `contact.json`)
+- [X] T051 [S] [US2] Ghost/Fokus-Überblendung über `focus` + `focusMix` in `materials.ts`/`index.ts`
+- [X] T052 [S] [US2] Outro: `explode` 1→0, `lid` 1→0, Kamera zurück in die Hero-Ansicht; Schriftfeld mit Kontakt, Sprachwahl, Link zu v1
+- [X] T053 [S] [US2] Stückliste: Zeilen verlinken auf die Abschnitte; Anker-Sprung per Lenis `scrollTo` (bei reduced: nativ)
+- [X] T054 [S] [US2] Fokus-Sichtbarkeit: Fokus in gepinnten Abschnitten scrollt das Element sichtbar, `:focus-visible`-Stil aus Tokens; Kontraste prüfen (WCAG AA)
 
 **Checkpoint**: Ganze Seite von oben bis unten auf Deutsch fertig. Danach committen und auf Rustams OK warten.
 
@@ -175,9 +175,33 @@ v1-Quelle: `~/Projects/portfolio/` (nur lesen, nichts dort ändern).
 
 ---
 
+## Phase 12: Erweiterungen – Live-Demo im Laptop und mehr Farbe (Ideen 2026-11-08, nach Phase 11)
+
+**Ziel**: Bei Projekten mit Live-Demo (fretlearn, Weitland, NSCS, OnlineIDE, Sudoku) gibt es einen Knopf „Live-Demo“. Die Kamera zoomt in den Laptop, die Demo läuft bedienbar auf dem Display; Schließen fährt zurück.
+**Vorab zu klären (Rustams Entscheidung)**: Die Demos liegen auf `rustamakhmedov.github.io` (andere Domain als v2). Ein `<iframe>` darauf ist eine bewusste Ausnahme zu „keine Fremdquellen“; GitHub-Pages-URL von v2 und Frame-Header prüfen.
+
+- [ ] T080 [S] [US1] Knopf „Live-Demo“ im Datenblatt (`[data-step]`, nur bei Projekten mit `demo`), Zustand `demoOpen` (state/choreo), Escape/„Schließen“, Tastaturbedienung; ohne 3D/Handy/reduced: normaler Link in neuem Tab
+- [ ] T081 [O] [US1] Kamera zoomt auf das Display (neuer Keyframe `demo`), `<iframe>` deckungsgleich über der projizierten Displayfläche (Eckpunkte pro Frame, `transform` per CSS), Scroll- und Tastaturfokus sauber getrennt (Lenis pausieren, `inert` für Seite), iframe erst bei Klick laden und beim Schließen entfernen
+- [ ] T082 [S] [US1] Tests und Screenshots (Zoom-Zustand, Schließen, Fokus-Rückgabe), Messung fps mit offenem iframe in `docs/messungen.md`, `contracts/dom.md` um Hooks (`[data-demo]`, `#demo-frame`) ergänzen
+
+**Checkpoint**: Demo öffnet und schließt flüssig, Fokus kehrt zurück, Seite ohne JS/3D unverändert nutzbar. Danach committen und auf Rustams OK warten.
+
+### Mehr Farbe (Rustams Wunsch 2026-11-08)
+
+Die Seite wirkt mit Papier, Tinte und Orange als einziger Farbe sehr zurückhaltend. Sie soll etwas mehr Farbe bekommen. Das widerspricht der heutigen Regel „Orange als einzige Signalfarbe“ (Constitution IV, FR-013, `docs/design.md`) und braucht deshalb zuerst Rustams Entscheidung und eine Anpassung dieser Dokumente.
+
+- [ ] T083 **(Haupt-Session, nicht delegieren – braucht Rustam)** Farbkonzept mit `/frontend-design` und Rustam klären: wie viel Farbe (z. B. zweite Akzentfarbe, getönte Abschnittsflächen, Farbe je Teil/Abschnitt, farbige Teile im Laptop), Kontrast WCAG AA prüfen, Constitution IV, FR-013 und `docs/design.md` anpassen; erst nach Rustams OK weiter
+- [ ] T084 [H] Neue Farben als Tokens in `src/styles/tokens.css` (und ins Modell über die CSS-Variablen in `src/scene/materials.ts`), Werte aus `docs/design.md`
+- [ ] T085 [S] Farbe in Seite und Szene anwenden (Abschnitte, Labels, Teile im Laptop, Standbild `npm run still` neu erzeugen), Screenshots aller Modi neu prüfen, Kontraste in `docs/messungen.md` aktualisieren
+
+**Checkpoint (Farbe)**: Neues Farbkonzept von Rustam abgenommen, alle Modi und Kontraste geprüft.
+
+
+---
+
 ## Dependencies & Execution Order
 
-- Phasen der Reihe nach: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11. **Eine Phase pro „implement phase x“.**
+- Phasen der Reihe nach: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12. **Eine Phase pro „implement phase x“.**
 - **T010 (Designplan) blockiert alles Gestalterische** (T011, T016, T024, T028) → Phase 3 erst nach Rustams OK
 - Phase 8 (US4) braucht T032/T033 (Phase 5) und die Timeline (Phase 6); T043 ginge schon ab Phase 3
 - Phase 9 (US2) braucht die Timeline (T030, Phase 6); Phase 10 (US3) braucht nur Phase 3

@@ -91,3 +91,14 @@ describe('Kamerapfad', () => {
     expect(flat(cameraAt(NaN)).every(Number.isFinite)).toBe(true);
   });
 });
+
+describe('Kamerapfad kompakt (Handy-Bühne)', () => {
+  it('compact = 0 ändert nichts, compact = 1 ohne Bildverschiebung nach rechts und stetig', () => {
+    for (const x of [0, 0.5, 1, 1.5, 2]) expect(cameraAt(x, 0)).toEqual(cameraAt(x));
+    for (let x = 0; x <= 2; x += 0.05) {
+      const c = cameraAt(x, 1);
+      expect(c.shift[0]).toBe(0);
+      expect([...c.position, ...c.target, c.fov, ...c.shift].every(Number.isFinite)).toBe(true);
+    }
+  });
+});

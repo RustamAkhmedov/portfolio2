@@ -95,9 +95,9 @@
     "de": "Switch to English",
     "en": "Auf Deutsch wechseln"
   },
-  "scene.placeholder": {
-    "de": "Platzhalter für die Explosionszeichnung",
-    "en": "Placeholder for the exploded view"
+  "scene.alt": {
+    "de": "Explosionszeichnung eines Laptops: Display, Tastatur, SSD, Akku, Mainboard, Anschlüsse, Lüfter und Bodenplatte schweben auseinander und sind nummeriert beschriftet.",
+    "en": "Exploded view of a laptop: display, keyboard, SSD, battery, mainboard, ports, fan and bottom plate float apart, each with a numbered label."
   },
   "hero.name": "Rustam Akhmedov",
   "hero.scroll": {

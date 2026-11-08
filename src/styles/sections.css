@@ -141,6 +141,22 @@ html.scene-on #projekte-alle tr:is(:hover, :focus-within) { background: var(--pa
 #outro nav { display: flex; gap: var(--s-3); margin-top: var(--s-4); font-size: var(--t-small); line-height: var(--t-small-lh); }
 #outro .titleblock p { margin-top: var(--s-3); font-size: var(--t-small); line-height: var(--t-small-lh); }
 
+/* Mit Szene: Nummern der Skill-Chips und Kontaktkanäle wie in den Labels (S1…, K1…), damit auch die Handy-Bühne
+   (nur Kreise) zuzuordnen ist */
+html.choreo .skill-list { counter-reset: skill; }
+html.choreo .skill-list li { counter-increment: skill; }
+html.choreo .skill-list li::before,
+html.choreo #kontakt .port::before {
+  font-family: var(--font-mono);
+  font-size: var(--t-data);
+  line-height: var(--t-data-lh);
+  color: var(--ink);
+}
+html.choreo .skill-list li::before { content: 'S' counter(skill) '\00a0'; }
+html.choreo #kontakt .ports { counter-reset: port; }
+html.choreo #kontakt .ports li { counter-increment: port; }
+html.choreo #kontakt .port::before { content: 'K' counter(port) '\00a0\00a0'; }
+
 @media (min-width: 900px) {
   .step {
     grid-template-columns: minmax(0, 1fr) minmax(0, 28rem);

@@ -15,12 +15,14 @@ export interface ExplodePart {
 /** Anteil des Explosionsbereichs 0…1, über den die Startzeitpunkte gestaffelt werden. */
 const STAGGER_SPAN = 0.5;
 const DEFAULT_ORDER_COUNT = 8;
+/** Faktor auf `dist` bei kompakter Darstellung (Handy-Bühne, state.compact = 1): kleinere Explosion */
+export const COMPACT_DIST = 0.65;
 
 const clamp01 = (x: number) => (x < 0 ? 0 : x > 1 ? 1 : x);
 
 export function pose(
   part: ExplodePart,
-  state: { explode: number },
+  state: { explode: number; compact?: number },
   orderCount: number = DEFAULT_ORDER_COUNT,
 ): { offset: Vec3 } {
   const e = clamp01(Number.isFinite(state.explode) ? state.explode : 0);
@@ -31,6 +33,7 @@ export function pose(
 
   const [x, y, z] = part.dir;
   const l = Math.hypot(x, y, z) || 1;
-  const s = (part.dist * k) / l;
+  const c = clamp01(Number.isFinite(state.compact) ? (state.compact as number) : 0);
+  const s = (part.dist * (1 + (COMPACT_DIST - 1) * c) * k) / l;
   return { offset: [x * s, y * s, z * s] };
 }
