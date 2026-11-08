@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { Box3, InstancedMesh, LineSegments, Mesh, Vector3, type Object3D } from 'three';
 import { createMaterials } from '../src/scene/materials';
@@ -33,7 +33,13 @@ import { Texture } from 'three';
 const root = resolve(__dirname, '..');
 const parts = JSON.parse(readFileSync(join(root, 'src/content/parts.json'), 'utf8')) as { key: string }[];
 const contact = JSON.parse(readFileSync(join(root, 'src/content/contact.json'), 'utf8')) as { port: string }[];
-const readme = readFileSync(join(root, 'docs/referenz/laptop/README.md'), 'utf8');
+// docs/referenz/ ist gitignored (ASUS-Vorlage, nur lokal): ohne die Datei entfallen nur die README-Abgleiche (z. B. in CI).
+const readmePath = join(root, 'docs/referenz/laptop/README.md');
+const readme = existsSync(readmePath) ? readFileSync(readmePath, 'utf8') : '';
+const hasReadme = readme !== '';
+const expectReadme = (fn: (text: string) => void) => {
+  if (hasReadme) fn(readme);
+};
 
 const INCH = 25.4;
 const mm = (v: number) => v / MM;
@@ -49,8 +55,8 @@ function boxMm(obj: Object3D): Box3 {
 
 describe('dims.ts stimmt mit docs/referenz/laptop/README.md überein', () => {
   it('Breite × Tiefe und Keilhöhe', () => {
-    expect(readme).toContain('353,6 × 246,9 mm');
-    expect(readme).toContain('13,9 mm (vorne) bis 15,9 mm (hinten)');
+    expectReadme((r) => expect(r).toContain('353,6 × 246,9 mm'));
+    expectReadme((r) => expect(r).toContain('13,9 mm (vorne) bis 15,9 mm (hinten)'));
     expect(BODY.width).toBe(353.6);
     expect(BODY.depth).toBe(246.9);
     expect(BODY.heightFront).toBe(13.9);
@@ -62,7 +68,7 @@ describe('dims.ts stimmt mit docs/referenz/laptop/README.md überein', () => {
   });
 
   it('Display 15,6″ 16:9', () => {
-    expect(readme).toContain('15,6″ OLED, 2880 × 1620 (16:9)');
+    expectReadme((r) => expect(r).toContain('15,6″ OLED, 2880 × 1620 (16:9)'));
     expect(DISPLAY.width / DISPLAY.height).toBeCloseTo(16 / 9, 6);
     expect(Math.hypot(DISPLAY.width, DISPLAY.height) / INCH).toBeCloseTo(15.6, 3);
     expect(DISPLAY.width).toBeLessThan(BODY.width);
@@ -70,7 +76,7 @@ describe('dims.ts stimmt mit docs/referenz/laptop/README.md überein', () => {
   });
 
   it('Touchpad ≈ 7,1″, Tastatur passt aufs Deck, Touchpad liegt vor der Tastatur', () => {
-    expect(readme).toContain('7,1″');
+    expectReadme((r) => expect(r).toContain('7,1″'));
     expect(Math.hypot(TOUCHPAD.width, TOUCHPAD.depth) / INCH).toBeCloseTo(7.1, 1);
     const well = keyboardWell();
     const pad = touchpadRect();
@@ -82,8 +88,8 @@ describe('dims.ts stimmt mit docs/referenz/laptop/README.md überein', () => {
   });
 
   it('Anschlüsse: links HDMI, 2× TB4, microSD, Klinke; rechts 2× USB-A', () => {
-    expect(readme).toMatch(/links HDMI 2\.1, 2× Thunderbolt 4.*microSD, 3,5-mm-Klinke/);
-    expect(readme).toMatch(/rechts 2× USB-A/);
+    expectReadme((r) => expect(r).toMatch(/links HDMI 2\.1, 2× Thunderbolt 4.*microSD, 3,5-mm-Klinke/));
+    expectReadme((r) => expect(r).toMatch(/rechts 2× USB-A/));
     const side = (s: string) => PORTS.filter((p) => p.side === s).map((p) => p.kind).sort();
     expect(side('left')).toEqual(['audio', 'hdmi', 'microsd', 'usbc', 'usbc']);
     expect(side('right')).toEqual(['usba', 'usba']);
