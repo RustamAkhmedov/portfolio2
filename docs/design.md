@@ -211,12 +211,11 @@ Orange Schraffur wie bei Schnittflächen in technischen Zeichnungen: diagonale L
 ```
 Viel Orange auf einen Blick, klar bildstark. Risiko: wirkt flächiger und lauter als A/B und liegt am nächsten an einem Raster (parallele Linien), obwohl diagonal und unregelmäßig.
 
-### Mehr Orange im Layout (für jede Variante)
+### Mehr Orange im Layout (entschieden)
 
-- Stückliste: Zeilen-Nummer (P-01 …) als orange gefüllte Kästchen statt reiner Mono-Zahl; Hover/Fokus der Zeile hinterlegt orange (Text `--ink`).
-- Abschnittstitel: eine kurze orange Linie (4 px) links über dem Titel, die beim Eintritt wächst.
-- Schriftfeld im Outro: orange Kopfstreifen mit Teilenummer.
-- Links: Unterstreichung orange (Text bleibt `--ink`; `--orange-ink` nur, wenn Orange als Text nötig ist).
+- Abschnittsüberschriften (`h2`) heben sich deutlich ab: dicker orange Unterstrich (6 px, `--orange`, ganze Textbreite, statisch). Alternative nach Sicht der Screenshots: orange Hintergrundfläche hinter dem Titel (Text `--ink`, Kontrast ≈ 5,2:1). Gestartet wird mit dem Unterstrich.
+- Hover/Fokus einer Stücklistenzeile: orange Hinterlegung (Text `--ink`).
+- **Nicht gewünscht:** Nummernkästchen in der Stückliste, Fortschrittsbalken/wachsende Linien über den Titeln, orange Link-Unterstreichung. Links bleiben schwarz (`--ink`).
 
 ### Selbstprüfung gegen die Standard-Muster
 
@@ -228,3 +227,9 @@ Viel Orange auf einen Blick, klar bildstark. Risiko: wirkt flächiger und lauter
 ### Empfehlung
 
 **A · Leiterbahnen**, kombiniert mit den „Mehr Orange“-Details. Es nutzt die Leerflächen am besten (Ränder links und rechts), hängt am Scroll und am aktiven Teil, und es ist die stärkste Verbindung zum Thema. B ist die billigere Alternative, C die auffälligste.
+
+### Entscheidung 2026-11-08 (Rustam): Variante A · Leiterbahnen
+
+- Die Leiterbahnen laufen **von oben nach unten** wie echte Leitungen auf einem Motherboard: sie wachsen mit dem Scrollen abwärts (Spitze der Bahn = aktueller Scrollfortschritt), Bündel mit 45°-Knicken, Lötpunkte an den Enden und an Abzweigen. Kein Fortschrittsbalken und keine Rückwärtsanimation außer dem Scrollen selbst.
+- Maus: nahe Bahnen werden kurz dicker (Hover ist erwünscht).
+- Mehr Orange nur wie oben unter „entschieden“.
