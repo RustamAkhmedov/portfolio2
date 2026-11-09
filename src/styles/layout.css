@@ -54,7 +54,7 @@ body {
   align-items: baseline;
   gap: var(--s-2) var(--s-5);
   padding: var(--s-4) var(--gutter);
-  border-bottom: var(--line) solid var(--ink);
+  border-bottom: var(--bar-head) solid var(--orange);
 }
 .head__doc { margin-right: auto; }
 .head__lang { display: flex; gap: var(--s-3); font-size: var(--t-small); line-height: var(--t-small-lh); }

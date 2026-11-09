@@ -15,6 +15,10 @@
     "de": "cv/lebenslauf.pdf",
     "en": "cv/resume.pdf"
   },
+  "cv.preview": {
+    "de": "img/cv-preview-de.webp",
+    "en": "img/cv-preview-en.webp"
+  },
   "cv.downloadName": {
     "de": "Rustam_Lebenslauf.pdf",
     "en": "Rustam_Resume.pdf"

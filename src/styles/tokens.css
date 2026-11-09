@@ -95,6 +95,8 @@
   --t-h3-lh: 1.2;
   --t-h2: clamp(2.25rem, 4vw + 1rem, 3.75rem);
   --t-h2-lh: 1.05;
+  --t-skill: 2.5rem;     /* Skill-Liste (Desktop mit Szene) */
+  --t-skill-lh: 1.15;
   --t-hero: clamp(3.5rem, 9vw + 1rem, 9rem);
   --t-hero-lh: 0.92;
 
@@ -102,6 +104,10 @@
   --hair: 0.5px;         /* Maßhilfslinien (min. 1 Gerätepixel) */
   --line: 1px;           /* Konturen, Tabellen-, Beschriftungslinien */
   --line-bold: 2px;      /* aktives Teil, Fokus */
+  --bar-head: 3px;       /* oranger Streifen unter der Kopfzeile */
+  --bar-h2: 6px;         /* oranger Unterstrich der Abschnittsüberschriften */
+  --bar-name: 10px;      /* oranger Unterstrich des Namens (Hauptleitung) */
+  --dot: 14px;           /* Lötpunkte an der Hauptleitung */
 
   /* Abstände (4px-Raster) */
   --s-1: 4px;

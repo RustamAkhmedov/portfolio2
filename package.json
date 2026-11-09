@@ -14,7 +14,8 @@
     "scroll-shots": "node tools/scroll-shot.mjs",
     "perf": "node tools/perf.mjs",
     "bundle": "node tools/bundle.mjs",
-    "brand": "node tools/brand.mjs"
+    "brand": "node tools/brand.mjs",
+    "cv-preview": "node tools/cv-preview.mjs"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",

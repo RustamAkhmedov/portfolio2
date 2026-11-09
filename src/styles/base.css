@@ -39,6 +39,10 @@ h2 {
   font-weight: var(--wght-title);
   font-stretch: var(--wdth-title);
   text-wrap: balance;
+  /* 6 px oranger Unterstrich über die Textbreite (T085); schwarzer Text liegt darüber */
+  text-decoration: underline var(--orange) var(--bar-h2);
+  text-decoration-skip-ink: none;
+  text-underline-offset: 0.12em;
 }
 
 h3 {

@@ -129,4 +129,13 @@ describe('Regel 6: Lebenslauf-PDFs je Sprache', () => {
     for (const lang of ['de', 'en'] as const)
       expect(existsSync(join(root, 'public', cv[lang])), `cv.file.${lang}: ${cv[lang]}`).toBe(true);
   });
+
+  it('cv.preview de/en existieren unter public/ und sind <= 60 KB', () => {
+    const pv = strings['cv.preview'] as { de: string; en: string };
+    for (const lang of ['de', 'en'] as const) {
+      const f = join(root, 'public', pv[lang]);
+      expect(existsSync(f), `cv.preview.${lang}: ${pv[lang]}`).toBe(true);
+      expect(statSync(f).size, `cv.preview.${lang} Größe`).toBeLessThanOrEqual(60 * 1024);
+    }
+  });
 });
