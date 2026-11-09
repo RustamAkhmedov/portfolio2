@@ -16,6 +16,10 @@ export interface SceneState {
   screen: number;
   /** 0 (Desktop) … 1 (Handy/Tablet-Hochformat, < 900 px): kleinere Explosion, eigene Kamera-Rahmung */
   compact: number;
+  /** Live-Demo geöffnet (T080: Knopf/Escape/Schließen) */
+  demoOpen: boolean;
+  /** 0 (Kamera am Scroll-Keyframe) … 1 (Kamera-Keyframe `demo`, Display füllt den Schirm); Kamerafahrt der Live-Demo (T081) */
+  demoMix: number;
 }
 
 const mutable: SceneState = {
@@ -26,18 +30,21 @@ const mutable: SceneState = {
   cam: 0,
   screen: -1,
   compact: 0,
+  demoOpen: false,
+  demoMix: 0,
 };
 
 /** Nur lesen. Die Objektidentität bleibt stabil. */
 export const state: Readonly<SceneState> = mutable;
 
-const RANGES: Record<'lid' | 'explode' | 'focusMix' | 'cam' | 'screen' | 'compact', [number, number]> = {
+const RANGES: Record<'lid' | 'explode' | 'focusMix' | 'cam' | 'screen' | 'compact' | 'demoMix', [number, number]> = {
   lid: [0, 1],
   explode: [0, 1],
   focusMix: [0, 1],
   cam: [0, Infinity],
   screen: [-1, Infinity],
   compact: [0, 1],
+  demoMix: [0, 1],
 };
 
 let needsRender = true;
@@ -52,6 +59,14 @@ export function setState(patch: Partial<SceneState>): void {
       const next = (value as string | null) ?? null;
       if (mutable.focus !== next) {
         mutable.focus = next;
+        changed = true;
+      }
+      continue;
+    }
+    if (key === 'demoOpen') {
+      if (typeof value !== 'boolean') continue;
+      if (mutable.demoOpen !== value) {
+        mutable.demoOpen = value;
         changed = true;
       }
       continue;

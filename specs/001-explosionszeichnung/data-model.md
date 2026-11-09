@@ -34,6 +34,9 @@ aktuellen Abschnitts (orange, Kamera fährt hin), `ghosted` = alle anderen währ
 | `focusMix` | number | 0 … 1 Überblendung ghost/focus |
 | `cam` | number | stetiger Index in die Kamera-Keyframes (z. B. 2.4 = zwischen 2 und 3) |
 | `screen` | number | Index des Projekts auf dem Display (stetig, für Überblendung) |
+| `compact` | number | 0 (Desktop) … 1 (< 900 px) |
+| `demoOpen` | boolean | Live-Demo geöffnet (Knopf `[data-demo-open]` setzt, Escape/`[data-demo-close]` löschen; nur Desktop mit Choreografie) |
+| `demoMix` | number | 0 … 1 Kamerafahrt der Live-Demo: Mischung Scroll-Pose → Keyframe `demo` (Display füllt den Schirm), per GSAP aus `src/choreo/demo.ts` |
 
 Nur die Choreografie schreibt, nur Szene und Overlay lesen.
 

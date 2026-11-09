@@ -52,3 +52,53 @@ describe('SceneState', () => {
     expect(n).toBe(1);
   });
 });
+
+describe('SceneState demoOpen', () => {
+  it('ist boolean, nur über setState, meldet Änderungen', () => {
+    setState({ demoOpen: false });
+    consumeNeedsRender();
+    expect(state.demoOpen).toBe(false);
+    let calls = 0;
+    const off = onChange(() => calls++);
+    setState({ demoOpen: true });
+    expect(state.demoOpen).toBe(true);
+    expect(calls).toBe(1);
+    expect(consumeNeedsRender()).toBe(true);
+    setState({ demoOpen: true });
+    expect(calls).toBe(1);
+    // ungültige Werte werden ignoriert
+    setState({ demoOpen: 1 as unknown as boolean });
+    expect(state.demoOpen).toBe(true);
+    setState({ demoOpen: false });
+    expect(state.demoOpen).toBe(false);
+    off();
+  });
+});
+
+describe('SceneState demoMix', () => {
+  it('klemmt auf 0 … 1', () => {
+    setState({ demoMix: 2 });
+    expect(state.demoMix).toBe(1);
+    setState({ demoMix: -1 });
+    expect(state.demoMix).toBe(0);
+    setState({ demoMix: 0.25 });
+    expect(state.demoMix).toBe(0.25);
+    setState({ demoMix: 0 });
+  });
+});
+
+describe('SceneState demoMix', () => {
+  it('klemmt auf 0…1 und ignoriert NaN/Strings', () => {
+    setState({ demoMix: 0.4 });
+    expect(state.demoMix).toBe(0.4);
+    setState({ demoMix: 5 });
+    expect(state.demoMix).toBe(1);
+    setState({ demoMix: -2 });
+    expect(state.demoMix).toBe(0);
+    setState({ demoMix: 0.6 });
+    setState({ demoMix: NaN });
+    setState({ demoMix: '1' as unknown as number });
+    expect(state.demoMix).toBe(0.6);
+    setState({ demoMix: 0 });
+  });
+});

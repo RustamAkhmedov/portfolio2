@@ -224,3 +224,72 @@ html.choreo #kontakt .port::before { content: 'K' counter(port) '\00a0\00a0'; }
   #projekte-alle tbody tr:last-child { border-bottom-color: var(--ink); }
   .info > div, .ports li { grid-template-columns: 6rem 1fr; }
 }
+
+/* Live-Demo (T080): Knopf nur mit Choreografie auf dem Desktop, sonst bleibt der Link in neuem Tab */
+.demo-open,
+.demo-close { display: none; }
+.demo-open,
+.demo-close {
+  font: inherit;
+  color: var(--ink);
+  background: var(--orange);
+  border: var(--line-bold) solid var(--ink);
+  padding: var(--s-1) var(--s-3);
+  cursor: pointer;
+  transition: background-color var(--d-micro) linear;
+}
+.demo-open:hover,
+.demo-close:hover { background: var(--paper-hi); }
+.demo-open[aria-expanded="true"] { background: var(--paper-hi); }
+@media (min-width: 900px) {
+  html.choreo.scene-on .step .demo-open { display: inline-block; }
+  html.choreo.scene-on .step [data-demo-link] { display: none; }
+  html.demo-on .demo-close:not([hidden]) {
+    display: block;
+    position: fixed;
+    top: var(--s-4);
+    right: var(--gutter);
+    z-index: 30;
+  }
+}
+@media (forced-colors: active) {
+  .demo-open, .demo-close { background: ButtonFace; color: ButtonText; border-color: ButtonText; }
+}
+
+/*
+ * Live-Demo (T081): Zoom auf das Display mit iframe. html.demo-on = offen („Schließen“ sichtbar, Seite inert),
+ * html.demo-dim = Seite ausgeblendet (bis kurz vor Ende der Rückfahrt), html.demo-zoom = vom Öffnen bis zum Ende der
+ * Rückfahrt (Canvas über das ganze Fenster, Labels aus, Seite steht).
+ * Lage und Größe des iframes setzt die Szene (src/scene/demo-frame.ts) per transform, hier nur das Gerüst.
+ */
+.demo-frame {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 25;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  transform-origin: 0 0;
+  background: transparent; /* bis die Demo geladen ist, zeigt das Display darunter den Screenshot */
+  opacity: 0;
+  transition: opacity var(--d-ui) linear;
+}
+.demo-frame.is-open { opacity: 1; }
+/* Canvas reicht nach links über die Textspalte (Bezugsrahmen bleibt #scene, siehe renderer `frame`) */
+html.demo-zoom #scene canvas {
+  margin-left: calc(-1 * var(--scene-left, 0px));
+  width: calc(100% + var(--scene-left, 0px)) !important;
+}
+/* Nicht scrollbar, Breite bleibt (Lenis setzt overflow: clip, das gibt die Scrollleiste frei) */
+html.demo-zoom,
+html.lenis.lenis-stopped.demo-zoom {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+}
+html.demo-zoom body > :not(#scene, .demo-frame, .demo-close) { transition: opacity var(--d-ui) linear; }
+html.demo-dim body > :not(#scene, .demo-frame, .demo-close) { opacity: 0; }
+/* Labels erst wieder, wenn der Canvas zurück im Container ist (sonst stimmt ihre Projektion nicht) */
+html.choreo #labels { transition: opacity var(--d-ui) linear; }
+html.demo-zoom #labels { opacity: 0; }

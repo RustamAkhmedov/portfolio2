@@ -15,7 +15,8 @@
       <a href="{{repo}}" target="_blank" rel="noopener">{{proj.repo}}<span class="sr-only"> ({{proj.newTab}})</span></a>
 {{/repo}}
 {{#demo}}
-      <a href="{{demo}}" target="_blank" rel="noopener">{{proj.demo}}<span class="sr-only"> ({{proj.newTab}})</span></a>
+      <a data-demo-link href="{{demo}}" target="_blank" rel="noopener">{{proj.demo}}<span class="sr-only"> ({{proj.newTab}})</span></a>
+      <button type="button" class="demo-open" data-demo-open data-demo-url="{{demo}}" aria-controls="demo-frame" aria-expanded="false">{{proj.demo}}</button>
 {{/demo}}
     </p>
   </article>

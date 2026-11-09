@@ -70,7 +70,7 @@ async function initScene(): Promise<void> {
       root.classList.remove('scene-on', 'scene-ready');
     },
     resetState() {
-      st.setState({ lid: 0, explode: 0, cam: 0, focusMix: 0, screen: -1, focus: null });
+      st.setState({ lid: 0, explode: 0, cam: 0, focusMix: 0, screen: -1, focus: null, demoOpen: false, demoMix: 0 });
     },
     async playIntro() {
       return (await import('./choreo/timeline')).playIntro();
@@ -123,17 +123,34 @@ async function initScene(): Promise<void> {
       };
     },
     async createDirectory() {
-      const [{ createDirectory }, { screenIndexOf }] = await Promise.all([
+      const [{ createDirectory }, { screenIndexOf }, { initDemo }] = await Promise.all([
         import('./choreo/directory'),
         import('./scene/screen'),
+        import('./choreo/demo'),
       ]);
-      return createDirectory({
+      // Live-Demo (T081): Lenis anhalten, iframe von der Szene auf das Display legen lassen
+      const demo = initDemo({
+        setState: st.setState,
+        onChange: st.onChange,
+        scroll: {
+          stop: () => smoothRef?.lenis.stop(),
+          start: () => smoothRef?.lenis.start(),
+        },
+        frame: current?.handle.demo,
+      });
+      const dir = createDirectory({
         indexOf: screenIndexOf,
         setState: st.setState,
         state: st.state,
         onChange: st.onChange,
         isActive: () => root.classList.contains('scene-on') && st.state.cam >= 1.9,
       });
+      return {
+        kill() {
+          demo.kill();
+          dir.kill();
+        },
+      };
     },
   });
 }

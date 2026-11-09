@@ -88,6 +88,24 @@ describe('render: Hooks aus contracts/dom.md', () => {
         expect(d().querySelector('#projekte-alle')!.closest('#projekte')).not.toBeNull();
       });
 
+      it('Live-Demo: Steps mit demo haben Link + Knopf, #demo-close vorhanden (T080)', () => {
+        const steps = [...d().querySelectorAll('#projekte [data-step]')].filter((s) => s.querySelector('[data-demo-open]'));
+        expect(steps.length).toBe(4);
+        for (const s of steps) {
+          const a = s.querySelector('a[data-demo-link]')!;
+          expect(a.getAttribute('target')).toBe('_blank');
+          expect(a.getAttribute('rel')).toBe('noopener');
+          expect(a.textContent).toContain(lang === 'de' ? 'Live-Demo' : 'Live demo');
+          const b = s.querySelector('button[data-demo-open]')!;
+          expect(b.getAttribute('aria-expanded')).toBe('false');
+          expect(b.getAttribute('aria-controls')).toBe('demo-frame');
+          expect(b.getAttribute('data-demo-url')).toBe(a.getAttribute('href'));
+        }
+        const c = d().querySelector('#demo-close');
+        expect(c?.hasAttribute('hidden')).toBe(true);
+        expect(c?.textContent).toBe(lang === 'de' ? 'Demo schließen' : 'Close demo');
+      });
+
       it('#scene, #scene-fallback, #labels', () => {
         expect(d().querySelector('#scene')?.getAttribute('aria-hidden')).toBe('true');
         const fb = d().querySelector('#scene-fallback');

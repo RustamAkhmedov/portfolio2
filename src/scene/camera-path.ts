@@ -1,6 +1,7 @@
 // Kamerapfad: ein Keyframe pro Stopp der Choreografie, SceneState.cam ist der stetige Index.
 // Reine Daten und Funktion (keine three-Imports). Einheiten: 1 = 100 mm, Laptop ~3,54 × 2,47 um den Ursprung.
 // Erste Schätzung ohne Modell – Feinabstimmung in T033 per Screenshots.
+import { DISPLAY } from './laptop/dims';
 
 export type Vec3 = [number, number, number];
 /** shift: Bildverschiebung als Anteil von Breite/Höhe (+x rechts, +y unten), Standard [0, 0] */
@@ -61,5 +62,68 @@ export function cameraAt(index: number, compact = 0): CamPose {
     target: [mix(a.target[0], b.target[0]), mix(a.target[1], b.target[1]), mix(a.target[2], b.target[2])],
     fov: mix(a.fov, b.fov),
     shift: [mix(a.shift?.[0] ?? 0, b.shift?.[0] ?? 0), mix(a.shift?.[1] ?? 0, b.shift?.[1] ?? 0)],
+  };
+}
+
+// ---------- Live-Demo (T081): Keyframe `demo` ----------
+//
+// Kein Scroll-Stopp, deshalb nicht in KEYFRAMES (cam bleibt der Scroll-Index). Die Kamera blickt senkrecht auf das
+// Display und rückt so nah heran, dass die aktive Fläche das Rechteck `demoRect` des Fensters genau füllt. Die Pose
+// hängt von der Lage des Displays (Explosion, Deckel) und der Fenstergröße ab und wird daher in der Szene berechnet
+// (demoPose); state.demoMix blendet zwischen der Scroll-Pose und dieser Pose (blendPose).
+
+/** Rechteck in Pixeln (Fenster-Koordinaten, y nach unten) */
+export type Rect = { x: number; y: number; w: number; h: number };
+/** Lage der aktiven Display-Fläche in Szeneneinheiten: Mitte, Normale (zum Betrachter), Höhe */
+export type DisplayFrame = { center: Vec3; normal: Vec3; height: number };
+
+export const DEMO: { name: 'demo'; fov: number; aspect: number } = {
+  name: 'demo',
+  fov: 30,
+  aspect: DISPLAY.width / DISPLAY.height,
+};
+
+/**
+ * Bildschirmrechteck, das das Display am Ende der Kamerafahrt füllt: so groß wie möglich im Seitenverhältnis des
+ * Displays, mittig zwischen den Rändern (`margin` in px: oben Platz für „Schließen“). Ganze Pixel, damit das iframe
+ * in Ruhe ohne Skalierung (scharf) dasteht.
+ */
+export function demoRect(vw: number, vh: number, margin: { top: number; side: number; bottom: number }): Rect {
+  const maxW = Math.max(1, vw - 2 * margin.side);
+  const maxH = Math.max(1, vh - margin.top - margin.bottom);
+  const w = Math.max(16, Math.floor(Math.min(maxW, maxH * DEMO.aspect)));
+  const h = Math.round(w / DEMO.aspect);
+  return { x: Math.round((vw - w) / 2), y: Math.round(margin.top + (maxH - h) / 2), w, h };
+}
+
+/**
+ * Kamera-Pose `demo`: Blick entlang der Display-Normalen, Abstand so, dass die Display-Höhe `rect.h` Pixel im
+ * Fenster der Höhe `vh` füllt; die Bildverschiebung (shift, Anteil von Breite/Höhe) setzt die Mitte auf die Mitte
+ * von `rect`. Gilt für ein Bild über das ganze Fenster (vw × vh), siehe renderer `frame`.
+ */
+export function demoPose(d: DisplayFrame, rect: Rect, vw: number, vh: number): CamPose {
+  const tanHalf = Math.tan(((DEMO.fov * Math.PI) / 180) / 2);
+  const dist = (d.height * vh) / (2 * Math.max(1, rect.h) * tanHalf);
+  const [cx, cy, cz] = d.center;
+  const [nx, ny, nz] = d.normal;
+  return {
+    position: [cx + nx * dist, cy + ny * dist, cz + nz * dist],
+    target: [cx, cy, cz],
+    fov: DEMO.fov,
+    shift: [(rect.x + rect.w / 2 - vw / 2) / vw, (rect.y + rect.h / 2 - vh / 2) / vh],
+  };
+}
+
+/** Lineare Mischung zweier Posen (t = 0 → a, t = 1 → b, geklemmt); das Easing kommt von der Choreografie. */
+export function blendPose(a: CamPose, b: CamPose, t: number): CamPose {
+  const k = Number.isFinite(t) ? Math.min(1, Math.max(0, t)) : 0;
+  if (k === 0) return a;
+  if (k === 1) return b;
+  const m = (p: number, q: number): number => p + (q - p) * k;
+  return {
+    position: [m(a.position[0], b.position[0]), m(a.position[1], b.position[1]), m(a.position[2], b.position[2])],
+    target: [m(a.target[0], b.target[0]), m(a.target[1], b.target[1]), m(a.target[2], b.target[2])],
+    fov: m(a.fov, b.fov),
+    shift: [m(a.shift[0], b.shift[0]), m(a.shift[1], b.shift[1])],
   };
 }

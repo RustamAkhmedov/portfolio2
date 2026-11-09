@@ -106,6 +106,15 @@ describe('Regel 4: projects.json', () => {
   });
 });
 
+describe('Live-Demo (T080)', () => {
+  it('genau fretlearn, Weitland, NSCS, OnlineIDE, Sudoku haben demo (github.io)', () => {
+    const names = projects.filter((p: any) => p.demo).map((p: any) => p.name).sort();
+    expect(names).toEqual(['NSCS', 'OnlineIDE', 'Sudoku', 'Weitland', 'fretlearn']);
+    for (const p of projects.filter((p: any) => p.demo))
+      expect(p.demo, p.name).toMatch(/^https:\/\/rustamakhmedov\.github\.io\//);
+  });
+});
+
 describe('Regel 5: contact.json', () => {
   const ports = ['TB4-1', 'TB4-2', 'HDMI', 'USB-A-1', 'USB-A-2', 'microSD', 'Audio'];
   it('href gültig, port erlaubt', () => {

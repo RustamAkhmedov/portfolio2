@@ -17,6 +17,7 @@ npm run shots:modes    # reduziert / ohne WebGL / ohne JS
 npm run still          # Standbild public/img/explosion-still.webp neu erzeugen
 npm run scroll-shots   # Stationen der Choreografie, Bildrate (nur Richtwert)
 npm run perf           # Messung in Firefox → docs/messungen.md
+npm run shots:demo     # Live-Demo: Zoom, Schließen, Fokus, Tastatur, Ruhe=0 Draw-Calls (Firefox, Dev-Server) → test-results/shots/demo/
 npm run brand          # Favicon-PNGs + Link-Vorschau public/img/og-card.png neu erzeugen (Firefox)
 npm run bundle         # JS-Budget der Startseite ≤ 350 KB gzip (nach npm run build)
 ```

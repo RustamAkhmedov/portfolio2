@@ -540,3 +540,24 @@ Werte gemessen, nicht geraten:
 - „Szene bereit“ ~1,2 s statt ~1,0 s (HTTP/1.1-Warteschlange der ersten 6 Anfragen, s. B).
 - LCP im 3D-Pfad jetzt 2,1 s (Text, Intro) statt 0,97 s (Standbild); Intro früher starten würde es drücken.
 - Ersatzschrift greift nur mit Arial/Liberation/Courier New/Cousine/Arimo; ohne JS erst nach dem Webfont-Wechsel.
+
+## Live-Demo: Zoom, offenes iframe (T082, 2026-11-09)
+
+Werkzeug: `npm run shots:demo` (`tools/demo-shot.mjs`, Dev-Server, nur Firefox, echte BiDi-Mausklicks und -Tasten, `focusmanager.testmode`
+für den Fokus). Das iframe lädt eine lokale `data:`-Testseite (farbiger Rand), die echte fretlearn-Demo wurde **nicht** geladen (kein Netz
+im Test, Fremdinhalt). Alle Werte headless = Richtwert, Fenster 1440×900 und 1280×800, de und en (Messwerte: `test-results/shots/demo/messung.json`).
+
+- **Ruhe bei offener Demo = 0 Draw-Calls:** in allen 4 Läufen 0 gezeichnete Draw-Calls in 2 s (Zähler an `drawArrays/drawElements`),
+  `__v2.fps()` = 0. Die Szene rendert nach der Fahrt nicht weiter, das iframe hat sein eigenes Bild.
+- **Fahrt (1,1 s Zoom + iframe-Fade), Bildabstände über 1,6 s ab Klick:** Ø 55,6 / 56,2 / 58,1 / 58,8 fps (1440 de/en, 1280 de/en; Software-60-Hz-Takt
+  von headless). Je Lauf höchstens ein Abstand > 33 ms (33,2 – 66,3 ms): der Frame, in dem das iframe angelegt und die Testseite geladen wird.
+  Sonst keine Ausreißer. Ein 120-Hz-Wert aus dem normalen Fenster (`--headed`) wurde **nicht** gemessen.
+- **Rückfahrt** und Wiederöffnen (iframe lädt neu): gleiche Abläufe ohne Auffälligkeit, nach dem Schließen sind Scrollposition und Kamera
+  (`cam`) wieder exakt wie vorher, Mausrad scrollt wieder, `#main` nicht mehr `inert`.
+- **Zustand offen:** `demoMix = 1`, `html.demo-on/-dim/-zoom`, iframe `translate(48px, 96px)` (scharf, unskaliert) 1332×749 bei 1440,
+  1172×659 bei 1280 (mittig im Bereich ohne Scrollleiste, Display-Seitenverhältnis); Mausrad scrollt nicht; Tab-Fokus wandert nie in die inerte Seite.
+- **Bundle:** `npm run bundle` 226,6 KB gzip gesamt (Grenze 350 KB); `demo`-Chunk 1,2 KB gzip.
+- **Nicht gemessen:** echte fretlearn-Demo im iframe (Last durch deren JS/Canvas), normales Fenster mit 120 Hz, Handy (dort öffnet der Knopf einen
+  neuen Tab, keine Zoom-Fahrt). Die Szene zeichnet bei offener Demo nicht; die Bildrate der Demo-Seite selbst liegt außerhalb dieser Messung.
+- **Hinweis zur Bedienung:** Ein iframe anderer Herkunft bekommt die Tastatur; Escape erreicht die Seite dann nicht. „Schließen“ ist per
+  Umschalt+Tab aus dem iframe erreichbar (geprüft) und per Maus.

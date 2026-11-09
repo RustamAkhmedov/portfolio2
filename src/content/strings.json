@@ -166,6 +166,10 @@
     "de": "Live-Demo",
     "en": "Live demo"
   },
+  "proj.demoClose": {
+    "de": "Demo schließen",
+    "en": "Close demo"
+  },
   "proj.newTab": {
     "de": "öffnet in neuem Tab",
     "en": "opens in a new tab"

@@ -20,6 +20,20 @@ export interface CameraPose {
   fov?: number;
   /** Bildverschiebung als Anteil von Breite/Höhe (+x = nach rechts, +y = nach unten), per setViewOffset */
   shift?: readonly [number, number];
+  /**
+   * Bezugsrahmen der Pose (T081): 0 = der Container `#scene` (Standard, alle Scroll-Keyframes), 1 = die ganze
+   * Zeichenfläche. Nur verschieden, wenn der Canvas per CSS über den Container hinaus reicht (html.demo-zoom:
+   * volle Fensterbreite). Dazwischen wird der Rahmen gemischt, so bleibt das Bild beim Umschalten stehen.
+   */
+  frame?: number;
+}
+
+/** Zeichenfläche (Canvas) in Fenster-Koordinaten (CSS-Pixel) */
+export interface Viewport {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
 }
 
 export interface SceneRig {
@@ -36,6 +50,10 @@ export interface SceneRig {
   fps(): number;
   /** Wird nach jedem gezeichneten Frame aufgerufen (z. B. für das Label-Overlay). */
   onFrame(fn: () => void): () => void;
+  /** Wird bei Größenänderung von Container oder Canvas vor dem Neuzeichnen aufgerufen (z. B. Pose neu rechnen). */
+  onResize(fn: () => void): () => void;
+  /** Lage der Zeichenfläche im Fenster (CSS-Pixel), Stand der letzten Größenänderung. */
+  viewport(): Viewport;
   /** Erfüllt, sobald das erste Bild gezeichnet ist (auch im Produktions-Build). */
   ready: Promise<void>;
 }
@@ -127,14 +145,23 @@ export function createRenderer(container: HTMLElement): SceneRig {
   scene.add(hemi, sun);
 
   const lookTarget = new Vector3();
-  let size = { w: 0, h: 0 };
+  /** w, h: Canvas (CSS-Pixel); inset, base: linker Rand und Breite des Containers relativ zum Canvas */
+  let size = { w: 0, h: 0, inset: 0, base: 0 };
+  let view: Viewport = { left: 0, top: 0, width: 0, height: 0 };
   let shift: readonly [number, number] = [0, 0];
-  /** Verschiebt den Bildausschnitt (Rahmung), ohne die Perspektive zu ändern. */
+  let frameMix = 0;
+  /**
+   * Rahmung: Perspektive (aspect) und Bildverschiebung beziehen sich auf den Bezugsrahmen (Container bzw. Canvas,
+   * gemischt mit frameMix); gezeichnet wird der ganze Canvas. Ohne Überstand (Normalfall) ist der Rahmen der Canvas.
+   */
   function applyShift(): void {
-    const { w, h } = size;
+    const { w, h, inset, base } = size;
     if (!w || !h) return;
-    if (shift[0] === 0 && shift[1] === 0) camera.clearViewOffset();
-    else camera.setViewOffset(w, h, -shift[0] * w, -shift[1] * h, w, h);
+    const fw = base + (w - base) * frameMix;
+    const fl = inset * (1 - frameMix);
+    camera.aspect = fw / h;
+    if (shift[0] === 0 && shift[1] === 0 && fl === 0 && fw === w) camera.clearViewOffset();
+    else camera.setViewOffset(fw, h, -fl - shift[0] * fw, -shift[1] * h, w, h);
   }
   function applyCamera(pose: CameraPose): void {
     camera.position.set(...pose.position);
@@ -145,8 +172,10 @@ export function createRenderer(container: HTMLElement): SceneRig {
       projection = true;
     }
     const s = pose.shift ?? [0, 0];
-    if (s[0] !== shift[0] || s[1] !== shift[1]) {
+    const f = Math.min(1, Math.max(0, pose.frame ?? 0));
+    if (s[0] !== shift[0] || s[1] !== shift[1] || f !== frameMix) {
       shift = [s[0], s[1]];
+      frameMix = f;
       applyShift();
       projection = true;
     }
@@ -156,25 +185,39 @@ export function createRenderer(container: HTMLElement): SceneRig {
   }
   applyCamera(HERO_POSE);
 
-  function resize(): void {
-    const w = container.clientWidth;
-    const h = container.clientHeight;
-    if (w === 0 || h === 0) return;
-    size = { w, h };
-    renderer.setPixelRatio(pixelRatio());
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    applyShift();
-    camera.updateProjectionMatrix();
-    requestRender();
-  }
-  const resizeObserver = new ResizeObserver(resize);
-  resizeObserver.observe(container);
-  resize();
-
   // Frame-Zeiten nur für tatsächlich gezeichnete Frames.
   const times: number[] = [];
   const frameListeners = new Set<() => void>();
+  const resizeListeners = new Set<() => void>();
+
+  /**
+   * Der Canvas folgt normalerweise dem Container (100 %); während der Live-Demo reicht er per CSS über das ganze
+   * Fenster (T081). Gemessen wird beides: der Canvas bestimmt die Zeichenfläche, der Container den Bezugsrahmen.
+   */
+  function resize(): void {
+    const c = canvas.getBoundingClientRect();
+    const r = container.getBoundingClientRect();
+    const w = Math.round(c.width) || container.clientWidth;
+    const h = Math.round(c.height) || container.clientHeight;
+    if (w === 0 || h === 0) return;
+    const sizeChanged = w !== size.w || h !== size.h;
+    size = { w, h, inset: Math.max(0, Math.round(r.left - c.left)), base: Math.min(w, Math.round(r.width) || w) };
+    view = { left: c.left, top: c.top, width: w, height: h };
+    if (sizeChanged) {
+      renderer.setPixelRatio(pixelRatio());
+      renderer.setSize(w, h, false);
+    }
+    applyShift();
+    camera.updateProjectionMatrix();
+    resizeListeners.forEach((fn) => fn());
+    requestRender();
+    // setSize leert den Canvas; ohne sofortiges Zeichnen bliebe er bis zum nächsten Frame leer (Flackern beim
+    // Umschalten auf die volle Breite). ResizeObserver läuft nach rAF und vor dem Malen desselben Frames.
+    if (sizeChanged && running()) draw(performance.now());
+  }
+  const resizeObserver = new ResizeObserver(resize);
+  resizeObserver.observe(container);
+  resizeObserver.observe(canvas);
   let readyResolve!: () => void;
   const ready = new Promise<void>((r) => (readyResolve = r));
   let rendered = false;
@@ -185,19 +228,22 @@ export function createRenderer(container: HTMLElement): SceneRig {
   let raf = 0;
   let disposed = false;
 
+  function draw(now: number): void {
+    if (!consumeNeedsRender()) return;
+    renderer.render(scene, camera);
+    times.push(now);
+    if (times.length > FPS_WINDOW) times.shift();
+    frameListeners.forEach((fn) => fn());
+    if (!rendered) {
+      rendered = true;
+      readyResolve();
+    }
+  }
+
   function frame(now: number): void {
     raf = 0;
     if (!running()) return;
-    if (consumeNeedsRender()) {
-      renderer.render(scene, camera);
-      times.push(now);
-      if (times.length > FPS_WINDOW) times.shift();
-      frameListeners.forEach((fn) => fn());
-      if (!rendered) {
-        rendered = true;
-        readyResolve();
-      }
-    }
+    draw(now);
     raf = requestAnimationFrame(frame);
   }
 
@@ -215,6 +261,8 @@ export function createRenderer(container: HTMLElement): SceneRig {
       raf = 0;
     }
   }
+
+  resize();
 
   const intersection = new IntersectionObserver((entries) => {
     const last = entries[entries.length - 1];
@@ -254,6 +302,11 @@ export function createRenderer(container: HTMLElement): SceneRig {
       frameListeners.add(fn);
       return () => frameListeners.delete(fn);
     },
+    onResize(fn) {
+      resizeListeners.add(fn);
+      return () => resizeListeners.delete(fn);
+    },
+    viewport: () => view,
     dispose() {
       disposed = true;
       sync();
@@ -261,6 +314,7 @@ export function createRenderer(container: HTMLElement): SceneRig {
       intersection.disconnect();
       document.removeEventListener('visibilitychange', onVisibility);
       frameListeners.clear();
+      resizeListeners.clear();
       renderer.dispose();
       canvas.remove();
     },
